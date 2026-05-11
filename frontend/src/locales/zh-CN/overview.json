@@ -1,0 +1,65 @@
+{
+  "title": "概览",
+  "errorTitle": "无法加载概览数据。",
+  "unknownError": "未知错误",
+  "refreshing": "刷新中...",
+  "refresh": "刷新",
+  "statistics": {
+    "inUse": "使用中",
+    "needsReview": "待审核",
+    "harnesses": "环境",
+    "detail_adoption": "采纳 · 配置 · 清单",
+    "observed": "观察到 {{count}} 个"
+  },
+  "extensions": {
+    "heading": "扩展",
+    "skills": "技能",
+    "slashCommands": "快捷指令",
+    "mcpServers": "MCP 服务器"
+  },
+  "extensionFacts": {
+    "inUse": "使用中",
+    "review": "审核"
+  },
+  "extensionActions": {
+    "inUse": "使用中",
+    "needsReview": "待审核"
+  },
+  "marketplace": {
+    "heading": "发现",
+    "skillsMarketplace": "技能市场",
+    "mcpMarketplace": "MCP 市场",
+    "cliMarketplace": "CLI 市场",
+    "previewOnly": "仅预览",
+    "browse": "浏览",
+    "sourceSkillsSh": "skills.sh",
+    "sourceSmithery": "smithery.ai",
+    "sourceClisDev": "CLIs.dev"
+  },
+  "reviewQueue": {
+    "heading": "审核",
+    "empty": "没有待处理的本地采纳或配置审核。",
+    "skillsToReview": "待审核的技能",
+    "skillsDescription": "采纳本地技能，以便统一启用。",
+    "slashCommandsLabel": "快捷指令",
+    "slashCommandsDescription": "未管理、已更改或缺失的指令文件需要决定。",
+    "mcpConfigsToReview": "待审核的 MCP 配置",
+    "mcpConfigsDescription": "将现有环境配置纳入 Skill Manager。",
+    "differentMcpConfigs": "不同的 MCP 配置",
+    "differentMcpConfigsDescription": "决定哪个配置应作为可信来源。",
+    "mcpInventoryIssues": "MCP 清单问题",
+    "mcpInventoryIssuesDescription": "部分 Skill Manager MCP 记录无法完全加载。",
+    "mcpHarnessUnavailable": "MCP 环境不可用",
+    "mcpHarnessUnavailableDescription": "至少有一个环境无法安全接收 MCP 写入。"
+  },
+  "coverageMap": {
+    "heading": "活跃环境",
+    "harness": "环境",
+    "skills": "技能",
+    "mcp": "MCP",
+    "needsReview": "待审核",
+    "mcpUnavailable": "MCP 不可用",
+    "different": "差异",
+    "empty": "尚未发现任何环境。"
+  }
+}

@@ -1,4 +1,5 @@
 import { type ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 
 import { CardSelectCheckbox } from "../../../../components/cards/CardSelectCheckbox";
 import { OverflowTooltipText } from "../../../../components/ui/OverflowTooltipText";
@@ -16,6 +17,8 @@ export function CardTitleRow({
   onToggleChecked,
   menu,
 }: CardTitleRowProps) {
+  const { t } = useTranslation("skills");
+
   return (
     <div className="skill-card__head">
       <OverflowTooltipText as="h3" className="skill-card__name">
@@ -26,7 +29,7 @@ export function CardTitleRow({
       <CardSelectCheckbox
         checked={checked}
         onToggle={onToggleChecked}
-        label={checked ? `Deselect ${name}` : `Select ${name}`}
+        label={checked ? t("card.deselectItem", { name }) : t("card.selectItem", { name })}
       />
     </div>
   );

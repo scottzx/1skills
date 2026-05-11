@@ -1,6 +1,7 @@
 import { BookOpen, Boxes, Terminal } from "lucide-react";
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 import type { OverviewMarketplaceEntry } from "../../../app/capability-registry";
 
@@ -9,10 +10,12 @@ interface MarketplacePanelProps {
 }
 
 export function MarketplacePanel({ entries }: MarketplacePanelProps) {
+  const { t } = useTranslation("overview");
+
   return (
     <section className="overview-section" aria-labelledby="overview-marketplace-title">
       <div className="overview-section__head">
-        <h2 id="overview-marketplace-title">Discover</h2>
+        <h2 id="overview-marketplace-title">{t("marketplace.heading")}</h2>
       </div>
       <div className="overview-row-panel overview-row-panel--compact">
         {entries.map((entry) => (

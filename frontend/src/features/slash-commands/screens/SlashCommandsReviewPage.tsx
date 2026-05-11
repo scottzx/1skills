@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { ErrorBanner } from "../../../components/ErrorBanner";
 import { FilterBar } from "../../../components/FilterBar";
 import { LoadingSpinner } from "../../../components/LoadingSpinner";
@@ -17,8 +18,28 @@ import {
   useSlashCommandsReviewController,
 } from "../model/useSlashCommandsReviewController";
 import type { SlashCommandReviewDto, SlashReviewAction } from "../api/types";
+const REVIEW_ACTION_LABEL_MAP: Record<SlashReviewAction, string> = {
+  import: "actions.adopt",
+  restore_managed: "actions.restore",
+  adopt_target: "actions.adopt",
+  remove_binding: "actions.removeBinding",
+};
+
+const REVIEW_ACTION_TITLE_MAP: Record<SlashReviewAction, string> = {
+  import: "tooltips.adoptReview",
+  restore_managed: "tooltips.restore",
+  adopt_target: "tooltips.adopt",
+  remove_binding: "tooltips.removeBinding",
+};
+
+const REVIEW_KIND_META_MAP: Record<string, string> = {
+  drifted: "tooltips.changedIn",
+  missing: "tooltips.missingFrom",
+  unmanaged: "tooltips.foundIn",
+};
 
 export default function SlashCommandsReviewPage() {
+  const { t } = useTranslation("slashCommands");
   const controller = useSlashCommandsReviewController();
   const {
     actionError,
@@ -44,11 +65,11 @@ export default function SlashCommandsReviewPage() {
     <>
       <div className="page-chrome">
         <PageHeader
-          title="Slash commands to review"
+          title={t("review.title")}
           subtitle={
             total > 0
-              ? `${total} command${total === 1 ? "" : "s"} found outside normal managed state.`
-              : "No unmanaged, changed, or missing slash command files were found."
+              ? t("review.subtitle", { count: total })
+              : t("review.subtitleEmpty")
           }
           actions={
             <button
@@ -59,8 +80,8 @@ export default function SlashCommandsReviewPage() {
                 void handleImportAll();
               }}
             >
-              {importAllPending ? <LoadingSpinner size="sm" label="Adopting all commands" /> : null}
-              Adopt all eligible
+              {importAllPending ? <LoadingSpinner size="sm" label={t("review.adoptingAll")} /> : null}
+              {t("review.adoptAll")}
             </button>
           }
         />
@@ -68,20 +89,20 @@ export default function SlashCommandsReviewPage() {
           <FilterBar
             searchValue={search}
             onSearchChange={setSearch}
-            searchPlaceholder="Search slash commands to review"
-            searchLabel="Search slash commands to review"
+            searchPlaceholder={t("review.searchLabel")}
+            searchLabel={t("review.searchLabel")}
           />
         ) : null}
       </div>
 
       {actionError ? <ErrorBanner message={actionError} onDismiss={() => setActionError("")} /> : null}
       {query.error ? (
-        <ErrorBanner message={query.error instanceof Error ? query.error.message : "Unable to load slash commands."} />
+        <ErrorBanner message={query.error instanceof Error ? query.error.message : t("errorTitle")} />
       ) : null}
 
       {query.isPending ? (
         <div className="panel-state">
-          <LoadingSpinner label="Loading slash commands to review" />
+          <LoadingSpinner label={t("loading")} />
         </div>
       ) : rows.length > 0 ? (
         <section className="needs-review-rows" aria-label="Slash commands to review list">
@@ -97,9 +118,9 @@ export default function SlashCommandsReviewPage() {
         </section>
       ) : (
         <div className="empty-panel">
-          <h3 className="empty-panel__title">Nothing needs review</h3>
+          <h3 className="empty-panel__title">{t("review.emptyTitle")}</h3>
           <p className="empty-panel__body">
-            Slash command files in target folders are already managed or no supported target folders contain commands.
+            {t("review.emptyDescription")}
           </p>
         </div>
       )}
@@ -128,6 +149,7 @@ function SlashCommandReviewRow({
   onAction: (row: SlashCommandReviewDto, action?: SlashReviewAction | null) => Promise<boolean>;
   onOpen: (row: SlashCommandReviewDto) => void;
 }) {
+  const { t } = useTranslation("slashCommands");
   const primaryAction = primaryReviewAction(row);
   const secondaryActions = row.actions.filter((action) => action !== primaryAction);
   const presentation = getHarnessPresentation(row.target === "claude" ? "claude" : row.target);
@@ -143,11 +165,16 @@ function SlashCommandReviewRow({
     </UiTooltip>
   );
 
+  const metaKindKey = REVIEW_KIND_META_MAP[row.kind] ?? "tooltips.foundIn";
+  const metaText = row.kind
+    ? `${t(metaKindKey)} ${row.targetLabel}`
+    : row.targetLabel;
+
   return (
     <NeedsReviewRow
       name={row.name}
       logos={<span className="harness-stack">{logo}</span>}
-      metaText={reviewMetaText(row)}
+      metaText={metaText}
       statusChip={
         secondaryActions.length > 0 ? (
           <span className="slash-review-actions">
@@ -156,22 +183,22 @@ function SlashCommandReviewRow({
                 key={action}
                 type="button"
                 className="action-pill"
-                title={reviewActionTitle(action)}
+                title={t(REVIEW_ACTION_TITLE_MAP[action] ?? "tooltips.adoptReview")}
                 disabled={pendingKey === reviewKey(row.target, row.name, action)}
                 onClick={(event) => {
                   event.stopPropagation();
                   void onAction(row, action);
                 }}
               >
-                {reviewActionLabel(action)}
+                {t(REVIEW_ACTION_LABEL_MAP[action] ?? "actions.adopt")}
               </button>
             ))}
           </span>
         ) : undefined
       }
       description={row.description || row.path}
-      actionLabel={reviewActionLabel(primaryAction)}
-      actionTitle={primaryAction ? reviewActionTitle(primaryAction) : row.error ?? "Cannot update"}
+      actionLabel={primaryAction ? t(REVIEW_ACTION_LABEL_MAP[primaryAction] ?? "actions.adopt") : t("actions.review")}
+      actionTitle={primaryAction ? t(REVIEW_ACTION_TITLE_MAP[primaryAction] ?? "tooltips.adoptReview") : row.error ?? t("review.cannotUpdate")}
       pending={primaryAction ? pendingKey === reviewKey(row.target, row.name, primaryAction) : false}
       actionDisabled={!primaryAction}
       onOpen={() => onOpen(row)}

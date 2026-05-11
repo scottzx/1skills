@@ -1,0 +1,112 @@
+{
+  "title": "快捷指令",
+  "subtitle": "创建一个可在所有环境中使用或自定义的全局提示词。",
+  "newCommand": "新建指令",
+  "searchLabel": "搜索快捷指令",
+  "loading": "加载快捷指令",
+  "errorTitle": "无法加载快捷指令",
+  "errorDescription": "请尝试刷新本地数据，或从侧边栏选择其他选项。",
+  "deleteTitle": "删除 {{count}} 个快捷指令？",
+  "deleteTitle_plural": "删除 {{count}} 个快捷指令？",
+  "deleteDescription": "此操作不可撤销。所选快捷指令将被永久删除。",
+  "deleteButton": "删除",
+  "deleting": "删除中",
+  "emptyTitle": "暂无快捷指令",
+  "emptyDescription": "创建一个指令来定义可在各环境中重复使用的提示词。",
+  "review": {
+    "title": "待审核的快捷指令",
+    "subtitle": "{{count}} 个快捷指令需要审核决定。",
+    "subtitle_plural": "{{count}} 个快捷指令需要审核决定。",
+    "subtitleEmpty": "没有需要审核的快捷指令。",
+    "adoptAll": "采纳所有符合条件的",
+    "adoptingAll": "正在采纳所有指令",
+    "searchLabel": "搜索待审核的快捷指令",
+    "emptyTitle": "没有需要审核的",
+    "emptyDescription": "在各环境中未发现未管理的快捷指令或配置差异。",
+    "cannotUpdate": "无法更新"
+  },
+  "board": {
+    "title": "快捷指令看板",
+    "disabledColumn": "全部禁用",
+    "disabledDescription": "所有位置均已关闭的指令",
+    "disabledEmpty": "没有已禁用的指令",
+    "selectiveColumn": "选择性",
+    "selectiveDescription": "部分环境启用",
+    "selectiveEmpty": "没有选择性启用的指令",
+    "enabledColumn": "全部启用",
+    "enabledDescription": "所有位置均已启用的指令",
+    "enabledEmpty": "没有完全启用的指令"
+  },
+  "list": {
+    "moreActionsFor": "更多操作 {{name}}",
+    "deselect": "取消选择",
+    "select": "选择",
+    "enableOnAll": "全部启用",
+    "disableEverywhere": "全部禁用"
+  },
+  "matrix": {
+    "title": "快捷指令目标矩阵",
+    "name": "名称",
+    "active": "活跃",
+    "targets": "目标",
+    "sortBy": "排序方式"
+  },
+  "form": {
+    "newTitle": "新建快捷指令",
+    "editTitle": "编辑指令",
+    "description": "快捷指令定义 AI 代理可以调用的可重用提示词。每个指令可在一个或多个环境中使用。",
+    "nameLabel": "名称",
+    "namePlaceholder": "例如：review-pr",
+    "descriptionLabel": "描述",
+    "descriptionPlaceholder": "这个指令做什么？",
+    "promptLabel": "提示词",
+    "promptPlaceholder": "AI 代理将遵循的指令...",
+    "harnessesLabel": "环境",
+    "locationsLabel": "位置",
+    "enabled": "已启用",
+    "disabled": "已禁用",
+    "written": "已写入",
+    "cancel": "取消",
+    "create": "创建",
+    "save": "保存",
+    "validationError": "请在保存前修复上述错误。"
+  },
+  "detail": {
+    "closeLabel": "关闭快捷指令详情",
+    "description": "描述",
+    "prompt": "提示词",
+    "noDescription": "未提供描述。",
+    "noPrompt": "没有提示词内容。",
+    "edit": "编辑",
+    "delete": "删除",
+    "enabled": "已启用",
+    "disabled": "已禁用",
+    "written": "已写入",
+    "noHarnessLocations": "没有启用的环境位置。"
+  },
+  "actions": {
+    "restore": "恢复",
+    "adopt": "采纳",
+    "removeBinding": "移除绑定",
+    "review": "审核"
+  },
+  "tooltips": {
+    "restore": "恢复托管的指令内容以匹配 Skill Manager 源。",
+    "adopt": "将此环境指令用作 Skill Manager 中的托管版本。",
+    "removeBinding": "停止在 Skill Manager 中跟踪此环境指令。",
+    "adoptReview": "将此指令采纳到 Skill Manager",
+    "changedIn": "已更改于",
+    "missingFrom": "缺失于",
+    "foundIn": "发现于"
+  },
+  "toasts": {
+    "saved": "快捷指令已保存",
+    "savedWithWarnings": "已保存，但有同步警告",
+    "enabled": "快捷指令已启用",
+    "disabled": "快捷指令已禁用",
+    "deleted": "快捷指令已删除",
+    "deletedPlural": "快捷指令已删除",
+    "deleteBlocked": "删除被现有绑定阻止。",
+    "syncWarnings": "同步完成，但有警告"
+  }
+}

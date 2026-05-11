@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
 import { FilterBar } from "../../../components/FilterBar";
@@ -16,6 +17,7 @@ import {
 import { useSkillsNeedsReviewSession } from "../model/session";
 
 export default function SkillsNeedsReviewPage() {
+  const { t } = useTranslation("skills");
   const {
     data,
     status,
@@ -39,11 +41,11 @@ export default function SkillsNeedsReviewPage() {
     <>
       <div className="page-chrome">
         <PageHeader
-          title="Skills to review"
+          title={t("needsReview.title")}
           subtitle={
             needsReviewCount > 0
-              ? `${needsReviewCount} skill${needsReviewCount === 1 ? "" : "s"} need${needsReviewCount === 1 ? "s" : ""} a review decision.`
-              : "No local skill folders need review across your harnesses."
+              ? t("needsReview.subtitle", { count: needsReviewCount })
+              : t("needsReview.subtitleEmpty")
           }
           actions={
             <button
@@ -53,9 +55,9 @@ export default function SkillsNeedsReviewPage() {
               onClick={onManageAll}
             >
               {pendingBulkAction === "manage-all" ? (
-                <LoadingSpinner size="sm" label="Adopting all skills" />
+                <LoadingSpinner size="sm" label={t("needsReview.adoptingAll")} />
               ) : null}
-              Adopt all eligible
+              {t("needsReview.adoptAll")}
             </button>
           }
         />
@@ -64,18 +66,18 @@ export default function SkillsNeedsReviewPage() {
           <FilterBar
             searchValue={filters.search}
             onSearchChange={(search) => updateFilters({ search })}
-            searchPlaceholder="Search skills to review..."
-            searchLabel="Search skills to review"
+            searchPlaceholder={t("needsReview.searchPlaceholder")}
+            searchLabel={t("needsReview.searchLabel")}
           />
         ) : null}
       </div>
 
       {isInitialLoading ? (
         <div className="panel-state">
-          <LoadingSpinner size="md" label="Loading skills to review" />
+          <LoadingSpinner size="md" label={t("needsReview.loading")} />
         </div>
       ) : status === "error" ? (
-        <div className="panel-state">Unable to load skills to review.</div>
+        <div className="panel-state">{t("needsReview.errorLoading")}</div>
       ) : isReady && data ? (
         rows.length > 0 ? (
           <SkillsNeedsReviewList
@@ -90,17 +92,16 @@ export default function SkillsNeedsReviewPage() {
           <SkillsEmptyState onResetFilters={resetFilters} />
         ) : (
           <div className="empty-panel">
-            <h3 className="empty-panel__title">Nothing needs review</h3>
+            <h3 className="empty-panel__title">{t("needsReview.emptyTitle")}</h3>
             <p className="empty-panel__body">
-              Your local harness folders are either already in use through Skill Manager or currently empty. Install
-              from the marketplace to add new skills.
+              {t("needsReview.emptyBodyInUse")}
             </p>
             <div className="empty-panel__actions">
               <Link
                 to="/marketplace/skills"
                 className="action-pill action-pill--md action-pill--accent"
               >
-                Open Marketplace
+                {t("needsReview.openMarketplace")}
               </Link>
             </div>
           </div>

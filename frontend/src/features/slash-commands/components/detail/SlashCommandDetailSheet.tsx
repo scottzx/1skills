@@ -1,4 +1,5 @@
 import * as Dialog from "@radix-ui/react-dialog";
+import { useTranslation } from "react-i18next";
 
 import type { SlashCommandDto, SlashTargetDto } from "../../api/types";
 import { SlashCommandDetailView } from "./SlashCommandDetailView";

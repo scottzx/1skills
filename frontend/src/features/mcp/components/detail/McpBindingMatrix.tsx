@@ -1,4 +1,5 @@
 import { Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import {
   DetailBindingIdentity,
@@ -30,31 +31,10 @@ function harnessBindingMap(bindings: McpBindingDto[]): Map<string, McpBindingDto
   return map;
 }
 
-function stateLabel(state: McpBindingDto["state"]): string {
-  switch (state) {
-    case "managed":
-      return "Enabled";
-    case "drifted":
-      return "Different config";
-    case "missing":
-      return "Disabled";
-    case "unmanaged":
-      return "Found in harness";
-    default:
-      return state;
-  }
-}
-
 function stateTone(state: McpBindingDto["state"]): DetailBindingTone {
   if (state === "managed") return "enabled";
   if (state === "drifted" || state === "unmanaged") return "warning";
   return "disabled";
-}
-
-function visibleStateLabel(state: McpBindingDto["state"]): string | null {
-  if (state === "drifted") return "Different config";
-  if (state === "unmanaged") return "Found in harness";
-  return null;
 }
 
 export function McpBindingMatrix({
@@ -68,6 +48,8 @@ export function McpBindingMatrix({
   onResolveConfigClick,
   canResolveConfig,
 }: McpBindingMatrixProps) {
+  const { t } = useTranslation("mcp");
+
   const map = harnessBindingMap(bindings);
   const observedHarnesses = new Set(
     bindings.filter((binding) => binding.state !== "missing").map((binding) => binding.harness),
@@ -75,6 +57,28 @@ export function McpBindingMatrix({
   const addressableColumns = columns.filter(
     (column) => isMcpHarnessAddressable(column) || observedHarnesses.has(column.harness),
   );
+
+  function stateLabel(state: McpBindingDto["state"]): string {
+    switch (state) {
+      case "managed":
+        return t("bindingMatrix.enabled");
+      case "drifted":
+        return t("bindingMatrix.differentConfig");
+      case "missing":
+        return t("bindingMatrix.disabled");
+      case "unmanaged":
+        return t("bindingMatrix.foundInHarness");
+      default:
+        return state;
+    }
+  }
+
+  function visibleStateLabel(state: McpBindingDto["state"]): string | null {
+    if (state === "drifted") return t("bindingMatrix.differentConfig");
+    if (state === "unmanaged") return t("bindingMatrix.foundInHarness");
+    return null;
+  }
+
   return (
     <div className="detail-sheet__bindings">
       {addressableColumns.map((column) => {
@@ -116,7 +120,7 @@ export function McpBindingMatrix({
                       aria-hidden="true"
                     />
                   ) : null}
-                  {canEnable && canWriteConfig ? "Enable" : "Unavailable"}
+                  {canEnable && canWriteConfig ? t("bindingMatrix.enable") : t("bindingMatrix.unavailable")}
                 </button>
               ) : null}
               {state === "managed" ? (
@@ -133,7 +137,7 @@ export function McpBindingMatrix({
                       aria-hidden="true"
                     />
                   ) : null}
-                  Disable
+                  {t("bindingMatrix.disable")}
                 </button>
               ) : null}
               {state === "drifted" ? (
@@ -150,7 +154,7 @@ export function McpBindingMatrix({
                       aria-hidden="true"
                     />
                   ) : null}
-                  Resolve config
+                  {t("bindingMatrix.resolveConfig")}
                 </button>
               ) : null}
             </div>

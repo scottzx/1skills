@@ -1,0 +1,23 @@
+{
+  "title": "设置",
+  "subtitle": "本地路径和各环境发现配置。",
+  "loading": "加载设置",
+  "errorTitle": "无法加载设置。",
+  "localStorage": "本地存储",
+  "skillManagerStore": "Skill Manager 存储",
+  "storeDescription": "使用中的技能规范副本存放在此。",
+  "marketplaceCache": "市场缓存",
+  "marketplaceDescription": "下载的预览和安装包。",
+  "harnessRoots": "环境根目录",
+  "harnessCard": {
+    "detected": "在此设备上检测到",
+    "notDetected": "未在此设备上检测到",
+    "enable": "启用 {{name}} 支持",
+    "saving": "保存中..."
+  },
+  "language": "语言",
+  "languageLabel": "界面语言",
+  "languageSub": "选择您偏好的语言",
+  "langEn": "English",
+  "langZh": "中文"
+}

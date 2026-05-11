@@ -1,6 +1,7 @@
 import { useState } from "react";
 
 import { usePendingRegistry } from "../../../lib/async/pending-registry";
+import i18n from "../../../i18n/config";
 import {
   useHarnessSupportMutation,
   useSettingsQuery,
@@ -25,6 +26,11 @@ export function useSettingsPageController() {
     }
   }
 
+  function handleLanguageChange(lang: string) {
+    i18n.changeLanguage(lang);
+    localStorage.setItem("skill-manager-lang", lang);
+  }
+
   return {
     data: settingsQuery.data ?? null,
     errorMessage: errorMessage || (settingsQuery.error instanceof Error ? settingsQuery.error.message : ""),
@@ -32,5 +38,7 @@ export function useSettingsPageController() {
     isHarnessPending: (harness: string) => pendingRegistry.isPending(settingsSupportActionKey(harness)),
     setErrorMessage,
     handleSupportToggle,
+    currentLanguage: i18n.language,
+    handleLanguageChange,
   };
 }

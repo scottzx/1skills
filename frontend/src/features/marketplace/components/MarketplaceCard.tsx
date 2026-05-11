@@ -1,4 +1,5 @@
 import { type KeyboardEvent, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ArrowUpRight, Plus, Star } from "lucide-react";
 
 import { LoadingSpinner } from "../../../components/LoadingSpinner";
@@ -29,6 +30,7 @@ export function MarketplaceCard({
   onInstall,
   onOpenInstalledSkill,
 }: MarketplaceCardProps) {
+  const { t } = useTranslation("marketplace");
   const [avatarFailed, setAvatarFailed] = useState(false);
   const avatarSrc = item.repoImageUrl && !avatarFailed ? item.repoImageUrl : null;
   const stars = item.stars ?? 0;
@@ -56,14 +58,14 @@ export function MarketplaceCard({
       tabIndex={0}
       onClick={onOpenDetail}
       onKeyDown={handleKeyDown}
-      aria-label={`Open marketplace detail for ${item.name}`}
+      aria-label={t("card.openDetailFor", { name: item.name })}
     >
       <div className="market-card__head">
         <div className="market-card__avatar">
           {avatarSrc ? (
             <img
               src={avatarSrc}
-              alt={`Avatar for ${item.repoLabel}`}
+              alt={t("card.avatarFor", { repoLabel: item.repoLabel })}
               onError={() => setAvatarFailed(true)}
             />
           ) : (
@@ -82,10 +84,10 @@ export function MarketplaceCard({
         ) : null}
       </div>
 
-      <p className="market-card__body">{item.description || "No summary available on skills.sh."}</p>
+      <p className="market-card__body">{item.description || t("card.noSummary")}</p>
 
       <div className="market-card__footer">
-        <span className="market-card__installs">{installs} installs</span>
+        <span className="market-card__installs">{t("card.installs", { count: installs })}</span>
         {item.installation.status === "installed" && item.installation.installedSkillRef ? (
           <button
             type="button"
@@ -94,10 +96,10 @@ export function MarketplaceCard({
               event.stopPropagation();
               handleOpenInstalled();
             }}
-            aria-label={`Open ${item.name} in Skills`}
+            aria-label={t("card.openInSkillsShort")}
           >
             <ArrowUpRight size={12} aria-hidden="true" />
-            Open in Skills
+            {t("card.openInSkillsShort")}
           </button>
         ) : (
           <button
@@ -107,15 +109,15 @@ export function MarketplaceCard({
               event.stopPropagation();
               onInstall();
             }}
-            aria-label={`Install ${item.name}`}
+            aria-label={t("card.install")}
             data-pending={installing || undefined}
           >
             {installing ? (
-              <LoadingSpinner size="sm" label={`Installing ${item.name}`} />
+              <LoadingSpinner size="sm" label={t("card.installing")} />
             ) : (
               <Plus size={12} aria-hidden="true" />
             )}
-            Install
+            {t("card.install")}
           </button>
         )}
       </div>

@@ -1,4 +1,5 @@
 import { lazy, Suspense, useId } from "react";
+import { useTranslation } from "react-i18next";
 
 import { DetailDisclosure } from "../../../../components/detail/DetailDisclosure";
 import { DetailHeader } from "../../../../components/detail/DetailHeader";
@@ -46,6 +47,7 @@ export function SkillDetailContent({
   onRequestRemove,
   onRequestDelete,
 }: SkillDetailContentProps) {
+  const { t } = useTranslation("skills");
   const headingId = useId();
   const showSkillManagerStoreNote =
     skillStatusConcept(detail.displayStatus) === "inUse" &&
@@ -70,12 +72,12 @@ export function SkillDetailContent({
             meta={detail.sourceLinks ? (
               <div className="detail-sheet__meta">
                 <DetailSourceLinks
-                  ariaLabel={`Source links for ${detail.sourceLinks.repoLabel}`}
-                  links={skillSourceLinks(detail.sourceLinks)}
+                  ariaLabel={t("detail.sourceLinksAriaLabel", { label: detail.sourceLinks.repoLabel })}
+                  links={skillSourceLinks(t, detail.sourceLinks)}
                 />
               </div>
             ) : undefined}
-            closeLabel="Close skill details"
+            closeLabel={t("detail.closeLabel")}
             onClose={onClose}
           />
           {errorMessage ? (
@@ -85,9 +87,9 @@ export function SkillDetailContent({
       )}
       body={(
         <>
-        <DetailSection heading="About">
+        <DetailSection heading={t("detail.about")}>
           <p className="skill-detail__copy">
-            {detail.description || "No description provided."}
+            {detail.description || t("detail.noDescription")}
           </p>
           {detail.attentionMessage ? (
             <DetailNote>{detail.attentionMessage}</DetailNote>
@@ -95,25 +97,25 @@ export function SkillDetailContent({
         </DetailSection>
 
         <DetailDisclosure
-          title="SKILL.md"
+          title={t("detail.skillMd")}
           defaultOpen={false}
           className="skill-detail__disclosure skill-detail__disclosure--document"
         >
           <div className="skill-detail__document-surface">
             {detail.documentMarkdown ? (
-              <Suspense fallback={<LoadingSpinner size="sm" label="Loading document" />}>
+              <Suspense fallback={<LoadingSpinner size="sm" label={t("detail.loadingDocument")} />}>
                 <MarkdownDocument markdown={detail.documentMarkdown} />
               </Suspense>
             ) : (
               <p className="skill-detail__copy">
-                No SKILL.md document is available for this entry.
+                {t("detail.noSkillMd")}
               </p>
             )}
           </div>
         </DetailDisclosure>
 
         {showHarnessSection ? (
-          <DetailSection heading="Harnesses">
+          <DetailSection heading={t("detail.harnesses")}>
             <SkillDetailHarnessMatrix
               skillName={detail.name}
               cells={detail.harnessCells}
@@ -125,16 +127,15 @@ export function SkillDetailContent({
         ) : null}
 
         {detail.locations.length > 0 ? (
-          <DetailSection heading="Locations">
+          <DetailSection heading={t("detail.locations")}>
             {showSkillManagerStoreNote ? (
               <p className="skill-detail__context-note">
-                Skill Manager Store is the canonical physical package. Tool locations are
-                symlinks to it when enabled.
+                {t("detail.canonicalDescriptionShort")}
               </p>
             ) : null}
             <div className="skill-detail__locations">
               {detail.locations.map((location, index) => {
-                const descriptor = locationDescriptor(detail, location);
+                const descriptor = locationDescriptor(t, detail, location);
                 return (
                   <article
                     key={`${location.kind}:${location.path ?? index}`}
@@ -167,9 +168,9 @@ export function SkillDetailContent({
               onClick={onManage}
             >
               {pendingStructuralAction === "manage" ? (
-                <LoadingSpinner size="sm" label="Managing skill" />
+                <LoadingSpinner size="sm" label={t("detail.managingSkill")} />
               ) : null}
-              Add to Skill Manager
+              {t("detail.addToSkillManager")}
             </button>
           ) : null}
           {showUpdateControl ? (
@@ -195,9 +196,9 @@ export function SkillDetailContent({
               onClick={onRequestDelete}
             >
               {pendingStructuralAction === "delete" ? (
-                <LoadingSpinner size="sm" label="Deleting skill" />
+                <LoadingSpinner size="sm" label={t("detail.deletingSkill")} />
               ) : null}
-              Delete Skill
+              {t("detail.deleteSkill")}
             </button>
           ) : null}
         </>
@@ -207,7 +208,10 @@ export function SkillDetailContent({
   );
 }
 
-function skillSourceLinks(sourceLinks: SkillSourceLinks): DetailSourceLink[] {
+function skillSourceLinks(
+  t: ReturnType<typeof useTranslation<"skills">>["t"],
+  sourceLinks: SkillSourceLinks,
+): DetailSourceLink[] {
   const links: DetailSourceLink[] = [
     {
       href: sourceLinks.repoUrl,
@@ -218,7 +222,7 @@ function skillSourceLinks(sourceLinks: SkillSourceLinks): DetailSourceLink[] {
   if (sourceLinks.folderUrl) {
     links.push({
       href: sourceLinks.folderUrl,
-      label: "Open Skill Folder",
+      label: t("detail.openSkillFolder"),
       kind: "folder",
     });
   }
@@ -235,6 +239,7 @@ function computeShowFooter(detail: SkillDetail): boolean {
 }
 
 function locationDescriptor(
+  t: ReturnType<typeof useTranslation<"skills">>["t"],
   detail: SkillDetail,
   location: SkillDetail["locations"][number],
 ): string | null {
@@ -242,10 +247,10 @@ function locationDescriptor(
     return null;
   }
   if (location.kind === "shared") {
-    return "Canonical physical package";
+    return t("detail.canonicalPackage");
   }
   if (location.kind === "harness") {
-    return "Symlink to Skill Manager Store";
+    return t("detail.symlink");
   }
   return null;
 }

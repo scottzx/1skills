@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 
 import { ErrorBanner } from "../../../components/ErrorBanner";
 import { PageHeader } from "../../../components/PageHeader";
@@ -14,6 +15,7 @@ import { ReviewQueue } from "../components/ReviewQueue";
 import { StatisticsBand } from "../components/StatisticsBand";
 
 export default function OverviewPage() {
+  const { t } = useTranslation("overview");
   const queryClient = useQueryClient();
   const { skillsQuery, slashCommandsQuery, mcpQuery, model } = useOverviewData();
   const [refreshing, setRefreshing] = useState(false);
@@ -42,31 +44,31 @@ export default function OverviewPage() {
   return (
     <>
       <div className="page-chrome">
-        <PageHeader title="Overview" />
+        <PageHeader title={t("title")} />
       </div>
 
       {bothFailed ? (
         <div className="panel-state overview-error-state">
-          <span>Unable to load overview data.</span>
+          <span>{t("errorTitle")}</span>
           <button
             type="button"
             className="action-pill action-pill--md action-pill--accent"
             onClick={() => void refreshOverview()}
             disabled={refreshing}
           >
-            {refreshing ? "Refreshing..." : "Refresh"}
+            {refreshing ? t("refreshing") : t("refresh")}
           </button>
         </div>
       ) : (
         <div className="overview-page">
           {skillsQuery.isError && !skillsQuery.data ? (
-            <ErrorBanner message={`Unable to load skills: ${errorMessage(skillsQuery.error)}`} />
+            <ErrorBanner message={`Unable to load skills: ${errorMessage(skillsQuery.error, t)}`} />
           ) : null}
           {slashCommandsQuery.isError && !slashCommandsQuery.data ? (
-            <ErrorBanner message={`Unable to load slash commands: ${errorMessage(slashCommandsQuery.error)}`} />
+            <ErrorBanner message={`Unable to load slash commands: ${errorMessage(slashCommandsQuery.error, t)}`} />
           ) : null}
           {mcpQuery.isError && !mcpQuery.data ? (
-            <ErrorBanner message={`Unable to load MCP servers: ${errorMessage(mcpQuery.error)}`} />
+            <ErrorBanner message={`Unable to load MCP servers: ${errorMessage(mcpQuery.error, t)}`} />
           ) : null}
 
           <StatisticsBand stats={model.stats} loading={loading} />
@@ -86,6 +88,6 @@ export default function OverviewPage() {
   );
 }
 
-function errorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : "Unknown error";
+function errorMessage(error: unknown, t: ReturnType<typeof useTranslation>["t"]): string {
+  return error instanceof Error ? error.message : t("unknownError");
 }

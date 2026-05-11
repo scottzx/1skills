@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { DetailSection } from "../../../../components/detail/DetailSection";
 
 interface SlashCommandTextProps {
@@ -13,15 +14,16 @@ export function SlashCommandContentSections({
   descriptionEmptyText,
   promptEmptyText,
 }: SlashCommandTextProps) {
+  const { t } = useTranslation("slashCommands");
   return (
     <>
-      <DetailSection heading="Description">
+      <DetailSection heading={t("detail.description")}>
         <SlashCommandDescriptionBlock
           description={description}
           emptyText={descriptionEmptyText}
         />
       </DetailSection>
-      <DetailSection heading="Prompt">
+      <DetailSection heading={t("detail.prompt")}>
         <SlashCommandPromptPreview
           prompt={prompt}
           emptyText={promptEmptyText}
@@ -37,17 +39,18 @@ export function SlashCommandSourcePreview({
   descriptionEmptyText,
   promptEmptyText,
 }: SlashCommandTextProps) {
+  const { t } = useTranslation("slashCommands");
   return (
     <div className="slash-command-detail__content-preview">
       <div className="slash-command-detail__content-field">
-        <span>Description</span>
+        <span>{t("detail.description")}</span>
         <SlashCommandDescriptionBlock
           description={description}
           emptyText={descriptionEmptyText}
         />
       </div>
       <div className="slash-command-detail__content-field">
-        <span>Prompt</span>
+        <span>{t("detail.prompt")}</span>
         <SlashCommandPromptPreview
           prompt={prompt}
           emptyText={promptEmptyText}
@@ -59,15 +62,17 @@ export function SlashCommandSourcePreview({
 
 export function SlashCommandDescriptionBlock({
   description,
-  emptyText = "No description provided.",
+  emptyText,
 }: {
   description?: string | null;
   emptyText?: string;
 }) {
+  const { t } = useTranslation("slashCommands");
+  const defaultEmpty = t("detail.noDescription");
   return (
     <div className="slash-command-detail__description-block">
       <p className="slash-command-detail__description-text">
-        {description?.trim() || emptyText}
+        {description?.trim() || emptyText || defaultEmpty}
       </p>
     </div>
   );
@@ -75,14 +80,16 @@ export function SlashCommandDescriptionBlock({
 
 export function SlashCommandPromptPreview({
   prompt,
-  emptyText = "No prompt content.",
+  emptyText,
 }: {
   prompt?: string | null;
   emptyText?: string;
 }) {
+  const { t } = useTranslation("slashCommands");
+  const defaultEmpty = t("detail.noPrompt");
   return (
     <pre className="slash-command-detail__prompt ui-scrollbar">
-      {prompt?.trim() || emptyText}
+      {prompt?.trim() || emptyText || defaultEmpty}
     </pre>
   );
 }

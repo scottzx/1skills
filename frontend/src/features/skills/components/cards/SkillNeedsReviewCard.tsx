@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { NeedsReviewRow } from "../../../../components/cards/NeedsReviewRow";
 import { UiTooltip } from "../../../../components/ui/UiTooltip";
 import { getHarnessPresentation } from "../../../../components/harness/harnessPresentation";
@@ -36,9 +37,10 @@ export function SkillNeedsReviewCard({
   onOpenSkill,
   onManageSkill,
 }: SkillNeedsReviewCardProps) {
+  const { t } = useTranslation("skills");
   const found = row.cells.filter((cell) => cell.state === "found");
   const managing = pendingStructuralAction === "manage";
-  const metaText = `Found in ${found.length} harness${found.length === 1 ? "" : "es"}`;
+  const metaText = t("needsReviewCard.foundInHarnesses", { count: found.length });
 
   return (
     <NeedsReviewRow
@@ -52,11 +54,11 @@ export function SkillNeedsReviewCard({
       }
       metaText={metaText}
       description={row.description}
-      actionLabel="Adopt"
+      actionLabel={t("needsReviewCard.adopt")}
       actionTitle={
         row.actions.canManage
-          ? "Add this skill to Skill Manager"
-          : "This skill cannot be adopted automatically"
+          ? t("needsReviewCard.addToManager")
+          : t("needsReviewCard.cannotAdopt")
       }
       pending={managing}
       actionDisabled={bulkActionPending || pendingStructuralAction !== null || !row.actions.canManage}

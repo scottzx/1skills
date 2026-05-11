@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { Loader2, PackageOpen, Power, Trash2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { CardMenu, type CardMenuItem } from "../../../../components/cards/CardMenu";
 import { cellActionKey } from "../../model/pending";
@@ -36,12 +37,14 @@ export function SkillInUseCard({
   onRequestRemove,
   onRequestDelete,
 }: SkillInUseCardProps) {
+  const { t } = useTranslation("skills");
+
   const menuItems = useMemo<CardMenuItem[]>(() => {
     const items: CardMenuItem[] = [];
     if (row.actions.canStopManaging) {
       items.push({
         key: "unmanage",
-        label: "Remove from Skill Manager",
+        label: t("card.removeFromManager"),
         icon: <PackageOpen size={13} aria-hidden="true" />,
         onSelect: () => onRequestRemove(row),
       });
@@ -49,14 +52,14 @@ export function SkillInUseCard({
     if (row.actions.canDelete) {
       items.push({
         key: "delete",
-        label: "Delete",
+        label: t("card.delete"),
         icon: <Trash2 size={13} aria-hidden="true" />,
         destructive: true,
         onSelect: () => onRequestDelete(row),
       });
     }
     return items;
-  }, [row, onRequestDelete, onRequestRemove]);
+  }, [row, onRequestDelete, onRequestRemove, t]);
 
   const interactiveCells = row.cells.filter((cell) => cell.interactive);
   const enabled = interactiveCells.filter((cell) => cell.state === "enabled").length;
@@ -89,7 +92,7 @@ export function SkillInUseCard({
         onToggleChecked={() => onToggleChecked(row.skillRef)}
         menu={
           <CardMenu
-            label={`More actions for ${row.name}`}
+            label={t("card.moreActionsFor", { name: row.name })}
             items={menuItems}
             disabled={pendingStructuralAction !== null}
           />
@@ -108,14 +111,14 @@ export function SkillInUseCard({
             event.stopPropagation();
             void onSetAllHarnesses(row.skillRef, target);
           }}
-          aria-label={target === "enabled" ? "Enable on all harnesses" : "Disable everywhere"}
+          aria-label={target === "enabled" ? t("card.enableOnAll") : t("card.disableEverywhere")}
         >
           {anyCellPending ? (
             <Loader2 size={12} className="card-action-spinner" aria-hidden="true" />
           ) : (
             <Power size={12} aria-hidden="true" />
           )}
-          {target === "enabled" ? "Enable on all" : "Disable everywhere"}
+          {target === "enabled" ? t("card.enableOnAllShort") : t("card.disableEverywhereShort")}
         </button>
       </div>
     </article>

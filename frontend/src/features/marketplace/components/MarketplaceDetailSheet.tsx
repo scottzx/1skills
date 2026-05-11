@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import * as Dialog from "@radix-ui/react-dialog";
 
 import type { MarketplaceItemDto } from "../api/types";
@@ -24,6 +25,7 @@ export function MarketplaceDetailSheet({
   onInstall,
   onOpenInstalledSkill,
 }: MarketplaceDetailSheetProps) {
+  const { t } = useTranslation("marketplace");
   if (!itemId) {
     return null;
   }
@@ -40,7 +42,7 @@ export function MarketplaceDetailSheet({
         <Dialog.Content className="detail-sheet ui-scrollbar" aria-label="Marketplace skill details">
           <Dialog.Title className="u-visually-hidden">Marketplace skill details</Dialog.Title>
           <Dialog.Description className="u-visually-hidden">
-            Preview a marketplace skill before opening it in Skills or installing it.
+            {t("previewOnly")}
           </Dialog.Description>
           <MarketplaceDetailView
             itemId={itemId}

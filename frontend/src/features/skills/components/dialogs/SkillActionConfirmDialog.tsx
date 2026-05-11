@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { ConfirmActionDialog } from "../../../../components/ConfirmActionDialog";
 
 type SkillActionConfirmKind = "unmanage" | "delete";
@@ -21,41 +22,40 @@ export function SkillActionConfirmDialog({
   onOpenChange,
   onConfirm,
 }: SkillActionConfirmDialogProps) {
+  const { t } = useTranslation("skills");
   const content = action === "unmanage"
     ? {
-        title: "Remove skill from Skill Manager?",
+        title: t("confirmDialog.removeTitle"),
         description: (
           <>
-            This removes <strong>{skillName}</strong> from the Skill Manager store and restores local copies only
-            for the harnesses that are currently enabled.
+            {t("confirmDialog.removeDescription", { skillName })}
           </>
         ),
         note:
           harnessLabels.length > 0 ? (
-            <p>Will restore to: {harnessLabels.join(", ")}</p>
+            <p>{t("confirmDialog.willRestoreTo")}: {harnessLabels.join(", ")}</p>
           ) : undefined,
-        confirmLabel: "Remove",
-        pendingLabel: "Removing",
+        confirmLabel: t("confirmDialog.removeButton"),
+        pendingLabel: t("confirmDialog.removing"),
         confirmTone: "primary" as const,
       }
     : {
-        title: "Delete skill from Skill Manager?",
+        title: t("confirmDialog.deleteTitle"),
         description: (
           <>
-            This will remove <strong>{skillName}</strong> from the shared store and delete its
-            links from all harnesses.
+            {t("confirmDialog.deleteDescriptionWithName", { skillName })}
           </>
         ),
         note: (
           <>
-            <p>This action cannot be undone.</p>
+            <p>{t("confirmDialog.deleteDescription")}</p>
             {harnessLabels.length > 0 ? (
-              <p>Affected harnesses: {harnessLabels.join(", ")}</p>
+              <p>{t("confirmDialog.affectedHarnesses")}: {harnessLabels.join(", ")}</p>
             ) : null}
           </>
         ),
-        confirmLabel: "Delete",
-        pendingLabel: "Deleting skill",
+        confirmLabel: t("confirmDialog.deleteButton"),
+        pendingLabel: t("confirmDialog.deleting"),
         confirmTone: "danger" as const,
       };
 

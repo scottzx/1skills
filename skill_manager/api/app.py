@@ -2,11 +2,13 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 
 from skill_manager.application import BackendContainer
+from skill_manager.i18n.service import TranslationService
 
+from .deps import get_language
 from .errors import install_error_handlers
 from .routers import health, marketplace, mcp, settings, skills, slash_commands
 
@@ -19,6 +21,10 @@ def create_app(
     app = FastAPI(title="skill-manager", docs_url=None, redoc_url=None, openapi_url="/api/openapi.json")
     app.state.container = container
     app.state.frontend_dist = frontend_dist if frontend_dist is not None and frontend_dist.exists() else None
+
+    locales_dir = Path(__file__).resolve().parent.parent / "locales"
+    app.state.translator = TranslationService(locales_dir)
+
     install_error_handlers(app)
     app.include_router(health.router)
     app.include_router(settings.router)
@@ -28,9 +34,14 @@ def create_app(
     app.include_router(mcp.router)
 
     @app.get("/{full_path:path}", include_in_schema=False, response_model=None)
-    def serve_frontend(full_path: str):
+    def serve_frontend(full_path: str, request: Request):
         if full_path.startswith("api/"):
-            return JSONResponse(status_code=404, content={"error": f"unknown api path: /{full_path}"})
+            lang = get_language(request)
+            translator = request.app.state.translator
+            return JSONResponse(
+                status_code=404,
+                content={"error": translator.translate("errors.unknownApiPath", lang, full_path=full_path)},
+            )
         dist = app.state.frontend_dist
         if dist is None:
             return HTMLResponse("<html><body><h1>skill-manager</h1><p>Frontend build missing.</p></body></html>")

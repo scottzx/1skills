@@ -1,4 +1,5 @@
 import { lazy, Suspense, useId, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { ArrowUpRight, Plus } from "lucide-react";
 
 import { DetailDisclosure } from "../../../components/detail/DetailDisclosure";
@@ -35,6 +36,7 @@ export function MarketplaceDetailView({
   onInstall,
   onOpenInstalledSkill,
 }: MarketplaceDetailViewProps) {
+  const { t } = useTranslation("marketplace");
   const headingId = useId();
   const detailQuery = useMarketplaceDetailQuery(itemId);
   const documentQuery = useMarketplaceDocumentQuery(itemId);
@@ -55,10 +57,10 @@ export function MarketplaceDetailView({
           type="button"
           className="action-pill"
           onClick={() => onOpenInstalledSkill(detail.installation.installedSkillRef!)}
-          aria-label={`Open ${detail.name} in Skills`}
+          aria-label={t("detail.openInSkills")}
         >
           <ArrowUpRight size={12} aria-hidden="true" />
-          Open in Skills
+          {t("detail.openInSkills")}
         </button>
       );
     }
@@ -68,15 +70,15 @@ export function MarketplaceDetailView({
         type="button"
         className="action-pill"
         onClick={() => void onInstall(detail)}
-        aria-label={`Install ${detail.name}`}
+        aria-label={t("detail.install")}
         data-pending={installPending || undefined}
       >
         {installPending ? (
-          <LoadingSpinner size="sm" label={`Installing ${detail.name}`} />
+          <LoadingSpinner size="sm" label={t("detail.installing")} />
         ) : (
           <Plus size={12} aria-hidden="true" />
         )}
-        Install
+        {t("detail.install")}
       </button>
     );
   }, [detail, installPending, onInstall, onOpenInstalledSkill]);
@@ -89,11 +91,11 @@ export function MarketplaceDetailView({
     return (
       <>
         <div className="skill-detail__chrome">
-          <ErrorBanner message={queryErrorMessage || "Unable to load marketplace detail."} />
+          <ErrorBanner message={queryErrorMessage || t("detail.errorTitle")} />
         </div>
         <div className="skill-detail__body" aria-labelledby={headingId}>
           <div className="skill-detail__fallback">
-            <p className="muted-text">Try reopening the marketplace item from the grid.</p>
+            <p className="muted-text">{t("detail.errorDescription")}</p>
           </div>
         </div>
       </>
@@ -108,16 +110,16 @@ export function MarketplaceDetailView({
           titleAction={actionButton}
           meta={
             <DetailSourceLinks
-              ariaLabel={`Source links for ${detail.sourceLinks.repoLabel}`}
+              ariaLabel={t("detail.sourceLinksFor", { name: detail.sourceLinks.repoLabel })}
               links={marketplaceSourceLinks(detail.sourceLinks)}
             />
           }
           utility={
             isInitialPreviewLoading ? (
-              <DetailLoadingChip label="Loading Preview" withSpinner />
+              <DetailLoadingChip label={t("detail.loadingPreview")} withSpinner />
             ) : undefined
           }
-          closeLabel="Close marketplace preview"
+          closeLabel={t("detail.closePreview")}
           onClose={onClose}
         />
 
@@ -131,9 +133,9 @@ export function MarketplaceDetailView({
 
       <div className="skill-detail__body detail-sheet__body" aria-labelledby={headingId}>
         <section className="skill-detail__intro">
-          <p className="skill-detail__copy">{detail.description || "No description available."}</p>
+          <p className="skill-detail__copy">{detail.description || t("detail.noDescription")}</p>
           <div className="marketplace-detail__stats">
-            <span className="marketplace-detail__stat">{formatMarketplaceInstalls(detail.installs)} installs</span>
+            <span className="marketplace-detail__stat">{t("detail.githubStarsCount", { count: formatMarketplaceInstalls(detail.installs) })}</span>
             {detail.stars ? <span className="marketplace-detail__stat">{formatMarketplaceStars(detail.stars)} GitHub stars</span> : null}
           </div>
         </section>

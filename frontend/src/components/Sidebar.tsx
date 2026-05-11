@@ -11,14 +11,18 @@ import {
   BookOpen,
   ChevronDown,
   Command,
+  Languages,
   LayoutDashboard,
+  Menu,
   RefreshCw,
   Settings,
   Store,
   SunMedium,
   Terminal,
+  X,
 } from "lucide-react";
 import { Link, NavLink, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 import { useSidebarModel, type SidebarIconKey } from "../app/capability-registry";
 import { LoadingSpinner } from "./LoadingSpinner";
@@ -27,14 +31,144 @@ import { useToast } from "./Toast";
 interface SidebarProps {
   onRefresh: () => void | Promise<void>;
   refreshPending: boolean;
+  mobileOnly?: boolean;
 }
 
-export function Sidebar({ onRefresh, refreshPending }: SidebarProps) {
+export function Sidebar({ onRefresh, refreshPending, mobileOnly }: SidebarProps) {
   const model = useSidebarModel();
   const { toast } = useToast();
+  const { t, i18n } = useTranslation("common");
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  const closeMobile = useCallback(() => setMobileOpen(false), []);
+
+  useEffect(() => {
+    if (mobileOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileOpen]);
+
+  if (mobileOnly) {
+    return (
+      <>
+        <button
+          type="button"
+          className="sidebar-hamburger"
+          onClick={() => setMobileOpen(true)}
+          aria-label={t("sidebar.openMenu")}
+          aria-expanded={mobileOpen}
+        >
+          <Menu size={20} />
+        </button>
+
+        {mobileOpen && (
+          <div className="sidebar-overlay" onClick={closeMobile} aria-hidden="true" />
+        )}
+
+        <aside
+          className={`sidebar sidebar--mobile-open${mobileOpen ? "" : " sidebar--hidden"}`}
+          aria-label={t("sidebar.primaryNav")}
+          aria-hidden={!mobileOpen}
+        >
+          <div className="sidebar__header">
+            <div className="sidebar__brand">
+              <Link to="/overview" className="sidebar__brand-name" onClick={closeMobile}>
+                skill-manager
+              </Link>
+            </div>
+            <button
+              type="button"
+              className="sidebar-close"
+              onClick={closeMobile}
+              aria-label={t("sidebar.closeMenu")}
+            >
+              <X size={20} />
+            </button>
+          </div>
+
+          <nav className="sidebar__nav">
+            {model.topLinks.map((link) => (
+              <SidebarTopLink
+                key={link.key}
+                to={link.to}
+                label={link.label}
+                icon={<LayoutDashboard size={16} />}
+                onClick={closeMobile}
+              />
+            ))}
+
+            {model.groups.map((group) => (
+              <NavGroup
+                key={group.key}
+                label={group.label}
+                icon={sidebarIcon(group.iconKey)}
+                count={group.count}
+              >
+                {group.links.map((link) => (
+                  <SidebarLink
+                    key={link.key}
+                    to={link.to}
+                    label={link.label}
+                    count={link.count}
+                    onClick={closeMobile}
+                  />
+                ))}
+              </NavGroup>
+            ))}
+          </nav>
+
+          <div className="sidebar__footer">
+            <button
+              type="button"
+              className="sidebar-footer-btn"
+              onClick={() => void onRefresh()}
+              disabled={refreshPending}
+              aria-busy={refreshPending}
+            >
+              {refreshPending ? <LoadingSpinner size="sm" label={t("actions.refreshing")} /> : <RefreshCw size={16} />}
+              <span>{t("actions.refresh")}</span>
+            </button>
+            <button
+              type="button"
+              className="sidebar-footer-btn"
+              onClick={() => toast(t("actions.lightThemeComingSoon"))}
+            >
+              <SunMedium size={16} />
+              <span>{t("actions.light")}</span>
+            </button>
+            <button
+              type="button"
+              className="sidebar-footer-btn"
+              onClick={() => {
+                const next = i18n.language === "zh-CN" ? "en" : "zh-CN";
+                i18n.changeLanguage(next);
+              }}
+              aria-label="Switch language"
+            >
+              <Languages size={16} />
+              <span>{i18n.language === "zh-CN" ? "EN" : "中文"}</span>
+            </button>
+            <NavLink
+              to="/settings"
+              className={({ isActive }) => `sidebar-footer-btn${isActive ? " is-active" : ""}`}
+              onClick={closeMobile}
+            >
+              <Settings size={16} />
+              <span>{t("nav.settings")}</span>
+            </NavLink>
+          </div>
+        </aside>
+      </>
+    );
+  }
 
   return (
-    <aside className="sidebar ui-scrollbar--thin" aria-label="Primary navigation">
+    <aside className="sidebar" aria-label={t("sidebar.primaryNav")}>
       <div className="sidebar__brand">
         <Link to="/overview" className="sidebar__brand-name">
           skill-manager
@@ -78,23 +212,35 @@ export function Sidebar({ onRefresh, refreshPending }: SidebarProps) {
           disabled={refreshPending}
           aria-busy={refreshPending}
         >
-          {refreshPending ? <LoadingSpinner size="sm" label="Refreshing" /> : <RefreshCw size={16} />}
-          <span>Refresh</span>
+          {refreshPending ? <LoadingSpinner size="sm" label={t("actions.refreshing")} /> : <RefreshCw size={16} />}
+          <span>{t("actions.refresh")}</span>
         </button>
         <button
           type="button"
           className="sidebar-footer-btn"
-          onClick={() => toast("Light theme — coming soon")}
+          onClick={() => toast(t("actions.lightThemeComingSoon"))}
         >
           <SunMedium size={16} />
-          <span>Light</span>
+          <span>{t("actions.light")}</span>
+        </button>
+        <button
+          type="button"
+          className="sidebar-footer-btn"
+          onClick={() => {
+            const next = i18n.language === "zh-CN" ? "en" : "zh-CN";
+            i18n.changeLanguage(next);
+          }}
+          aria-label="Switch language"
+        >
+          <Languages size={16} />
+          <span>{i18n.language === "zh-CN" ? "EN" : "中文"}</span>
         </button>
         <NavLink
           to="/settings"
           className={({ isActive }) => `sidebar-footer-btn${isActive ? " is-active" : ""}`}
         >
           <Settings size={16} />
-          <span>Settings</span>
+          <span>{t("nav.settings")}</span>
         </NavLink>
       </div>
     </aside>
@@ -267,13 +413,15 @@ function SidebarTopLink({
   to,
   label,
   icon,
+  onClick,
 }: {
   to: string;
   label: string;
   icon: ReactNode;
+  onClick?: () => void;
 }) {
   return (
-    <NavLink to={to} className={({ isActive }) => `sidebar-top-link${isActive ? " is-active" : ""}`}>
+    <NavLink to={to} onClick={onClick} className={({ isActive }) => `sidebar-top-link${isActive ? " is-active" : ""}`}>
       {icon}
       <span>{label}</span>
     </NavLink>
@@ -284,13 +432,15 @@ function SidebarLink({
   to,
   label,
   count,
+  onClick,
 }: {
   to: string;
   label: string;
   count?: number | null;
+  onClick?: () => void;
 }) {
   return (
-    <NavLink to={to} className={({ isActive }) => `sidebar-link${isActive ? " is-active" : ""}`}>
+    <NavLink to={to} onClick={onClick} className={({ isActive }) => `sidebar-link${isActive ? " is-active" : ""}`}>
       <span className="sidebar-link__dot" aria-hidden="true" />
       <span>{label}</span>
       {count != null ? <span className="sidebar-link__count">{count}</span> : null}

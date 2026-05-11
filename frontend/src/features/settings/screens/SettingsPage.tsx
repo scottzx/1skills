@@ -1,4 +1,5 @@
-import { Archive, Database } from "lucide-react";
+import { Archive, Database, Globe } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { ErrorBanner } from "../../../components/ErrorBanner";
 import { LoadingSpinner } from "../../../components/LoadingSpinner";
@@ -7,14 +8,15 @@ import { SettingsHarnessCard } from "../components/SettingsHarnessCard";
 import { useSettingsPageController } from "../model/use-settings-page-controller";
 
 export default function SettingsPage() {
+  const { t } = useTranslation("settings");
   const controller = useSettingsPageController();
 
   return (
     <>
       <div className="page-chrome">
         <PageHeader
-          title="Settings"
-          subtitle="Local paths and per-harness discovery."
+          title={t("title")}
+          subtitle={t("subtitle")}
         />
       </div>
 
@@ -24,23 +26,23 @@ export default function SettingsPage() {
 
       {controller.isPending ? (
         <div className="panel-state">
-          <LoadingSpinner label="Loading settings" />
+          <LoadingSpinner label={t("loading")} />
         </div>
       ) : !controller.data ? (
         <div className="panel-state">
-          <p className="muted-text">Unable to load settings.</p>
+          <p className="muted-text">{t("errorTitle")}</p>
         </div>
       ) : (
         <>
           <section className="settings-section">
-            <h2 className="settings-section__heading">Local storage</h2>
+            <h2 className="settings-section__heading">{t("localStorage")}</h2>
             <div className="settings-row">
               <span className="settings-row__icon">
                 <Database size={15} />
               </span>
               <div className="settings-row__body">
-                <p className="settings-row__title">Skill Manager store</p>
-                <p className="settings-row__sub">Canonical copies of skills in use live here.</p>
+                <p className="settings-row__title">{t("skillManagerStore")}</p>
+                <p className="settings-row__sub">{t("storeDescription")}</p>
               </div>
               <span className="settings-path">{controller.data.storePath}</span>
             </div>
@@ -49,15 +51,36 @@ export default function SettingsPage() {
                 <Archive size={15} />
               </span>
               <div className="settings-row__body">
-                <p className="settings-row__title">Marketplace cache</p>
-                <p className="settings-row__sub">Downloaded previews and install bundles.</p>
+                <p className="settings-row__title">{t("marketplaceCache")}</p>
+                <p className="settings-row__sub">{t("marketplaceDescription")}</p>
               </div>
               <span className="settings-path">{controller.data.marketplacePath}</span>
             </div>
           </section>
 
           <section className="settings-section">
-            <h2 className="settings-section__heading">Harness roots</h2>
+            <h2 className="settings-section__heading">{t("language")}</h2>
+            <div className="settings-row">
+              <span className="settings-row__icon">
+                <Globe size={15} />
+              </span>
+              <div className="settings-row__body">
+                <p className="settings-row__title">{t("languageLabel")}</p>
+                <p className="settings-row__sub">{t("languageSub")}</p>
+              </div>
+              <select
+                className="settings-lang-select"
+                value={controller.currentLanguage}
+                onChange={(e) => controller.handleLanguageChange(e.target.value)}
+              >
+                <option value="en">{t("langEn")}</option>
+                <option value="zh-CN">{t("langZh")}</option>
+              </select>
+            </div>
+          </section>
+
+          <section className="settings-section">
+            <h2 className="settings-section__heading">{t("harnessRoots")}</h2>
             {controller.data.harnesses.map((harness) => (
               <SettingsHarnessCard
                 key={harness.harness}

@@ -1,0 +1,164 @@
+{
+  "title": "市场",
+  "previewOnly": "仅预览 — 此类型项目暂不支持安装。",
+  "tabs": {
+    "skills": "技能",
+    "mcp": "MCP",
+    "clis": "CLI"
+  },
+  "layout": {
+    "previewCliOnly": "仅预览 · 技能管理器不会安装或管理 CLI",
+    "filterMcpServers": "筛选 MCP 服务器",
+    "marketplaceType": "市场类型",
+    "genericLoading": "加载市场"
+  },
+  "search": {
+    "skills": "搜索 skills.sh 列表...",
+    "mcp": "搜索 Smithery MCP 服务器...",
+    "clis": "搜索 CLI 工具..."
+  },
+  "searchLabels": {
+    "skills": "搜索市场中的技能",
+    "mcp": "搜索市场中的 MCP 服务器",
+    "clis": "搜索市场中的 CLI 工具"
+  },
+  "filters": {
+    "all": "全部",
+    "remote": "远程",
+    "local": "本地",
+    "verified": "已验证"
+  },
+  "loading": {
+    "skills": "加载技能市场",
+    "skillsError": "无法加载市场。",
+    "mcp": "加载 MCP 市场",
+    "mcpError": "无法加载 MCP 市场。",
+    "cli": "加载 CLI 市场",
+    "cliError": "无法加载 CLI 市场。",
+    "more": "加载更多"
+  },
+  "empty": {
+    "skills": "没有符合当前搜索或筛选条件的技能。",
+    "mcp": "没有符合当前搜索或筛选条件的 MCP 服务器。",
+    "mcpSearch": "未找到匹配 \"{{query}}\" 的 MCP 服务器。",
+    "mcpEmpty": "未找到 MCP 服务器。",
+    "clis": "没有符合当前搜索或筛选条件的 CLI 工具。",
+    "cliSearch": "未找到匹配 \"{{query}}\" 的 CLI 工具。",
+    "cliEmpty": "未找到 CLI 工具。"
+  },
+  "card": {
+    "openDetailFor": "打开 {{name}} 的市场详情",
+    "openInSkills": "在技能中打开 {{name}}",
+    "openInSkillsShort": "在技能中打开",
+    "noSummary": "skills.sh 上没有可用的摘要。",
+    "install": "安装",
+    "installing": "安装中",
+    "installs": "安装 {{count}} 次",
+    "stars": "{{count}} 星",
+    "avatarFor": "{{repoLabel}} 的头像"
+  },
+  "mcpCard": {
+    "openDetailFor": "打开 {{name}} 的 MCP 市场详情",
+    "noDescription": "未提供描述。",
+    "remote": "远程",
+    "local": "本地",
+    "verified": "已验证",
+    "calls": "次调用",
+    "iconFor": "{{name}} 的图标"
+  },
+  "cliCard": {
+    "openDetailFor": "打开 {{name}} 的 CLI 市场详情",
+    "noDescription": "未提供描述。",
+    "official": "官方",
+    "tui": "TUI",
+    "mcp": "MCP",
+    "skill": "技能",
+    "avatarFor": "{{name}} 的头像"
+  },
+  "detail": {
+    "closePreview": "关闭市场预览",
+    "loadingPreview": "加载预览",
+    "errorTitle": "无法加载市场详情。",
+    "errorDescription": "请尝试从网格中重新打开市场项目。",
+    "noDescription": "没有可用的描述。",
+    "githubStars": "GitHub 星标",
+    "githubStarsCount": "{{count}} GitHub 星标",
+    "skillMd": "SKILL.md",
+    "loadingDocument": "加载文档",
+    "openSkillFolder": "打开技能文件夹",
+    "viewOnSkillsSh": "在 skills.sh 上查看",
+    "openInSkills": "在技能中打开",
+    "install": "安装",
+    "installing": "安装中",
+    "sourceLinksFor": "{{name}} 的来源链接"
+  },
+  "mcpDetail": {
+    "closePreview": "关闭 MCP 预览",
+    "loading": "加载 MCP 详情",
+    "errorTitle": "无法加载 MCP 服务器",
+    "errorDescription": "请尝试从市场网格中重新打开服务器。",
+    "about": "关于",
+    "noDescription": "未提供描述。",
+    "capabilities": "能力",
+    "tools": "工具",
+    "resources": "资源",
+    "prompts": "提示词",
+    "connection": "连接",
+    "deploymentUrl": "部署 URL",
+    "copy": "复制",
+    "localStdioCommand": "本地 stdio 命令",
+    "connectionDetail": "Smithery 可以转发此 MCP 连接或在本地运行。选择目标环境进行配置。",
+    "noConnectionInfo": "源安装程序会将实际本地命令写入所选环境中。",
+    "copied": "{{label}} 已复制",
+    "copyFailed": "复制失败",
+    "showMore": "显示另外 {{count}} 个",
+    "showMoreSimple": "显示更多",
+    "showLess": "收起",
+    "collapseTools": "收起工具",
+    "viewOnSmithery": "在 smithery.ai 上查看",
+    "sourceLinksFor": "{{name}} 的来源链接",
+    "command": "命令",
+    "commandCopied": "命令已复制",
+    "toolsCount": "工具 ({{count}})",
+    "resourcesCount": "资源 ({{count}})",
+    "promptsCount": "提示词 ({{count}})"
+  },
+  "mcpTool": {
+    "parameters": "参数",
+    "noDescription": "没有描述。",
+    "required": "必填"
+  },
+  "mcpInstall": {
+    "installing": "安装中",
+    "openInMcp": "在使用中的 MCP 服务器中打开",
+    "openInMcpShort": "在 MCP 中打开",
+    "addToMcp": "添加到 MCP",
+    "addToMcpUnavailable": "添加到 MCP（不可用）",
+    "installIntoHarness": "安装到源环境",
+    "loadingInstallers": "加载源环境安装程序",
+    "installWithSmithery": "使用 Smithery 推荐设置安装",
+    "noSupportedHarness": "没有可用的 Smithery 源环境安装程序",
+    "installWithSmitheryTarget": "使用 Smithery 的 {{client}} 目标安装"
+  },
+  "cliDetail": {
+    "closePreview": "关闭 CLI 预览",
+    "loading": "加载 CLI 详情",
+    "errorTitle": "无法加载 CLI",
+    "errorDescription": "请尝试从市场网格中重新打开 CLI。",
+    "installCommand": "安装命令预览",
+    "copy": "复制",
+    "about": "关于",
+    "noDescription": "未提供描述。",
+    "source": "来源",
+    "sourceType": "来源类型",
+    "vendor": "供应商",
+    "website": "网站",
+    "repo": "仓库",
+    "clisDev": "CLIs.dev",
+    "commandCopied": "命令已复制",
+    "copyFailed": "复制失败",
+    "sourceLinksFor": "{{name}} 的来源链接",
+    "cliFactsFor": "{{name}} 的 CLI 信息",
+    "loadingPreview": "加载 CLI 预览"
+  }
+}

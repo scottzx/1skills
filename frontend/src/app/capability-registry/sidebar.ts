@@ -1,6 +1,6 @@
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 
-import { productLanguage } from "../../lib/product-language";
 import { mcpRoutes, useMcpInventoryQuery } from "../../features/mcp/public";
 import { skillsRoutes, useSkillsListQuery } from "../../features/skills/public";
 import { slashCommandRoutes, useSlashCommandsQuery } from "../../features/slash-commands/public";
@@ -29,6 +29,7 @@ export interface SidebarModel {
 }
 
 export function useSidebarModel(): SidebarModel {
+  const { t } = useTranslation("common");
   const skillsQuery = useSkillsListQuery();
   const mcpQuery = useMcpInventoryQuery();
   const slashCommandsQuery = useSlashCommandsQuery();
@@ -45,81 +46,73 @@ export function useSidebarModel(): SidebarModel {
         {
           key: "overview",
           to: "/overview",
-          label: "Overview",
+          label: t("nav.overview"),
         },
       ],
       groups: [
         {
           key: "skills",
-          label: "Skills",
+          label: t("nav.skills"),
           iconKey: "skills",
           count: sumLoadedCounts(inUseSkills, needsReviewSkills),
           links: [
-            { key: "skills-use", to: skillsRoutes.inUse, label: productLanguage.inUse, count: inUseSkills },
+            { key: "skills-use", to: skillsRoutes.inUse, label: t("status.inUse"), count: inUseSkills },
             {
               key: "skills-review",
               to: skillsRoutes.needsReview,
-              label: productLanguage.needsReview,
+              label: t("status.needsReview"),
               count: needsReviewSkills,
             },
           ],
         },
         {
           key: "slash-commands",
-          label: "Slash Commands",
+          label: t("nav.slashCommands"),
           iconKey: "slash-commands",
           count: sumLoadedCounts(slashCommandCount, slashCommandReviewCount),
           links: [
             {
               key: "slash-commands-use",
               to: slashCommandRoutes.inUse,
-              label: productLanguage.inUse,
+              label: t("status.inUse"),
               count: slashCommandCount,
             },
             {
               key: "slash-commands-review",
               to: slashCommandRoutes.needsReview,
-              label: productLanguage.needsReview,
+              label: t("status.needsReview"),
               count: slashCommandReviewCount,
             },
           ],
         },
         {
           key: "mcp",
-          label: "MCP Servers",
+          label: t("nav.mcpServers"),
           iconKey: "mcp",
           count: mcpCounts.total,
           links: [
-            { key: "mcp-use", to: mcpRoutes.inUse, label: productLanguage.inUse, count: mcpCounts.inUse },
+            { key: "mcp-use", to: mcpRoutes.inUse, label: t("status.inUse"), count: mcpCounts.inUse },
             {
               key: "mcp-review",
               to: mcpRoutes.needsReview,
-              label: productLanguage.needsReview,
+              label: t("status.needsReview"),
               count: mcpCounts.needsReview,
             },
           ],
         },
         {
           key: "marketplace",
-          label: "Marketplace",
+          label: t("nav.marketplace"),
           iconKey: "marketplace",
           links: [
-            { key: "marketplace-skills", to: marketplaceRoutes.skills, label: "Skills" },
-            { key: "marketplace-mcp", to: marketplaceRoutes.mcp, label: "MCP" },
-            { key: "marketplace-clis", to: marketplaceRoutes.clis, label: "CLIs" },
+            { key: "marketplace-skills", to: marketplaceRoutes.skills, label: t("marketplace.skills") },
+            { key: "marketplace-mcp", to: marketplaceRoutes.mcp, label: t("marketplace.mcp") },
+            { key: "marketplace-clis", to: marketplaceRoutes.clis, label: t("marketplace.clis") },
           ],
         },
       ],
     }),
-    [
-      inUseSkills,
-      mcpCounts.inUse,
-      mcpCounts.needsReview,
-      mcpCounts.total,
-      needsReviewSkills,
-      slashCommandCount,
-      slashCommandReviewCount,
-    ],
+    [t, inUseSkills, mcpCounts.inUse, mcpCounts.needsReview, mcpCounts.total, needsReviewSkills, slashCommandCount, slashCommandReviewCount],
   );
 }
 

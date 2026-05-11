@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Check, CircleSlash2, Trash2, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { ConfirmActionDialog } from "./ConfirmActionDialog";
 import { LoadingSpinner } from "./LoadingSpinner";
@@ -34,6 +35,7 @@ export function BulkActionBar({
   onDelete,
   destructive,
 }: BulkActionBarProps) {
+  const { t } = useTranslation("common");
   const [visible, setVisible] = useState(selectedCount > 0);
   const [confirmOpen, setConfirmOpen] = useState(false);
 
@@ -62,18 +64,18 @@ export function BulkActionBar({
           className="bulk-bar"
           data-state={active ? "open" : "closed"}
           role="toolbar"
-          aria-label="Bulk actions"
+          aria-label={t("bulkActions.ariaLabel")}
         >
           <div className="bulk-bar__group">
             <span className="bulk-bar__count">
-              <strong>{selectedCount}</strong> selected
+              <strong>{selectedCount}</strong> {t("bulkActions.selected")}
             </span>
             <button
               type="button"
               className="bulk-bar__clear"
               onClick={onClear}
               disabled={disabled}
-              aria-label="Clear selection"
+              aria-label={t("actions.clearSelection")}
             >
               <X size={14} />
             </button>
@@ -89,11 +91,11 @@ export function BulkActionBar({
               disabled={disabled}
             >
               {pending === "enable-all" ? (
-                <LoadingSpinner size="sm" label="Enabling" />
+                <LoadingSpinner size="sm" label={t("bulkActions.bulkEnabling")} />
               ) : (
                 <Check size={15} />
               )}
-              Enable all
+              {t("actions.enableAll")}
             </button>
             <button
               type="button"
@@ -102,11 +104,11 @@ export function BulkActionBar({
               disabled={disabled}
             >
               {pending === "disable-all" ? (
-                <LoadingSpinner size="sm" label="Disabling" />
+                <LoadingSpinner size="sm" label={t("bulkActions.bulkDisabling")} />
               ) : (
                 <CircleSlash2 size={15} />
               )}
-              Disable all
+              {t("actions.disableAll")}
             </button>
           </div>
 

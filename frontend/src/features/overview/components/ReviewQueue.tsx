@@ -1,5 +1,6 @@
 import { CheckCircle2 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 import type { OverviewReviewItem } from "../../../app/capability-registry";
 
@@ -9,10 +10,12 @@ interface ReviewQueueProps {
 }
 
 export function ReviewQueue({ items, loading }: ReviewQueueProps) {
+  const { t } = useTranslation("overview");
+
   return (
     <section className="overview-review-queue" aria-labelledby="overview-review-title">
       <div className="overview-section__head">
-        <h2 id="overview-review-title">Review</h2>
+        <h2 id="overview-review-title">{t("reviewQueue.heading")}</h2>
       </div>
       {loading ? (
         <div className="overview-review-list" aria-hidden="true">
@@ -34,7 +37,7 @@ export function ReviewQueue({ items, loading }: ReviewQueueProps) {
       ) : (
         <div className="overview-review-empty">
           <CheckCircle2 size={18} />
-          <span>No local adoption or config review is waiting.</span>
+          <span>{t("reviewQueue.empty")}</span>
         </div>
       )}
     </section>

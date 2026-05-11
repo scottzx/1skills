@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 
 import { DetailCloseButton } from "./DetailCloseButton";
 
@@ -17,14 +18,15 @@ export function DetailHeader({
   titleAction,
   meta,
   utility,
-  closeLabel = "Close detail view",
+  closeLabel,
 }: DetailHeaderProps) {
+  const { t } = useTranslation("common");
   return (
     <div className="skill-detail__header">
       <div className="skill-detail__header-top">
         <div className="skill-detail__utility-rail">
           {utility ? <div className="skill-detail__utility-content">{utility}</div> : null}
-          <DetailCloseButton onClick={onClose} ariaLabel={closeLabel} />
+          <DetailCloseButton onClick={onClose} ariaLabel={closeLabel ?? t("detail.close")} />
         </div>
       </div>
       <div className="skill-detail__title-stack">

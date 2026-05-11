@@ -1,11 +1,13 @@
 import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
 import { lazy, Suspense, useState } from "react";
+import { I18nextProvider, useTranslation } from "react-i18next";
 import { Navigate, Route, Routes } from "react-router-dom";
 
 import RouteLoadingPanel from "./components/RouteLoadingPanel";
 import { Shell } from "./components/Shell";
 import { ToastProvider } from "./components/Toast";
 import { UiTooltipProvider } from "./components/ui/UiTooltipProvider";
+import i18n from "./i18n/config";
 import { invalidateCapabilityQueries } from "./app/capability-registry";
 import { SkillsWorkspaceSessionProvider } from "./features/skills/model/session";
 import SkillsNeedsReviewPage from "./features/skills/screens/SkillsNeedsReviewPage";
@@ -33,17 +35,20 @@ export function App() {
   );
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <ToastProvider>
-        <UiTooltipProvider>
-          <AppContent />
-        </UiTooltipProvider>
-      </ToastProvider>
-    </QueryClientProvider>
+    <I18nextProvider i18n={i18n}>
+      <QueryClientProvider client={queryClient}>
+        <ToastProvider>
+          <UiTooltipProvider>
+            <AppContent />
+          </UiTooltipProvider>
+        </ToastProvider>
+      </QueryClientProvider>
+    </I18nextProvider>
   );
 }
 
 function AppContent() {
+  const { t } = useTranslation("common");
   const queryClient = useQueryClient();
   const [refreshPending, setRefreshPending] = useState(false);
 
@@ -65,7 +70,7 @@ function AppContent() {
           <Route
             path="overview"
             element={
-              <Suspense fallback={<RouteLoadingPanel label="Loading overview" />}>
+              <Suspense fallback={<RouteLoadingPanel label={t("loading.overview")} />}>
                 <OverviewPage />
               </Suspense>
             }
@@ -83,7 +88,7 @@ function AppContent() {
           <Route
             path="mcp/use"
             element={
-              <Suspense fallback={<RouteLoadingPanel label="Loading MCP" />}>
+              <Suspense fallback={<RouteLoadingPanel label={t("loading.mcp")} />}>
                 <McpInUsePage />
               </Suspense>
             }
@@ -102,7 +107,7 @@ function AppContent() {
           <Route
             path="marketplace"
             element={
-              <Suspense fallback={<RouteLoadingPanel label="Loading marketplace" />}>
+              <Suspense fallback={<RouteLoadingPanel label={t("loading.marketplace")} />}>
                 <MarketplaceLayout />
               </Suspense>
             }
@@ -121,7 +126,7 @@ function AppContent() {
           <Route
             path="slash-commands/use"
             element={
-              <Suspense fallback={<RouteLoadingPanel label="Loading slash commands" />}>
+              <Suspense fallback={<RouteLoadingPanel label={t("loading.slashCommands")} />}>
                 <SlashCommandsPage />
               </Suspense>
             }
@@ -129,7 +134,7 @@ function AppContent() {
           <Route
             path="slash-commands/review"
             element={
-              <Suspense fallback={<RouteLoadingPanel label="Loading slash commands" />}>
+              <Suspense fallback={<RouteLoadingPanel label={t("loading.slashCommands")} />}>
                 <SlashCommandsReviewPage />
               </Suspense>
             }
@@ -138,7 +143,7 @@ function AppContent() {
           <Route
             path="settings"
             element={
-              <Suspense fallback={<RouteLoadingPanel label="Loading settings" />}>
+              <Suspense fallback={<RouteLoadingPanel label={t("loading.settings")} />}>
                 <SettingsPage />
               </Suspense>
             }

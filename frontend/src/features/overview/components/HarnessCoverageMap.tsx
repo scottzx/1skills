@@ -1,4 +1,5 @@
 import { AlertTriangle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { HarnessAvatar } from "../../../components/harness/HarnessAvatar";
 import type { OverviewHarnessRow } from "../../../app/capability-registry";
@@ -9,10 +10,12 @@ interface HarnessCoverageMapProps {
 }
 
 export function HarnessCoverageMap({ rows, loading }: HarnessCoverageMapProps) {
+  const { t } = useTranslation("overview");
+
   return (
     <section className="overview-coverage-map" aria-labelledby="overview-coverage-title">
       <div className="overview-section__head">
-        <h2 id="overview-coverage-title">Active harnesses</h2>
+        <h2 id="overview-coverage-title">{t("coverageMap.heading")}</h2>
       </div>
       {loading && rows.length === 0 ? (
         <div className="overview-coverage-table" aria-hidden="true">
@@ -23,25 +26,28 @@ export function HarnessCoverageMap({ rows, loading }: HarnessCoverageMapProps) {
       ) : rows.length > 0 ? (
         <div className="overview-coverage-table">
           <div className="overview-coverage-row overview-coverage-row--head">
-            <span>Harness</span>
-            <span>Skills</span>
-            <span>MCP</span>
-            <span>Needs review</span>
+            <span>{t("coverageMap.harness")}</span>
+            <span>{t("coverageMap.skills")}</span>
+            <span>{t("coverageMap.mcp")}</span>
+            <span>{t("coverageMap.needsReview")}</span>
           </div>
           {rows.map((row) => (
             <CoverageRow key={row.harness} row={row} />
           ))}
         </div>
       ) : (
-        <p className="overview-empty-note">No harnesses have been discovered yet.</p>
+        <p className="overview-empty-note">{t("coverageMap.empty")}</p>
       )}
     </section>
   );
 }
 
 function CoverageRow({ row }: { row: OverviewHarnessRow }) {
+  const { t } = useTranslation("overview");
   const reviewTotal = row.foundSkills + row.unmanagedMcpServers + row.differentConfigMcpServers;
-  const unavailableReason = row.mcpWritable === false ? row.mcpUnavailableReason ?? "MCP unavailable" : null;
+  const unavailableReason = row.mcpWritable === false
+    ? (row.mcpUnavailableReason ?? t("coverageMap.mcpUnavailable"))
+    : null;
 
   return (
     <div className="overview-coverage-row">
@@ -65,7 +71,7 @@ function CoverageRow({ row }: { row: OverviewHarnessRow }) {
       <CoverageCell value={row.enabledSkills} />
       <CoverageCell
         value={row.managedMcpServers}
-        detail={differentConfigDetail(row.differentConfigMcpServers)}
+        detail={differentConfigDetail(row.differentConfigMcpServers, t)}
       />
       <CoverageCell value={reviewTotal} />
     </div>
@@ -90,7 +96,7 @@ function CoverageCell({
   );
 }
 
-function differentConfigDetail(value: number): string | null {
+function differentConfigDetail(value: number, t: ReturnType<typeof useTranslation>["t"]): string | null {
   if (value <= 0) return null;
-  return `${value.toLocaleString()} different`;
+  return `${value.toLocaleString()} ${t("coverageMap.different")}`;
 }

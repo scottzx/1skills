@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Loader2 } from "lucide-react";
 
 import {
@@ -15,23 +16,12 @@ interface SkillDetailHarnessMatrixProps {
   onToggleCell: (cell: HarnessCell) => void;
 }
 
-const STATE_LABEL: Record<HarnessCellState, string> = {
-  enabled: "Enabled",
-  disabled: "Disabled",
-  found: "Found in harness",
-  empty: "Not present",
-};
-
 const STATE_TONE: Record<HarnessCellState, DetailBindingTone> = {
   enabled: "enabled",
   disabled: "disabled",
   found: "warning",
   empty: "disabled",
 };
-
-function visibleStateLabel(state: HarnessCellState): string | null {
-  return state === "found" ? STATE_LABEL[state] : null;
-}
 
 export function SkillDetailHarnessMatrix({
   skillName,
@@ -40,6 +30,19 @@ export function SkillDetailHarnessMatrix({
   pendingStructuralAction,
   onToggleCell,
 }: SkillDetailHarnessMatrixProps) {
+  const { t } = useTranslation("skills");
+
+  const STATE_LABEL: Record<HarnessCellState, string> = {
+    enabled: t("bindingMatrix.enabled"),
+    disabled: t("bindingMatrix.disabled"),
+    found: t("bindingMatrix.foundInHarness"),
+    empty: "Not present",
+  };
+
+  function visibleStateLabel(state: HarnessCellState): string | null {
+    return state === "found" ? STATE_LABEL[state] : null;
+  }
+
   if (cells.length === 0) {
     return null;
   }

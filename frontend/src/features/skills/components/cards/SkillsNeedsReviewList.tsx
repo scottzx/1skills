@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import type { StructuralSkillAction } from "../../model/pending";
 import type { SkillListRow } from "../../model/types";
 import { SkillNeedsReviewCard } from "./SkillNeedsReviewCard";
@@ -19,8 +20,10 @@ export function SkillsNeedsReviewList({
   onOpenSkill,
   onManageSkill,
 }: SkillsNeedsReviewListProps) {
+  const { t } = useTranslation("skills");
+
   return (
-    <section className="needs-review-rows" aria-label="Skills to review list">
+    <section className="needs-review-rows" aria-label={t("needsReview.title")}>
       {rows.map((row) => (
         <SkillNeedsReviewCard
           key={row.skillRef}

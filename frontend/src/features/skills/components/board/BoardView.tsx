@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   DndContext,
   PointerSensor,
@@ -46,6 +47,7 @@ export function BoardView({
   onSetSkillAllHarnesses,
   onSetManySkillsAllHarnesses,
 }: BoardViewProps) {
+  const { t } = useTranslation("skills");
   const { toast } = useToast();
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }));
   const [transitionTarget, setTransitionTarget] = useState<Map<string, "enabled" | "disabled">>(() => new Map());
@@ -117,13 +119,19 @@ export function BoardView({
         });
 
         void onSetSkillAllHarnesses(activeRef, target).then((result) => {
-          const verbPast = target === "enabled" ? "Enabled" : "Disabled";
-          const verbPartial = target === "enabled" ? "enabled" : "disabled";
           const total = result.succeeded.length + result.failed.length;
           if (result.failed.length === 0 && result.succeeded.length > 0) {
-            toast(`${verbPast} ${row.name} everywhere`);
+            toast(
+              target === "enabled"
+                ? t("board.enabledToast", { name: row.name })
+                : t("board.disabledToast", { name: row.name }),
+            );
           } else if (result.succeeded.length > 0 && result.failed.length > 0) {
-            toast(`Partially ${verbPartial} ${row.name} (${result.succeeded.length}/${total})`);
+            toast(
+              target === "enabled"
+                ? t("board.partiallyEnabledToast", { name: row.name, succeeded: result.succeeded.length, total })
+                : t("board.partiallyDisabledToast", { name: row.name, succeeded: result.succeeded.length, total }),
+            );
           }
         });
         return;
@@ -151,7 +159,6 @@ export function BoardView({
       });
 
       void onSetManySkillsAllHarnesses(refsNeedingFlip, target).then((resultsByRef) => {
-        const verbPast = target === "enabled" ? "Enabled" : "Disabled";
         const changed = Array.from(resultsByRef.values()).filter(
           (r) => r.succeeded.length > 0 || r.failed.length > 0,
         );
@@ -162,26 +169,34 @@ export function BoardView({
         if (total === 0) {
           // No-op (every skill already in the target bucket).
         } else if (withFailures.length === 0) {
-          toast(`${verbPast} ${fullySucceeded.length} skills everywhere`);
+          toast(
+            target === "enabled"
+              ? t("board.enabledCountToast", { count: fullySucceeded.length })
+              : t("board.disabledCountToast", { count: fullySucceeded.length }),
+          );
         } else if (fullySucceeded.length > 0) {
-          toast(`${verbPast} ${fullySucceeded.length} of ${total} skills`);
+          toast(
+            target === "enabled"
+              ? t("board.enabledPartialCountToast", { succeeded: fullySucceeded.length, total })
+              : t("board.disabledPartialCountToast", { succeeded: fullySucceeded.length, total }),
+          );
         }
         // Full-failure case is surfaced via actionErrorMessage banner; no toast.
         onClearMultiSelect();
       });
     },
-    [checkedRefs, onClearMultiSelect, onSetManySkillsAllHarnesses, onSetSkillAllHarnesses, rows, toast],
+    [checkedRefs, onClearMultiSelect, onSetManySkillsAllHarnesses, onSetSkillAllHarnesses, rows, t, toast],
   );
 
   return (
     <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
-      <div className="skill-board" role="group" aria-label="Skills in use board">
+      <div className="skill-board" role="group" aria-label={t("board.ariaLabel")}>
         <BoardColumn
           kind="disabled"
-          title="Disabled everywhere"
-          description="Not active on any harness."
+          title={t("board.disabledTitle")}
+          description={t("board.disabledDescriptionShort")}
           count={buckets.disabled.length}
-          emptyMessage="No inactive skills — every skill in use is running somewhere."
+          emptyMessage={t("board.noDisabledMessage")}
         >
           {buckets.disabled.map((row) => (
             <BoardSkillCard
@@ -198,10 +213,10 @@ export function BoardView({
 
         <BoardColumn
           kind="selective"
-          title="Selective"
-          description="Enabled on some harnesses, not others."
+          title={t("board.selective")}
+          description={t("board.selectiveDescription")}
           count={buckets.selective.length}
-          emptyMessage="No skills are partially enabled. Open a card to pick specific harnesses."
+          emptyMessage={t("board.noSelectiveMessage")}
         >
           {buckets.selective.map((row) => (
             <BoardSkillCard
@@ -218,10 +233,10 @@ export function BoardView({
 
         <BoardColumn
           kind="enabled"
-          title="Enabled everywhere"
-          description="Active on every available harness."
+          title={t("board.enabledTitle")}
+          description={t("board.enabledDescription")}
           count={buckets.enabled.length}
-          emptyMessage="No skills are universally enabled yet."
+          emptyMessage={t("board.noEnabledMessage")}
         >
           {buckets.enabled.map((row) => (
             <BoardSkillCard

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { usePendingRegistry } from "../../../lib/async/pending-registry";
 import {
@@ -44,6 +45,7 @@ export interface SkillsWorkspaceController {
 }
 
 export function useSkillsWorkspaceController(): SkillsWorkspaceController {
+  const { t } = useTranslation("skills");
   const listQuery = useSkillsListQuery();
   const toggleMutation = useToggleSkillMutation();
   const setHarnessesMutation = useSetSkillHarnessesMutation();
@@ -121,7 +123,7 @@ export function useSkillsWorkspaceController(): SkillsWorkspaceController {
       );
     } catch (error) {
       if (reportError) {
-        setActionErrorMessage(error instanceof Error ? error.message : "Unable to toggle the skill.");
+        setActionErrorMessage(error instanceof Error ? error.message : t("errors.toggleFailed"));
       }
       throw error;
     }
@@ -144,7 +146,7 @@ export function useSkillsWorkspaceController(): SkillsWorkspaceController {
     } catch (error) {
       if (reportError) {
         setActionErrorMessage(
-          error instanceof Error ? error.message : "Unable to complete the requested action.",
+          error instanceof Error ? error.message : t("errors.actionFailed"),
         );
       }
       throw error;
@@ -193,7 +195,7 @@ export function useSkillsWorkspaceController(): SkillsWorkspaceController {
     try {
       await manageAllMutation.mutateAsync();
     } catch (error) {
-      setActionErrorMessage(error instanceof Error ? error.message : "Unable to manage all skills.");
+      setActionErrorMessage(error instanceof Error ? error.message : t("errors.bulkFailed"));
       throw error;
     } finally {
       setPendingBulkAction(null);
@@ -301,7 +303,7 @@ export function useSkillsWorkspaceController(): SkillsWorkspaceController {
       await task(rows);
       setMultiSelectedRefs(new Set());
     } catch (error) {
-      setActionErrorMessage(error instanceof Error ? error.message : "Unable to complete the bulk action.");
+      setActionErrorMessage(error instanceof Error ? error.message : t("errors.bulkActionFailed"));
       throw error;
     } finally {
       setMultiSelectPending(null);
@@ -384,7 +386,7 @@ export function useSkillsWorkspaceController(): SkillsWorkspaceController {
     }
     const result = await setSkillAllHarnesses(row, target);
     if (result.failed.length > 0) {
-      setActionErrorMessage(formatSingleSkillFailureMessage(row.name, target, result.failed));
+      setActionErrorMessage(formatSingleSkillFailureMessage(t, row.name, target, result.failed));
     }
     return result;
   }
@@ -412,7 +414,7 @@ export function useSkillsWorkspaceController(): SkillsWorkspaceController {
         Boolean(entry.result && entry.result.failed.length > 0),
       );
     if (failingRows.length > 0) {
-      setActionErrorMessage(formatMultiSkillFailureMessage(failingRows, target));
+      setActionErrorMessage(formatMultiSkillFailureMessage(t, failingRows, target));
     }
     return byRef;
   }
@@ -463,24 +465,30 @@ export function useSkillsWorkspaceController(): SkillsWorkspaceController {
 }
 
 function formatSingleSkillFailureMessage(
+  t: ReturnType<typeof useTranslation<"skills">>["t"],
   name: string,
   target: SetAllHarnessesTarget,
   failures: SetAllHarnessesFailure[],
 ): string {
-  const verb = target === "enabled" ? "enable" : "disable";
   const harnesses = failures.map((failure) => failure.harness).join(", ");
-  return `Unable to ${verb} ${name} on ${harnesses}.`;
+  if (target === "enabled") {
+    return t("errors.enableHarnessFailed", { name, harnesses });
+  }
+  return t("errors.disableHarnessFailed", { name, harnesses });
 }
 
 function formatMultiSkillFailureMessage(
+  t: ReturnType<typeof useTranslation<"skills">>["t"],
   failingRows: Array<{ row: SkillListRow; result: SetAllHarnessesResult }>,
   target: SetAllHarnessesTarget,
 ): string {
-  const verb = target === "enabled" ? "enable" : "disable";
   if (failingRows.length === 1) {
     const { row, result } = failingRows[0];
-    return formatSingleSkillFailureMessage(row.name, target, result.failed);
+    return formatSingleSkillFailureMessage(t, row.name, target, result.failed);
   }
   const names = failingRows.map((entry) => entry.row.name).join(", ");
-  return `Unable to ${verb} every harness for ${failingRows.length} skills: ${names}.`;
+  if (target === "enabled") {
+    return t("errors.multiEnableFailed", { count: failingRows.length, names });
+  }
+  return t("errors.multiDisableFailed", { count: failingRows.length, names });
 }

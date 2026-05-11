@@ -1,0 +1,16 @@
+{
+  "errors": {
+    "requestFailed": "Request failed.",
+    "invalidRequest": "Invalid request.",
+    "unknownApiPath": "unknown api path: /{full_path}",
+    "fieldValidation": "{field_path}: {msg}",
+    "unknownSkillRef": "unknown skill ref: {skill_ref}",
+    "unknownSlashCommand": "unknown slash command: {name}",
+    "unknownMarketplaceItem": "unknown marketplace item: {item_id}",
+    "unknownMcpServer": "unknown MCP server: {qualified_name}",
+    "unknownCLI": "unknown CLI: {slug}"
+  },
+  "marketplace": {
+    "unavailable": "Marketplace is temporarily unavailable. Check your network connection or reinstall skill-manager if the problem persists."
+  }
+}

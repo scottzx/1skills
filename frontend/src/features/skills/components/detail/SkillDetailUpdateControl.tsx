@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { LoadingSpinner } from "../../../../components/LoadingSpinner";
 import type { SkillUpdateStatus } from "../../model/types";
 
@@ -8,17 +9,13 @@ interface SkillDetailUpdateControlProps {
   onUpdate: () => void;
 }
 
-const UPDATE_STATUS_LABELS: Record<Exclude<SkillUpdateStatus, "update_available" | "local_changes_detected">, string> = {
-  no_update_available: "No Update Available",
-  no_source_available: "No Source Available",
-};
-
 export function SkillDetailUpdateControl({
   updateStatus,
   pending,
   disabled,
   onUpdate,
 }: SkillDetailUpdateControlProps) {
+  const { t } = useTranslation("skills");
   if (updateStatus === "update_available") {
     return (
       <button
@@ -27,8 +24,8 @@ export function SkillDetailUpdateControl({
         disabled={disabled}
         onClick={onUpdate}
       >
-        {pending ? <LoadingSpinner size="sm" label="Updating skill" /> : null}
-        Update From Source
+        {pending ? <LoadingSpinner size="sm" label={t("detail.updatingSkill")} /> : null}
+        {t("detail.updateFromSource")}
       </button>
     );
   }
@@ -37,9 +34,14 @@ export function SkillDetailUpdateControl({
     return null;
   }
 
+  const labelMap: Record<Exclude<SkillUpdateStatus, "update_available" | "local_changes_detected">, string> = {
+    no_update_available: t("detail.noUpdateAvailable"),
+    no_source_available: t("detail.noSourceAvailable"),
+  };
+
   return (
     <span className="card-status-pill card-status-pill--md skill-detail__update-control">
-      {UPDATE_STATUS_LABELS[updateStatus]}
+      {labelMap[updateStatus]}
     </span>
   );
 }

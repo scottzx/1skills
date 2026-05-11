@@ -1,0 +1,76 @@
+{
+  "nav": {
+    "overview": "概览",
+    "skills": "技能",
+    "slashCommands": "快捷指令",
+    "mcpServers": "MCP 服务器",
+    "marketplace": "市场",
+    "settings": "设置"
+  },
+  "status": {
+    "inUse": "使用中",
+    "needsReview": "待审核",
+    "review": "审核",
+    "discover": "发现"
+  },
+  "actions": {
+    "cancel": "取消",
+    "refresh": "刷新",
+    "refreshing": "刷新中...",
+    "light": "浅色",
+    "lightThemeComingSoon": "浅色主题 — 即将推出",
+    "clearSelection": "清除选择",
+    "clearFilters": "清除筛选",
+    "deselect": "取消选择",
+    "select": "选择",
+    "browse": "浏览",
+    "enableAll": "全部启用",
+    "disableAll": "全部禁用",
+    "enabling": "启用中",
+    "disabling": "禁用中",
+    "sortBy": "排序"
+  },
+  "loading": {
+    "generic": "加载中...",
+    "overview": "加载概览",
+    "mcp": "加载 MCP",
+    "marketplace": "加载市场",
+    "slashCommands": "加载快捷指令",
+    "settings": "加载设置",
+    "more": "加载更多"
+  },
+  "error": {
+    "dismiss": "关闭错误"
+  },
+  "bulkActions": {
+    "selected": "已选择",
+    "ariaLabel": "批量操作",
+    "bulkEnabling": "启用中",
+    "bulkDisabling": "禁用中"
+  },
+  "detail": {
+    "close": "关闭详情视图",
+    "openDetailFor": "打开 {{name}} 的详情"
+  },
+  "filter": {
+    "searchPlaceholder": "搜索...",
+    "searchLabel": "筛选搜索",
+    "filterOptions": "筛选选项"
+  },
+  "viewModes": {
+    "grid": "网格",
+    "board": "看板",
+    "matrix": "矩阵"
+  },
+  "sidebar": {
+    "primaryNav": "主导航",
+    "openMenu": "打开菜单",
+    "closeMenu": "关闭菜单"
+  },
+  "marketplace": {
+    "skills": "技能",
+    "mcp": "MCP",
+    "clis": "CLI",
+    "previewOnly": "仅预览"
+  }
+}

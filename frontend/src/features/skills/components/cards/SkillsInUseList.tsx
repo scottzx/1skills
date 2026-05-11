@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import type { CellActionKey, StructuralSkillAction } from "../../model/pending";
 import type { SkillListRow } from "../../model/types";
 import { SkillInUseCard } from "./SkillInUseCard";
@@ -20,7 +21,7 @@ interface SkillsInUseListProps {
 }
 
 export function SkillsInUseList({
-  ariaLabel = "Skills in use list",
+  ariaLabel,
   rows,
   pendingToggleKeys,
   pendingStructuralActions,
@@ -32,8 +33,10 @@ export function SkillsInUseList({
   onRequestRemove,
   onRequestDelete,
 }: SkillsInUseListProps) {
+  const { t } = useTranslation("skills");
+
   return (
-    <section className="skill-grid" aria-label={ariaLabel}>
+    <section className="skill-grid" aria-label={ariaLabel ?? t("inUse.title")}>
       {rows.map((row) => (
         <SkillInUseCard
           key={row.skillRef}

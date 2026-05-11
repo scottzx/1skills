@@ -1,0 +1,112 @@
+{
+  "title": "Slash Commands",
+  "subtitle": "Create one global prompt that every harness can use or customize.",
+  "newCommand": "New command",
+  "searchLabel": "Search slash commands",
+  "loading": "Loading slash commands",
+  "errorTitle": "Unable to load slash commands",
+  "errorDescription": "Try refreshing the local data, or select another option in the sidebar.",
+  "deleteTitle": "Delete {{count}} slash command?",
+  "deleteTitle_plural": "Delete {{count}} slash commands?",
+  "deleteDescription": "This action cannot be undone. The selected slash commands will be permanently removed.",
+  "deleteButton": "Delete",
+  "deleting": "Deleting",
+  "emptyTitle": "No slash commands yet",
+  "emptyDescription": "Create one command to define a reusable prompt that works across harnesses.",
+  "review": {
+    "title": "Slash commands to review",
+    "subtitle": "{{count}} slash command needs a review decision.",
+    "subtitle_plural": "{{count}} slash commands need a review decision.",
+    "subtitleEmpty": "No slash commands need review across your harnesses.",
+    "adoptAll": "Adopt all eligible",
+    "adoptingAll": "Adopting all commands",
+    "searchLabel": "Search slash commands to review",
+    "emptyTitle": "Nothing needs review",
+    "emptyDescription": "No unmanaged slash commands or config differences were detected across your harnesses.",
+    "cannotUpdate": "Cannot update"
+  },
+  "board": {
+    "title": "Slash commands board",
+    "disabledColumn": "Disabled everywhere",
+    "disabledDescription": "Commands turned off everywhere",
+    "disabledEmpty": "No disabled commands",
+    "selectiveColumn": "Selective",
+    "selectiveDescription": "Enabled on some harnesses",
+    "selectiveEmpty": "No selectively enabled commands",
+    "enabledColumn": "Enabled everywhere",
+    "enabledDescription": "Commands turned on everywhere",
+    "enabledEmpty": "No fully enabled commands"
+  },
+  "list": {
+    "moreActionsFor": "More actions for {{name}}",
+    "deselect": "Deselect",
+    "select": "Select",
+    "enableOnAll": "Enable on all",
+    "disableEverywhere": "Disable everywhere"
+  },
+  "matrix": {
+    "title": "Slash commands target matrix",
+    "name": "Name",
+    "active": "Active",
+    "targets": "Targets",
+    "sortBy": "Sort by"
+  },
+  "form": {
+    "newTitle": "New slash command",
+    "editTitle": "Edit command",
+    "description": "Slash commands define reusable prompts that AI agents can invoke. Each command works across one or more harnesses.",
+    "nameLabel": "Name",
+    "namePlaceholder": "e.g. review-pr",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "What does this command do?",
+    "promptLabel": "Prompt",
+    "promptPlaceholder": "The instructions the AI agent will follow...",
+    "harnessesLabel": "Harnesses",
+    "locationsLabel": "Locations",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "written": "Written",
+    "cancel": "Cancel",
+    "create": "Create",
+    "save": "Save",
+    "validationError": "Please fix the errors above before saving."
+  },
+  "detail": {
+    "closeLabel": "Close slash command detail",
+    "description": "Description",
+    "prompt": "Prompt",
+    "noDescription": "No description provided.",
+    "noPrompt": "No prompt content.",
+    "edit": "Edit",
+    "delete": "Delete",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "written": "Written",
+    "noHarnessLocations": "No harness locations are enabled."
+  },
+  "actions": {
+    "restore": "Restore",
+    "adopt": "Adopt",
+    "removeBinding": "Remove binding",
+    "review": "Review"
+  },
+  "tooltips": {
+    "restore": "Restore the managed command content to match the Skill Manager source.",
+    "adopt": "Use this harness command as the managed version in Skill Manager.",
+    "removeBinding": "Stop tracking this harness command in Skill Manager.",
+    "adoptReview": "Adopt this command into Skill Manager",
+    "changedIn": "Changed in",
+    "missingFrom": "Missing from",
+    "foundIn": "Found in"
+  },
+  "toasts": {
+    "saved": "Slash command saved",
+    "savedWithWarnings": "Saved with sync warnings",
+    "enabled": "Slash commands enabled",
+    "disabled": "Slash commands disabled",
+    "deleted": "Slash command deleted",
+    "deletedPlural": "Slash commands deleted",
+    "deleteBlocked": "Delete blocked by existing bindings.",
+    "syncWarnings": "Sync finished with warnings"
+  }
+}

@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Link, useSearchParams } from "react-router-dom";
 
 import { ErrorBanner } from "../../../components/ErrorBanner";
@@ -17,6 +18,8 @@ import { useMcpManagementController } from "../model/use-mcp-management-controll
 const DETAIL_PARAM = "server";
 
 export default function McpNeedsReviewPage() {
+  const { t } = useTranslation("mcp");
+
   const {
     needsReviewByServer,
     isNeedsReviewByServerLoading,
@@ -76,11 +79,11 @@ export default function McpNeedsReviewPage() {
     <>
       <div className="page-chrome">
         <PageHeader
-          title="MCP configs to review"
+          title={t("needsReview.title")}
           subtitle={
             totalServers > 0
-              ? `${totalServers} unique server${totalServers === 1 ? "" : "s"} across your harness configs.`
-              : "No local MCP config entries need review across your harnesses."
+              ? t("needsReview.subtitle", { count: totalServers })
+              : t("needsReview.subtitleEmpty")
           }
           actions={
             identicalCount > 0 ? (
@@ -91,7 +94,7 @@ export default function McpNeedsReviewPage() {
                   void onAdoptIdenticalServers();
                 }}
               >
-                Adopt identical servers ({identicalCount})
+                {t("needsReview.adoptIdentical")} ({identicalCount})
               </button>
             ) : null
           }
@@ -100,8 +103,8 @@ export default function McpNeedsReviewPage() {
           <FilterBar
             searchValue={search}
             onSearchChange={setSearch}
-            searchPlaceholder="Search by server name..."
-            searchLabel="Search MCP configs to review"
+            searchPlaceholder={t("needsReview.searchPlaceholder")}
+            searchLabel={t("needsReview.searchLabel")}
           />
         ) : null}
       </div>
@@ -112,7 +115,7 @@ export default function McpNeedsReviewPage() {
 
       {isNeedsReviewByServerLoading ? (
         <div className="panel-state">
-          <LoadingSpinner size="md" label="Loading MCP configs to review" />
+          <LoadingSpinner size="md" label={t("needsReview.loading")} />
         </div>
       ) : isReady ? (
         filtered.length > 0 ? (
@@ -125,31 +128,30 @@ export default function McpNeedsReviewPage() {
           />
         ) : totalServers > 0 ? (
           <div className="empty-panel">
-            <h3 className="empty-panel__title">No matches</h3>
-            <p className="empty-panel__body">Clear the search to see all MCP configs that need review.</p>
+            <h3 className="empty-panel__title">{t("needsReview.noMatches")}</h3>
+            <p className="empty-panel__body">{t("needsReview.noMatchesDescription")}</p>
             <div className="empty-panel__actions">
               <button
                 type="button"
                 className="action-pill action-pill--md"
                 onClick={() => setSearch("")}
               >
-                Clear search
+                {t("needsReview.clearSearch")}
               </button>
             </div>
           </div>
         ) : (
           <div className="empty-panel">
-            <h3 className="empty-panel__title">No local MCP configs need review</h3>
+            <h3 className="empty-panel__title">{t("needsReview.emptyTitle")}</h3>
             <p className="empty-panel__body">
-              Your harness configs only reference MCP servers that skill-manager already tracks. Install a new server
-              from the marketplace to add more.
+              {t("needsReview.emptyDescription")}
             </p>
             <div className="empty-panel__actions">
               <Link
                 to="/marketplace/mcp"
                 className="action-pill action-pill--md action-pill--accent"
               >
-                Open Marketplace
+                {t("needsReview.openMarketplace")}
               </Link>
             </div>
           </div>

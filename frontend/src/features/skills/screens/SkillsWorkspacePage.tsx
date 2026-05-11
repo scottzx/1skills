@@ -1,4 +1,5 @@
 import { Outlet } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 import { BulkActionBar } from "../../../components/BulkActionBar";
 import { ErrorBanner } from "../../../components/ErrorBanner";
@@ -7,6 +8,7 @@ import { pendingToggleHarnessesForSkill } from "../model/pending";
 import { useSkillsWorkspaceController } from "../model/use-skills-workspace-controller";
 
 export default function SkillsWorkspacePage() {
+  const { t } = useTranslation("skills");
   const {
     context,
     activeTab,
@@ -50,13 +52,11 @@ export default function SkillsWorkspacePage() {
           onDisableAll={context.onMultiSelectDisableAll}
           onDelete={context.onMultiSelectDelete}
           destructive={{
-            actionLabel: "Delete",
-            confirmTitle: `Delete ${context.multiSelectedRefs.size} skill${
-              context.multiSelectedRefs.size === 1 ? "" : "s"
-            }?`,
+            actionLabel: t("workspace.deleteButton"),
+            confirmTitle: t("workspace.deleteTitle", { count: context.multiSelectedRefs.size }),
             confirmDescription:
-              "This removes the Skill Manager copy and its symlinks from every harness.",
-            confirmNote: "The source on disk outside the Skill Manager store is not touched.",
+              t("workspace.deleteHarnessDescription"),
+            confirmNote: t("workspace.deleteHarnessNote"),
           }}
         />
       ) : null}

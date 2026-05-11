@@ -13,3 +13,12 @@ def get_container(request: Request) -> BackendContainer:
 
 def get_frontend_dist(request: Request) -> Path | None:
     return request.app.state.frontend_dist  # type: ignore[no-any-return]
+
+
+def get_language(request: Request) -> str:
+    """Detect the request language from Accept-Language header."""
+    accept_lang = request.headers.get("Accept-Language", "en")
+    primary = accept_lang.split(",")[0].split(";")[0].strip()
+    if primary.startswith("zh"):
+        return "zh-CN"
+    return "en"

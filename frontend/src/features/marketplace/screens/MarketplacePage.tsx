@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 import { ErrorBanner } from "../../../components/ErrorBanner";
 import { MarketplaceCard } from "../components/MarketplaceCard";
 import { MarketplaceFeedPane } from "../components/MarketplaceFeedPane";
@@ -17,6 +19,7 @@ export default function MarketplacePage({
   onQueryChange,
   onItemCountChange,
 }: MarketplacePageProps) {
+  const { t } = useTranslation("marketplace");
   const {
     errorMessage,
     selectedItemId,
@@ -36,7 +39,7 @@ export default function MarketplacePage({
   const feedErrorMessage =
     feedQuery.error instanceof Error
       ? feedQuery.error.message
-      : "Unable to load the marketplace.";
+      : t("loading.skillsError");
 
   // Only open the detail modal if this tab is active AND the URL item id
   // is in our namespace (skills.sh items are prefixed `skillssh:`).
@@ -57,7 +60,7 @@ export default function MarketplacePage({
         itemCount={items.length}
         hasMore={hasMore}
         loadingMore={loadingMore}
-        loadingLabel="Loading marketplace"
+        loadingLabel={t("loading.skills")}
         errorMessage={feedErrorMessage}
         onItemCountChange={onItemCountChange}
         onLoadMore={() => feedQuery.fetchNextPage()}

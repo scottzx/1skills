@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 import { ErrorBanner } from "../../../components/ErrorBanner";
 import { CliMarketplaceCard } from "../components/CliMarketplaceCard";
 import { CliMarketplaceDetailSheet } from "../components/CliMarketplaceDetailSheet";
@@ -17,6 +19,7 @@ export default function MarketplaceCliPage({
   onQueryChange,
   onItemCountChange,
 }: MarketplaceCliPageProps) {
+  const { t } = useTranslation("marketplace");
   const {
     submittedQuery,
     items,
@@ -33,7 +36,7 @@ export default function MarketplaceCliPage({
   const feedErrorMessage =
     feedQuery.error instanceof Error
       ? feedQuery.error.message
-      : "Unable to load CLI marketplace.";
+      : t("loading.cliError");
 
   const ownsItemId = Boolean(selectedId?.startsWith("clisdev:"));
   const resolvedItemId = isActive && ownsItemId ? selectedId : null;
@@ -52,7 +55,7 @@ export default function MarketplaceCliPage({
         itemCount={items.length}
         hasMore={hasMore}
         loadingMore={loadingMore}
-        loadingLabel="Loading CLI marketplace"
+        loadingLabel={t("loading.cli")}
         errorMessage={feedErrorMessage}
         onItemCountChange={onItemCountChange}
         onLoadMore={() => feedQuery.fetchNextPage()}
@@ -60,8 +63,8 @@ export default function MarketplaceCliPage({
           <div className="panel-state">
             <p className="muted-text">
               {submittedQuery
-                ? `No CLIs match “${submittedQuery}”.`
-                : "No CLIs found."}
+                ? t("empty.cliSearch", { query: submittedQuery })
+                : t("empty.cliEmpty")}
             </p>
           </div>
         }

@@ -1,5 +1,6 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 
 import { LoadingSpinner } from "./LoadingSpinner";
 
@@ -28,6 +29,7 @@ export function ConfirmActionDialog({
   onOpenChange,
   onConfirm,
 }: ConfirmActionDialogProps) {
+  const { t } = useTranslation("common");
   return (
     <Dialog.Root
       open={open}
@@ -71,7 +73,7 @@ export function ConfirmActionDialog({
               disabled={isPending}
               onClick={() => onOpenChange(false)}
             >
-              Cancel
+              {t("actions.cancel")}
             </button>
             <button
               type="button"

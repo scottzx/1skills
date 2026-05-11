@@ -1,10 +1,12 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, type RenderOptions } from "@testing-library/react";
 import { type ReactElement, type ReactNode } from "react";
+import { I18nextProvider } from "react-i18next";
 import { MemoryRouter } from "react-router-dom";
 
 import { ToastProvider } from "../components/Toast";
 import { UiTooltipProvider } from "../components/ui/UiTooltipProvider";
+import i18n from "../i18n/config";
 
 export function createTestQueryClient(): QueryClient {
   return new QueryClient({
@@ -28,13 +30,15 @@ export function renderWithAppProviders(
 ) {
   const result = render(ui, {
     wrapper: ({ children }: { children: ReactNode }) => (
-      <QueryClientProvider client={queryClient}>
-        <UiTooltipProvider delayDuration={0} skipDelayDuration={0}>
-          <ToastProvider>
-            <MemoryRouter initialEntries={[route]}>{children}</MemoryRouter>
-          </ToastProvider>
-        </UiTooltipProvider>
-      </QueryClientProvider>
+      <I18nextProvider i18n={i18n}>
+        <QueryClientProvider client={queryClient}>
+          <UiTooltipProvider delayDuration={0} skipDelayDuration={0}>
+            <ToastProvider>
+              <MemoryRouter initialEntries={[route]}>{children}</MemoryRouter>
+            </ToastProvider>
+          </UiTooltipProvider>
+        </QueryClientProvider>
+      </I18nextProvider>
     ),
     ...renderOptions,
   });

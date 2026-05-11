@@ -1,4 +1,5 @@
 import { type KeyboardEvent, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { CheckCircle2, Star, TerminalSquare } from "lucide-react";
 
 import type { CliMarketplaceItemDto } from "../api/cli-types";
@@ -30,6 +31,7 @@ export function CliMarketplaceCard({
   selected,
   onOpenDetail,
 }: CliMarketplaceCardProps) {
+  const { t } = useTranslation("marketplace");
   const [avatarFailed, setAvatarFailed] = useState(false);
   const avatarSrc = item.iconUrl && !avatarFailed ? item.iconUrl : null;
 
@@ -48,7 +50,7 @@ export function CliMarketplaceCard({
       tabIndex={0}
       onClick={onOpenDetail}
       onKeyDown={handleKeyDown}
-      aria-label={`Open CLI marketplace detail for ${item.name}`}
+      aria-label={t("cliCard.openDetailFor", { name: item.name })}
       data-selected={selected}
     >
       <div className="market-card__head">
@@ -56,7 +58,7 @@ export function CliMarketplaceCard({
           {avatarSrc ? (
             <img
               src={avatarSrc}
-              alt={`Avatar for ${item.name}`}
+              alt={t("cliCard.avatarFor", { name: item.name })}
               onError={() => setAvatarFailed(true)}
             />
           ) : (
@@ -73,7 +75,7 @@ export function CliMarketplaceCard({
       </div>
 
       <p className="market-card__body cli-card__body">
-        {item.description || "No description provided."}
+        {item.description || t("cliCard.noDescription")}
       </p>
 
       <div className="market-card__footer cli-card__footer">
@@ -83,12 +85,12 @@ export function CliMarketplaceCard({
           {item.isOfficial ? (
             <span className="chip chip--verified">
               <CheckCircle2 size={12} aria-hidden="true" />
-              Official
+              {t("cliCard.official")}
             </span>
           ) : null}
-          {item.isTui ? <span className="chip">TUI</span> : null}
-          {item.hasMcp ? <span className="chip">MCP</span> : null}
-          {item.hasSkill ? <span className="chip">Skill</span> : null}
+          {item.isTui ? <span className="chip">{t("cliCard.tui")}</span> : null}
+          {item.hasMcp ? <span className="chip">{t("cliCard.mcp")}</span> : null}
+          {item.hasSkill ? <span className="chip">{t("cliCard.skill")}</span> : null}
         </div>
         {item.stars != null ? (
           <span className="market-card__stat">

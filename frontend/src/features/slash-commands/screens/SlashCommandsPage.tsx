@@ -1,4 +1,5 @@
 import { Columns3, LayoutGrid, Plus, Rows3 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { BulkActionBar } from "../../../components/BulkActionBar";
 import { ConfirmActionDialog } from "../../../components/ConfirmActionDialog";
@@ -22,6 +23,7 @@ const VIEW_MODE_OPTIONS: readonly ViewModeOption<SlashCommandsViewMode>[] = [
 ];
 
 export default function SlashCommandsPage() {
+  const { t } = useTranslation("slashCommands");
   const controller = useSlashCommandsController();
   const {
     actionError,
@@ -65,8 +67,8 @@ export default function SlashCommandsPage() {
     <>
       <div className="page-chrome">
         <PageHeader
-          title="Slash Commands"
-          subtitle="Create one global prompt and sync it into local slash command folders."
+          title={t("title")}
+          subtitle={t("subtitle")}
           actions={
             <>
               <ViewModeToggle
@@ -77,7 +79,7 @@ export default function SlashCommandsPage() {
               />
               <button type="button" className="action-pill action-pill--md" onClick={openCreate}>
                 <Plus size={14} aria-hidden="true" />
-                New command
+                {t("newCommand")}
               </button>
             </>
           }
@@ -85,19 +87,19 @@ export default function SlashCommandsPage() {
         <FilterBar
           searchValue={search}
           onSearchChange={setSearch}
-          searchPlaceholder="Search slash commands"
-          searchLabel="Search slash commands"
+          searchPlaceholder={t("searchLabel")}
+          searchLabel={t("searchLabel")}
         />
       </div>
 
       {actionError ? <ErrorBanner message={actionError} onDismiss={() => setActionError("")} /> : null}
       {query.error ? (
-        <ErrorBanner message={query.error instanceof Error ? query.error.message : "Unable to load slash commands."} />
+        <ErrorBanner message={query.error instanceof Error ? query.error.message : t("errorTitle")} />
       ) : null}
 
       {query.isPending ? (
         <div className="panel-state">
-          <LoadingSpinner label="Loading slash commands" />
+          <LoadingSpinner label={t("loading")} />
         </div>
       ) : data ? (
         viewMode === "board" ? (
@@ -182,21 +184,19 @@ export default function SlashCommandsPage() {
         onDisableAll={handleBulkDisableAll}
         onDelete={handleBulkDelete}
         destructive={{
-          actionLabel: "Delete",
-          confirmTitle: `Delete ${checkedNames.size} slash command${
-            checkedNames.size === 1 ? "" : "s"
-          }?`,
+          actionLabel: t("deleteButton"),
+          confirmTitle: t("deleteTitle", { count: checkedNames.size }),
           confirmDescription:
-            "This removes the source command and generated command files for every selected slash command.",
+            t("deleteDescription"),
         }}
       />
 
       <ConfirmActionDialog
         open={deleteCommand !== null}
-        title={`Delete ${deleteCommand?.name ?? "slash command"}?`}
-        description="This removes the source command and generated command files from every synced target."
-        confirmLabel="Delete"
-        pendingLabel="Deleting"
+        title={`${t("deleteButton")} ${deleteCommand?.name ?? "slash command"}?`}
+        description={t("deleteDescription")}
+        confirmLabel={t("deleteButton")}
+        pendingLabel={t("deleting")}
         isPending={deletePending}
         onOpenChange={(open) => {
           if (!open) setDeleteCommand(null);

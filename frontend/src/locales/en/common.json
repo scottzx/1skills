@@ -1,0 +1,76 @@
+{
+  "nav": {
+    "overview": "Overview",
+    "skills": "Skills",
+    "slashCommands": "Slash Commands",
+    "mcpServers": "MCP Servers",
+    "marketplace": "Marketplace",
+    "settings": "Settings"
+  },
+  "status": {
+    "inUse": "In use",
+    "needsReview": "Needs review",
+    "review": "Review",
+    "discover": "Discover"
+  },
+  "actions": {
+    "cancel": "Cancel",
+    "refresh": "Refresh",
+    "refreshing": "Refreshing...",
+    "light": "Light",
+    "lightThemeComingSoon": "Light theme — coming soon",
+    "clearSelection": "Clear selection",
+    "clearFilters": "Clear Filters",
+    "deselect": "Deselect",
+    "select": "Select",
+    "browse": "Browse",
+    "enableAll": "Enable all",
+    "disableAll": "Disable all",
+    "enabling": "Enabling",
+    "disabling": "Disabling",
+    "sortBy": "Sort by"
+  },
+  "loading": {
+    "generic": "Loading...",
+    "overview": "Loading overview",
+    "mcp": "Loading MCP",
+    "marketplace": "Loading marketplace",
+    "slashCommands": "Loading slash commands",
+    "settings": "Loading settings",
+    "more": "Loading more"
+  },
+  "error": {
+    "dismiss": "Dismiss error"
+  },
+  "bulkActions": {
+    "selected": "selected",
+    "ariaLabel": "Bulk actions",
+    "bulkEnabling": "Enabling",
+    "bulkDisabling": "Disabling"
+  },
+  "detail": {
+    "close": "Close detail view",
+    "openDetailFor": "Open detail for {{name}}"
+  },
+  "filter": {
+    "searchPlaceholder": "Search...",
+    "searchLabel": "Filter search",
+    "filterOptions": "Filter options"
+  },
+  "viewModes": {
+    "grid": "Grid",
+    "board": "Board",
+    "matrix": "Matrix"
+  },
+  "sidebar": {
+    "primaryNav": "Primary navigation",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
+  },
+  "marketplace": {
+    "skills": "Skills",
+    "mcp": "MCP",
+    "clis": "CLIs",
+    "previewOnly": "Preview only"
+  }
+}

@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 import { DetailHeader } from "../../../components/detail/DetailHeader";
 import { DetailLoadingChip } from "../../../components/detail/DetailLoadingChip";
 
@@ -6,14 +8,15 @@ interface MarketplaceDetailSkeletonProps {
 }
 
 export function MarketplaceDetailSkeleton({ onClose }: MarketplaceDetailSkeletonProps) {
+  const { t } = useTranslation("marketplace");
   return (
     <>
       <div className="skill-detail__chrome">
         <DetailHeader
           title={<span className="detail-skeleton detail-skeleton--title" aria-hidden="true" />}
           meta={<span className="detail-skeleton detail-skeleton--subtitle" aria-hidden="true" />}
-          utility={<DetailLoadingChip label="Loading Preview" withSpinner />}
-          closeLabel="Close marketplace preview"
+          utility={<DetailLoadingChip label={t("detail.loadingPreview")} withSpinner />}
+          closeLabel={t("detail.closePreview")}
           onClose={onClose}
         />
       </div>
@@ -39,6 +42,7 @@ export function MarketplaceDetailSkeleton({ onClose }: MarketplaceDetailSkeleton
 }
 
 export function MarketplaceDetailPendingDocument() {
+  const { t } = useTranslation("marketplace");
   return (
     <section
       className="skill-detail__disclosure skill-detail__disclosure--document is-open marketplace-detail__pending-document"
@@ -46,7 +50,7 @@ export function MarketplaceDetailPendingDocument() {
     >
       <div className="skill-detail-disclosure__trigger">
         <span className="skill-detail-disclosure__heading">
-          <span className="skill-detail-disclosure__title">SKILL.md</span>
+          <span className="skill-detail-disclosure__title">{t("detail.skillMd")}</span>
         </span>
       </div>
       <div className="skill-detail-disclosure__frame">

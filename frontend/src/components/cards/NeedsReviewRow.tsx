@@ -1,5 +1,6 @@
 import { type ReactNode } from "react";
 import { Loader2, Plus } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { OverflowTooltipText } from "../ui/OverflowTooltipText";
 import { UiTooltip } from "../ui/UiTooltip";
@@ -38,6 +39,7 @@ export function NeedsReviewRow({
   onOpen,
   onAction,
 }: NeedsReviewRowProps) {
+  const { t } = useTranslation("common");
   const isActionUnavailable = pending || actionDisabled;
   const actionButton = (
     <button
@@ -84,7 +86,7 @@ export function NeedsReviewRow({
           onOpen();
         }
       }}
-      aria-label={`Open detail for ${name}`}
+      aria-label={t("detail.openDetailFor", { name })}
     >
       <div className="needs-review-row__body">
         <div className="needs-review-row__title">

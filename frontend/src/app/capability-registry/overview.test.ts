@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
 import { buildOverviewModel } from "./overview";
+import i18n from "../../i18n/config";
+
+const t = i18n.getFixedT("en", "overview");
 
 describe("capability overview model", () => {
   it("keeps CLIs as discover-only and local lifecycle rows for managed extensions", () => {
@@ -48,6 +51,7 @@ describe("capability overview model", () => {
         ],
         issues: [],
       },
+      t,
     );
 
     expect(model.extensions.map((entry) => entry.key)).toEqual(["skills", "slash-commands", "mcp"]);

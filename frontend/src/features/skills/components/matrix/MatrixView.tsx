@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import {
   MatrixHarnessIcon,
@@ -33,6 +34,7 @@ export function MatrixView({
   onToggleChecked,
   onToggleCell,
 }: MatrixViewProps) {
+  const { t } = useTranslation("skills");
   const [sort, setSort] = useState<SortState>(INITIAL_SORT);
 
   const sortedRows = useMemo(() => sortRows(rows, sort), [rows, sort]);
@@ -48,7 +50,7 @@ export function MatrixView({
 
   return (
     <MatrixTable
-      ariaLabel="Skills harness matrix"
+      ariaLabel={t("matrix.title")}
       harnessColumnCount={harnessColumns.length}
       harnessColumnWidth="52px"
       compactColumnWidth="140px"
@@ -56,9 +58,9 @@ export function MatrixView({
     >
       <thead className="matrix-table__head">
         <tr>
-          <th className="matrix-table__th matrix-table__th--checkbox" aria-label="Select" />
+          <th className="matrix-table__th matrix-table__th--checkbox" aria-label={t("matrix.select")} />
           <MatrixSortableHeader
-            label="Name"
+            label={t("matrix.name")}
             align="identity"
             active={sortKeysEqual(sort.key, "name")}
             direction={sort.direction}
@@ -81,16 +83,16 @@ export function MatrixView({
                     harness={column.harness}
                   />
                 }
-                srLabel={`Sort by ${column.label}`}
+                srLabel={t("matrix.sortByLabel", { label: column.label })}
                 onClick={() => requestSort(key)}
               />
             );
           })}
-          <th className="matrix-table__th matrix-table__th--compact" aria-label="Harnesses">
-            Harnesses
+          <th className="matrix-table__th matrix-table__th--compact" aria-label={t("matrix.harnesses")}>
+            {t("matrix.harnesses")}
           </th>
           <MatrixSortableHeader
-            label="Active"
+            label={t("matrix.active")}
             align="end"
             active={sortKeysEqual(sort.key, "coverage")}
             direction={sort.direction}

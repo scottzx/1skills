@@ -1,0 +1,225 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - complementary "Primary navigation" [ref=e4]:
+      - link "skill-manager" [ref=e6] [cursor=pointer]:
+        - /url: /overview
+      - navigation [ref=e7]:
+        - link "概览" [ref=e8] [cursor=pointer]:
+          - /url: /overview
+          - img [ref=e9]
+          - generic [ref=e14]: 概览
+        - generic [ref=e15]:
+          - button "技能 1" [expanded] [ref=e101] [cursor=pointer]:
+            - img [ref=e17]
+            - generic [ref=e19]: 技能
+            - generic [ref=e102]: "1"
+            - img [ref=e20]
+          - generic [ref=e22]:
+            - link "使用中 1" [ref=e103] [cursor=pointer]:
+              - /url: /skills/use
+              - generic [ref=e25]: 使用中
+              - generic [ref=e104]: "1"
+            - link "待审核 0" [ref=e105] [cursor=pointer]:
+              - /url: /skills/review
+              - generic [ref=e28]: 待审核
+              - generic [ref=e106]: "0"
+        - generic [ref=e29]:
+          - button "快捷指令 0" [expanded] [ref=e107] [cursor=pointer]:
+            - img [ref=e31]
+            - generic [ref=e33]: 快捷指令
+            - generic [ref=e108]: "0"
+            - img [ref=e34]
+          - generic [ref=e36]:
+            - link "使用中 0" [ref=e109] [cursor=pointer]:
+              - /url: /slash-commands/use
+              - generic [ref=e39]: 使用中
+              - generic [ref=e110]: "0"
+            - link "待审核 0" [ref=e111] [cursor=pointer]:
+              - /url: /slash-commands/review
+              - generic [ref=e42]: 待审核
+              - generic [ref=e112]: "0"
+        - generic [ref=e43]:
+          - button "MCP 服务器 0" [expanded] [ref=e113] [cursor=pointer]:
+            - img [ref=e45]
+            - generic [ref=e47]: MCP 服务器
+            - generic [ref=e114]: "0"
+            - img [ref=e48]
+          - generic [ref=e50]:
+            - link "使用中 0" [ref=e115] [cursor=pointer]:
+              - /url: /mcp/use
+              - generic [ref=e53]: 使用中
+              - generic [ref=e116]: "0"
+            - link "待审核 0" [ref=e117] [cursor=pointer]:
+              - /url: /mcp/review
+              - generic [ref=e56]: 待审核
+              - generic [ref=e118]: "0"
+        - generic [ref=e57]:
+          - button "市场" [expanded] [ref=e58] [cursor=pointer]:
+            - img [ref=e59]
+            - generic [ref=e63]: 市场
+            - img [ref=e64]
+          - generic [ref=e66]:
+            - link "技能" [ref=e67] [cursor=pointer]:
+              - /url: /marketplace/skills
+              - generic [ref=e69]: 技能
+            - link "MCP" [ref=e70] [cursor=pointer]:
+              - /url: /marketplace/mcp
+              - generic [ref=e72]: MCP
+            - link "CLI" [ref=e73] [cursor=pointer]:
+              - /url: /marketplace/clis
+              - generic [ref=e75]: CLI
+      - generic [ref=e76]:
+        - button "Refresh" [ref=e77] [cursor=pointer]:
+          - img [ref=e78]
+          - generic [ref=e83]: Refresh
+        - button "Light" [ref=e84] [cursor=pointer]:
+          - img [ref=e85]
+          - generic [ref=e91]: Light
+        - link "Settings" [ref=e92] [cursor=pointer]:
+          - /url: /settings
+          - img [ref=e93]
+          - generic [ref=e96]: Settings
+    - main [ref=e97]:
+      - generic [ref=e98]:
+        - heading "Overview" [level=2] [ref=e122]
+        - generic [ref=e123]:
+          - region "Inventory statistics" [ref=e124]:
+            - article [ref=e125]:
+              - generic [ref=e126]: "1"
+              - generic [ref=e127]: In use
+              - generic [ref=e128]: 1 skill · 0 commands · 0 MCP
+            - article [ref=e129]:
+              - generic [ref=e130]: "1"
+              - generic [ref=e131]: Needs review
+              - generic [ref=e132]: adoption · config · inventory
+            - article [ref=e133]:
+              - generic [ref=e134]: "5"
+              - generic [ref=e135]: Harnesses
+              - generic [ref=e136]: 5 observed
+          - generic [ref=e137]:
+            - generic [ref=e138]:
+              - region "Extensions" [ref=e139]:
+                - heading "Extensions" [level=2] [ref=e141]
+                - generic [ref=e142]:
+                  - article [ref=e143]:
+                    - img [ref=e145]
+                    - generic [ref=e147]:
+                      - heading "Skills" [level=3] [ref=e149]
+                      - generic [ref=e150]:
+                        - generic [ref=e151]:
+                          - term [ref=e152]: in use
+                          - definition [ref=e153]: 1 in use
+                        - generic [ref=e154]:
+                          - text: ·
+                          - term [ref=e155]: review
+                          - definition [ref=e156]: 0 review
+                    - generic [ref=e157]:
+                      - link "In use" [ref=e158] [cursor=pointer]:
+                        - /url: /skills/use
+                      - link "Needs review" [ref=e159] [cursor=pointer]:
+                        - /url: /skills/review
+                  - article [ref=e160]:
+                    - img [ref=e162]
+                    - generic [ref=e164]:
+                      - heading "Slash Commands" [level=3] [ref=e166]
+                      - generic [ref=e167]:
+                        - generic [ref=e168]:
+                          - term [ref=e169]: in use
+                          - definition [ref=e170]: 0 in use
+                        - generic [ref=e171]:
+                          - text: ·
+                          - term [ref=e172]: review
+                          - definition [ref=e173]: 0 review
+                    - generic [ref=e174]:
+                      - link "In use" [ref=e175] [cursor=pointer]:
+                        - /url: /slash-commands/use
+                      - link "Needs review" [ref=e176] [cursor=pointer]:
+                        - /url: /slash-commands/review
+                  - article [ref=e177]:
+                    - img [ref=e179]
+                    - generic [ref=e181]:
+                      - heading "MCP Servers" [level=3] [ref=e183]
+                      - generic [ref=e184]:
+                        - generic [ref=e185]:
+                          - term [ref=e186]: in use
+                          - definition [ref=e187]: 0 in use
+                        - generic [ref=e188]:
+                          - text: ·
+                          - term [ref=e189]: review
+                          - definition [ref=e190]: 1 review
+                    - generic [ref=e191]:
+                      - link "In use" [ref=e192] [cursor=pointer]:
+                        - /url: /mcp/use
+                      - link "Needs review" [ref=e193] [cursor=pointer]:
+                        - /url: /mcp/review
+              - region "Active harnesses" [ref=e194]:
+                - heading "Active harnesses" [level=2] [ref=e196]
+                - generic [ref=e197]:
+                  - generic [ref=e198]:
+                    - generic [ref=e199]: Harness
+                    - generic [ref=e200]: Skills
+                    - generic [ref=e201]: MCP
+                    - generic [ref=e202]: Needs review
+                  - generic [ref=e203]:
+                    - strong [ref=e207]: Codex
+                    - generic [ref=e210]: "0"
+                    - generic [ref=e213]: "0"
+                    - generic [ref=e216]: "0"
+                  - generic [ref=e217]:
+                    - strong [ref=e221]: Claude
+                    - generic [ref=e224]: "1"
+                    - generic [ref=e227]: "0"
+                    - generic [ref=e230]: "0"
+                  - generic [ref=e231]:
+                    - strong [ref=e235]: Cursor
+                    - generic [ref=e238]: "0"
+                    - generic [ref=e241]: "0"
+                    - generic [ref=e244]: "0"
+                  - generic [ref=e245]:
+                    - strong [ref=e249]: OpenCode
+                    - generic [ref=e252]: "0"
+                    - generic [ref=e255]: "0"
+                    - generic [ref=e258]: "0"
+                  - generic [ref=e259]:
+                    - strong [ref=e263]:
+                      - text: OpenClaw
+                      - generic "Installed OpenClaw does not expose MCP config support" [ref=e264]:
+                        - img [ref=e265]
+                    - generic [ref=e269]: "1"
+                    - generic [ref=e272]: "0"
+                    - generic [ref=e275]: "0"
+            - generic [ref=e276]:
+              - region "Discover" [ref=e277]:
+                - heading "Discover" [level=2] [ref=e279]
+                - generic [ref=e280]:
+                  - article [ref=e281]:
+                    - img [ref=e283]
+                    - generic [ref=e286]:
+                      - heading "Skills Marketplace" [level=3] [ref=e287]
+                      - generic [ref=e288]: skills.sh
+                    - link "Browse" [ref=e290] [cursor=pointer]:
+                      - /url: /marketplace/skills
+                  - article [ref=e291]:
+                    - img [ref=e293]
+                    - generic [ref=e296]:
+                      - heading "MCP Marketplace" [level=3] [ref=e297]
+                      - generic [ref=e298]: smithery.ai
+                    - link "Browse" [ref=e300] [cursor=pointer]:
+                      - /url: /marketplace/mcp
+                  - article [ref=e301]:
+                    - img [ref=e303]
+                    - generic [ref=e314]:
+                      - heading "CLI Marketplace" [level=3] [ref=e315]
+                      - generic [ref=e316]: CLIs.dev
+                      - generic [ref=e317]: Preview only
+                    - link "Browse" [ref=e319] [cursor=pointer]:
+                      - /url: /marketplace/clis
+              - region "Review" [ref=e320]:
+                - heading "Review" [level=2] [ref=e322]
+                - link "1 MCP harness unavailable At least one harness cannot safely receive MCP writes." [ref=e324] [cursor=pointer]:
+                  - /url: /settings
+                  - generic [ref=e325]: "1"
+                  - generic [ref=e326]:
+                    - strong [ref=e327]: MCP harness unavailable
+                    - generic [ref=e328]: At least one harness cannot safely receive MCP writes.
+  - status

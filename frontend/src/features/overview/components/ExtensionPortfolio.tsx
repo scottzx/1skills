@@ -1,6 +1,7 @@
 import { BookOpen, Command, Terminal } from "lucide-react";
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 import type { OverviewExtensionKind } from "../../../app/capability-registry";
 
@@ -10,10 +11,12 @@ interface ExtensionPortfolioProps {
 }
 
 export function ExtensionPortfolio({ extensions, loading }: ExtensionPortfolioProps) {
+  const { t } = useTranslation("overview");
+
   return (
     <section className="overview-section" aria-labelledby="overview-extensions-title">
       <div className="overview-section__head">
-        <h2 id="overview-extensions-title">Extensions</h2>
+        <h2 id="overview-extensions-title">{t("extensions.heading")}</h2>
       </div>
       <div className="overview-row-panel">
         {extensions.map((extension) => (

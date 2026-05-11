@@ -1,5 +1,6 @@
 import { Search } from "lucide-react";
 import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 
 export interface PillOption {
   value: string;
@@ -21,28 +22,29 @@ interface FilterBarProps {
 export function FilterBar({
   searchValue,
   onSearchChange,
-  searchPlaceholder = "Search...",
-  searchLabel = "Filter search",
+  searchPlaceholder,
+  searchLabel,
   pills,
   activePill,
   onPillChange,
   trailing,
 }: FilterBarProps) {
+  const { t } = useTranslation("common");
   return (
     <div className="filter-bar">
       <div className="filter-bar__search">
         <Search size={15} aria-hidden="true" />
         <input
           type="search"
-          aria-label={searchLabel}
-          placeholder={searchPlaceholder}
+          aria-label={searchLabel ?? t("filter.searchLabel")}
+          placeholder={searchPlaceholder ?? t("filter.searchPlaceholder")}
           value={searchValue}
           onChange={(event) => onSearchChange(event.target.value)}
         />
       </div>
 
       {pills && pills.length > 0 ? (
-        <div className="pill-group" role="group" aria-label="Filter options">
+        <div className="pill-group" role="group" aria-label={t("filter.filterOptions")}>
           {pills.map((pill) => (
             <button
               key={pill.value}

@@ -1,0 +1,164 @@
+{
+  "title": "Marketplace",
+  "previewOnly": "Preview only — install is not available for this item type yet.",
+  "tabs": {
+    "skills": "Skills",
+    "mcp": "MCP",
+    "clis": "CLIs"
+  },
+  "layout": {
+    "previewCliOnly": "Preview only · Skill Manager does not install or manage CLIs",
+    "filterMcpServers": "Filter MCP servers",
+    "marketplaceType": "Marketplace type",
+    "genericLoading": "Loading marketplace"
+  },
+  "search": {
+    "skills": "Search skills.sh listings...",
+    "mcp": "Search Smithery MCP servers...",
+    "clis": "Search CLI tools..."
+  },
+  "searchLabels": {
+    "skills": "Search marketplace skills",
+    "mcp": "Search marketplace MCP servers",
+    "clis": "Search marketplace CLIs"
+  },
+  "filters": {
+    "all": "All",
+    "remote": "Remote",
+    "local": "Local",
+    "verified": "Verified"
+  },
+  "loading": {
+    "skills": "Loading skills marketplace",
+    "skillsError": "Unable to load the marketplace.",
+    "mcp": "Loading MCP marketplace",
+    "mcpError": "Unable to load MCP marketplace.",
+    "cli": "Loading CLI marketplace",
+    "cliError": "Unable to load CLI marketplace.",
+    "more": "Loading more"
+  },
+  "empty": {
+    "skills": "No skills match the current search or filter.",
+    "mcp": "No MCP servers match the current search or filter.",
+    "mcpSearch": "No MCP servers match \"{{query}}\".",
+    "mcpEmpty": "No MCP servers found.",
+    "clis": "No CLI tools match the current search or filter.",
+    "cliSearch": "No CLIs match \"{{query}}\".",
+    "cliEmpty": "No CLIs found."
+  },
+  "card": {
+    "openDetailFor": "Open marketplace detail for {{name}}",
+    "openInSkills": "Open {{name}} in Skills",
+    "openInSkillsShort": "Open in Skills",
+    "noSummary": "No summary available on skills.sh.",
+    "install": "Install",
+    "installing": "Installing",
+    "installs": "{{count}} installs",
+    "stars": "{{count}} stars",
+    "avatarFor": "Avatar for {{repoLabel}}"
+  },
+  "mcpCard": {
+    "openDetailFor": "Open MCP marketplace detail for {{name}}",
+    "noDescription": "No description provided.",
+    "remote": "Remote",
+    "local": "Local",
+    "verified": "Verified",
+    "calls": "calls",
+    "iconFor": "Icon for {{name}}"
+  },
+  "cliCard": {
+    "openDetailFor": "Open CLI marketplace detail for {{name}}",
+    "noDescription": "No description provided.",
+    "official": "Official",
+    "tui": "TUI",
+    "mcp": "MCP",
+    "skill": "Skill",
+    "avatarFor": "Avatar for {{name}}"
+  },
+  "detail": {
+    "closePreview": "Close marketplace preview",
+    "loadingPreview": "Loading Preview",
+    "errorTitle": "Unable to load marketplace detail.",
+    "errorDescription": "Try reopening the marketplace item from the grid.",
+    "noDescription": "No description available.",
+    "githubStars": "GitHub stars",
+    "githubStarsCount": "{{count}} GitHub stars",
+    "skillMd": "SKILL.md",
+    "loadingDocument": "Loading document",
+    "openSkillFolder": "Open Skill Folder",
+    "viewOnSkillsSh": "View on skills.sh",
+    "openInSkills": "Open in Skills",
+    "install": "Install",
+    "installing": "Installing",
+    "sourceLinksFor": "Source links for {{name}}"
+  },
+  "mcpDetail": {
+    "closePreview": "Close MCP preview",
+    "loading": "Loading MCP details",
+    "errorTitle": "Unable to load MCP server",
+    "errorDescription": "Try reopening the server from the marketplace grid.",
+    "about": "About",
+    "noDescription": "No description provided.",
+    "capabilities": "Capabilities",
+    "tools": "Tools",
+    "resources": "Resources",
+    "prompts": "Prompts",
+    "connection": "Connection",
+    "deploymentUrl": "Deployment URL",
+    "copy": "Copy",
+    "localStdioCommand": "Local stdio command",
+    "connectionDetail": "Smithery can forward this MCP connection or run it locally. Choose the target harness to configure it.",
+    "noConnectionInfo": "The source installer will write the actual local command into the selected harness.",
+    "copied": "{{label}} copied",
+    "copyFailed": "Copy failed",
+    "showMore": "Show {{count}} more",
+    "showMoreSimple": "Show more",
+    "showLess": "Show less",
+    "collapseTools": "Collapse tools",
+    "viewOnSmithery": "View on smithery.ai",
+    "sourceLinksFor": "Source links for {{name}}",
+    "command": "Command",
+    "commandCopied": "Command copied",
+    "toolsCount": "Tools ({{count}})",
+    "resourcesCount": "Resources ({{count}})",
+    "promptsCount": "Prompts ({{count}})"
+  },
+  "mcpTool": {
+    "parameters": "Parameters",
+    "noDescription": "No description.",
+    "required": "required"
+  },
+  "mcpInstall": {
+    "installing": "Installing",
+    "openInMcp": "Open in MCP servers in use",
+    "openInMcpShort": "Open in MCPs",
+    "addToMcp": "Add to MCPs",
+    "addToMcpUnavailable": "Add to MCPs (unavailable)",
+    "installIntoHarness": "Install into source harness",
+    "loadingInstallers": "Loading source harness installers",
+    "installWithSmithery": "Install with Smithery's recommended settings",
+    "noSupportedHarness": "No supported Smithery source harness installers are available",
+    "installWithSmitheryTarget": "Install with Smithery's {{client}} target"
+  },
+  "cliDetail": {
+    "closePreview": "Close CLI preview",
+    "loading": "Loading CLI details",
+    "errorTitle": "Unable to load CLI",
+    "errorDescription": "Try reopening the CLI from the marketplace grid.",
+    "installCommand": "Install command preview",
+    "copy": "Copy",
+    "about": "About",
+    "noDescription": "No description provided.",
+    "source": "Source",
+    "sourceType": "Source type",
+    "vendor": "Vendor",
+    "website": "Website",
+    "repo": "Repo",
+    "clisDev": "CLIs.dev",
+    "commandCopied": "Command copied",
+    "copyFailed": "Copy failed",
+    "sourceLinksFor": "Source links for {{name}}",
+    "cliFactsFor": "CLI facts for {{name}}",
+    "loadingPreview": "Loading CLI preview"
+  }
+}

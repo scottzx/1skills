@@ -1,0 +1,16 @@
+{
+  "errors": {
+    "requestFailed": "请求失败。",
+    "invalidRequest": "无效请求。",
+    "unknownApiPath": "未知的 API 路径: /{full_path}",
+    "fieldValidation": "{field_path}: {msg}",
+    "unknownSkillRef": "未知的技能引用: {skill_ref}",
+    "unknownSlashCommand": "未知的快捷指令: {name}",
+    "unknownMarketplaceItem": "未知的市场项目: {item_id}",
+    "unknownMcpServer": "未知的 MCP 服务器: {qualified_name}",
+    "unknownCLI": "未知的 CLI: {slug}"
+  },
+  "marketplace": {
+    "unavailable": "市场暂时不可用。请检查网络连接，如果问题持续存在请重新安装 skill-manager。"
+  }
+}

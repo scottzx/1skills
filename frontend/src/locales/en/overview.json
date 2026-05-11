@@ -1,0 +1,65 @@
+{
+  "title": "Overview",
+  "errorTitle": "Unable to load overview data.",
+  "unknownError": "Unknown error",
+  "refreshing": "Refreshing...",
+  "refresh": "Refresh",
+  "statistics": {
+    "inUse": "In use",
+    "needsReview": "Needs review",
+    "harnesses": "Harnesses",
+    "detail_adoption": "adoption · config · inventory",
+    "observed": "{{count}} observed"
+  },
+  "extensions": {
+    "heading": "Extensions",
+    "skills": "Skills",
+    "slashCommands": "Slash Commands",
+    "mcpServers": "MCP Servers"
+  },
+  "extensionFacts": {
+    "inUse": "in use",
+    "review": "review"
+  },
+  "extensionActions": {
+    "inUse": "In use",
+    "needsReview": "Needs review"
+  },
+  "marketplace": {
+    "heading": "Discover",
+    "skillsMarketplace": "Skills Marketplace",
+    "mcpMarketplace": "MCP Marketplace",
+    "cliMarketplace": "CLI Marketplace",
+    "previewOnly": "Preview only",
+    "browse": "Browse",
+    "sourceSkillsSh": "skills.sh",
+    "sourceSmithery": "smithery.ai",
+    "sourceClisDev": "CLIs.dev"
+  },
+  "reviewQueue": {
+    "heading": "Review",
+    "empty": "No local adoption or config review is waiting.",
+    "skillsToReview": "Skills to review",
+    "skillsDescription": "Adopt local skills so they can be enabled consistently.",
+    "slashCommandsLabel": "Slash commands",
+    "slashCommandsDescription": "Unmanaged, changed, or missing command files need a decision.",
+    "mcpConfigsToReview": "MCP configs to review",
+    "mcpConfigsDescription": "Adopt existing harness configs into Skill Manager.",
+    "differentMcpConfigs": "Different MCP configs",
+    "differentMcpConfigsDescription": "Resolve which config should become the source of truth.",
+    "mcpInventoryIssues": "MCP inventory issues",
+    "mcpInventoryIssuesDescription": "Some Skill Manager MCP records could not be loaded cleanly.",
+    "mcpHarnessUnavailable": "MCP harness unavailable",
+    "mcpHarnessUnavailableDescription": "At least one harness cannot safely receive MCP writes."
+  },
+  "coverageMap": {
+    "heading": "Active harnesses",
+    "harness": "Harness",
+    "skills": "Skills",
+    "mcp": "MCP",
+    "needsReview": "Needs review",
+    "mcpUnavailable": "MCP unavailable",
+    "different": "different",
+    "empty": "No harnesses have been discovered yet."
+  }
+}

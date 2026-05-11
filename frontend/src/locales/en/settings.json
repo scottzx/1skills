@@ -1,0 +1,23 @@
+{
+  "title": "Settings",
+  "subtitle": "Local paths and per-harness discovery.",
+  "loading": "Loading settings",
+  "errorTitle": "Unable to load settings.",
+  "localStorage": "Local storage",
+  "skillManagerStore": "Skill Manager store",
+  "storeDescription": "Canonical copies of skills in use live here.",
+  "marketplaceCache": "Marketplace cache",
+  "marketplaceDescription": "Downloaded previews and install bundles.",
+  "harnessRoots": "Harness roots",
+  "harnessCard": {
+    "detected": "Detected on this machine",
+    "notDetected": "Not detected on this machine",
+    "enable": "Enable {{name}} support",
+    "saving": "Saving..."
+  },
+  "language": "Language",
+  "languageLabel": "Interface language",
+  "languageSub": "Choose your preferred language",
+  "langEn": "English",
+  "langZh": "中文"
+}

@@ -1,4 +1,5 @@
 import { useId } from "react";
+import { useTranslation } from "react-i18next";
 
 import { DetailHeader } from "../../../../components/detail/DetailHeader";
 import { ErrorBanner } from "../../../../components/ErrorBanner";
@@ -33,6 +34,7 @@ export function SkillDetailView({
   onRemoveSkill,
   onDeleteSkill,
 }: SkillDetailViewProps) {
+  const { t } = useTranslation("skills");
   const fallbackHeadingId = useId();
   const {
       detail,
@@ -69,8 +71,8 @@ export function SkillDetailView({
         chrome={(
           <div className="skill-detail__chrome">
             <DetailHeader
-              title={<h2 id={fallbackHeadingId}>Unable to load skill</h2>}
-              closeLabel="Close skill details"
+              title={<h2 id={fallbackHeadingId}>{t("detail.errorTitle")}</h2>}
+              closeLabel={t("detail.closeLabel")}
               onClose={onClose}
             />
             <ErrorBanner message={queryErrorMessage} />
@@ -78,7 +80,7 @@ export function SkillDetailView({
         )}
         body={(
           <div className="skill-detail__fallback">
-            <p className="muted-text">Try selecting the skill again, or return to the list and reopen it.</p>
+            <p className="muted-text">{t("detail.errorDescriptionAlt")}</p>
           </div>
         )}
         bodyAriaLabelledBy={fallbackHeadingId}

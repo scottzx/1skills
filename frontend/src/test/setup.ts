@@ -1,6 +1,7 @@
 import "@testing-library/jest-dom/vitest";
-import { vi } from "vitest";
+import { beforeEach, vi } from "vitest";
 
+import i18n from "../i18n/config";
 import { installMockLocalStorage } from "./local-storage";
 
 try {
@@ -20,3 +21,7 @@ if (typeof ResizeObserver === "undefined") {
 
   vi.stubGlobal("ResizeObserver", ResizeObserver);
 }
+
+beforeEach(() => {
+  i18n.changeLanguage("en");
+});

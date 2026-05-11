@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import type { OverviewStats } from "../../../app/capability-registry";
 
 interface StatisticsBandProps {
@@ -5,19 +6,18 @@ interface StatisticsBandProps {
   loading: boolean;
 }
 
-const STAT_LABELS: Array<{
-  key: keyof OverviewStats;
-  label: string;
-}> = [
-  { key: "inUse", label: "In use" },
-  { key: "needsReview", label: "Needs review" },
-  { key: "harnesses", label: "Harnesses" },
-];
-
 export function StatisticsBand({ stats, loading }: StatisticsBandProps) {
+  const { t } = useTranslation("overview");
+
+  const statLabels: Array<{ key: keyof OverviewStats; label: string }> = [
+    { key: "inUse", label: t("statistics.inUse") },
+    { key: "needsReview", label: t("statistics.needsReview") },
+    { key: "harnesses", label: t("statistics.harnesses") },
+  ];
+
   return (
     <section className="overview-stats-band" aria-label="Inventory statistics">
-      {STAT_LABELS.map((item) => (
+      {statLabels.map((item) => (
         <article
           className="overview-stat-tile"
           key={item.key}

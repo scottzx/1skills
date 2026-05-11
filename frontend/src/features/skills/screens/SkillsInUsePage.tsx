@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { Columns3, FolderPlus, LayoutGrid, Rows3 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
 import { SkillActionConfirmDialog } from "../components/dialogs/SkillActionConfirmDialog";
@@ -24,19 +25,6 @@ import type { SkillListRow } from "../model/types";
 
 type InUsePillValue = "all" | "enabled" | "all-harnesses" | "off";
 
-const PILL_LABELS: Record<InUsePillValue, string> = {
-  all: "All",
-  enabled: "Enabled",
-  "all-harnesses": "Enabled on all",
-  off: "Off",
-};
-
-const VIEW_MODE_OPTIONS: readonly ViewModeOption<InUseViewMode>[] = [
-  { value: "grid", label: "Grid", icon: LayoutGrid },
-  { value: "board", label: "Board", icon: Columns3 },
-  { value: "matrix", label: "Matrix", icon: Rows3 },
-];
-
 function countEnabledCells(row: SkillListRow): number {
   return row.cells.filter((cell) => cell.state === "enabled").length;
 }
@@ -50,6 +38,7 @@ function applyPillFilter(rows: SkillListRow[], pill: InUsePillValue, harnessCoun
 }
 
 export default function SkillsInUsePage() {
+  const { t } = useTranslation("skills");
   const {
     data,
     status,
@@ -71,6 +60,19 @@ export default function SkillsInUsePage() {
   const { toast } = useToast();
   const [pill, setPill] = useState<InUsePillValue>("all");
   const [viewMode, setViewMode] = useInUseViewMode();
+
+  const PILL_LABELS: Record<InUsePillValue, string> = {
+    all: t("filters.all"),
+    enabled: t("filters.enabled"),
+    "all-harnesses": t("filters.enabledOnAll"),
+    off: t("filters.off"),
+  };
+
+  const VIEW_MODE_OPTIONS: readonly ViewModeOption<InUseViewMode>[] = [
+    { value: "grid", label: t("viewModes.grid", { ns: "common" }), icon: LayoutGrid },
+    { value: "board", label: t("viewModes.board", { ns: "common" }), icon: Columns3 },
+    { value: "matrix", label: t("viewModes.matrix", { ns: "common" }), icon: Rows3 },
+  ];
   const [pendingConfirm, setPendingConfirm] = useState<{
     action: "unmanage" | "delete";
     skillRef: string;
@@ -153,22 +155,22 @@ export default function SkillsInUsePage() {
     <>
       <div className="page-chrome">
         <PageHeader
-          title="Skills in use"
+          title={t("inUse.title")}
           actions={
             <>
               <ViewModeToggle
                 mode={viewMode}
                 options={VIEW_MODE_OPTIONS}
-                ariaLabel="Skills in use view mode"
+                ariaLabel={t("inUse.viewModeAriaLabel")}
                 onChange={setViewMode}
               />
               <button
                 type="button"
                 className="action-pill action-pill--md"
-                onClick={() => toast("Import folder — coming soon")}
+                onClick={() => toast(t("inUse.importComingSoon"))}
               >
                 <FolderPlus size={14} />
-                Import folder
+                {t("inUse.importFolder")}
               </button>
             </>
           }
@@ -177,15 +179,15 @@ export default function SkillsInUsePage() {
         <FilterBar
           searchValue={filters.search}
           onSearchChange={(search) => updateFilters({ search })}
-          searchPlaceholder="Search by name, tag, description..."
-          searchLabel="Search skills in use"
+          searchPlaceholder={t("inUse.searchPlaceholder")}
+          searchLabel={t("inUse.searchLabel")}
           trailing={
             viewMode === "grid" ? (
               <SelectionMenu
                 value={pill}
                 options={pillOptions}
                 active={pill !== "all"}
-                ariaLabel={`Filter: ${PILL_LABELS[pill]}`}
+                ariaLabel={t("inUse.filterAriaLabel", { label: PILL_LABELS[pill] })}
                 onChange={setPill}
               />
             ) : undefined
@@ -195,10 +197,10 @@ export default function SkillsInUsePage() {
 
       {isInitialLoading ? (
         <div className="panel-state">
-          <LoadingSpinner size="md" label="Loading skills in use" />
+          <LoadingSpinner size="md" label={t("inUse.loading")} />
         </div>
       ) : status === "error" ? (
-        <div className="panel-state">Unable to load skills in use.</div>
+        <div className="panel-state">{t("inUse.errorLoading")}</div>
       ) : isReady && data ? (
         <>
           {rows.length > 0 ? (
@@ -245,23 +247,22 @@ export default function SkillsInUsePage() {
             }} />
           ) : (
             <div className="empty-panel">
-              <h3 className="empty-panel__title">No skills in use yet</h3>
+              <h3 className="empty-panel__title">{t("inUse.emptyTitle")}</h3>
               <p className="empty-panel__body">
-                Review local skill folders or install something from the marketplace to start controlling harness
-                coverage here.
+                {t("inUse.emptyBody")}
               </p>
               <div className="empty-panel__actions">
                 <Link
                   to="/skills/review"
                   className="action-pill action-pill--md action-pill--accent"
                 >
-                  Review items
+                  {t("inUse.reviewItems")}
                 </Link>
                 <Link
                   to="/marketplace/skills"
                   className="action-pill action-pill--md"
                 >
-                  Open Marketplace
+                  {t("inUse.openMarketplace")}
                 </Link>
               </div>
             </div>

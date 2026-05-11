@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { UiTooltip } from "../../../../components/ui/UiTooltip";
 import { UiTooltipTriggerBoundary } from "../../../../components/ui/UiTooltipTriggerBoundary";
 import type { SkillRemoveStatus } from "../../model/types";
@@ -13,11 +14,12 @@ export function SkillDetailRemoveAction({
   disabled,
   onRequestRemove,
 }: SkillDetailRemoveActionProps) {
+  const { t } = useTranslation("skills");
   const isBlocked = disabled || status === "disabled_no_enabled";
 
   const copy = status === "disabled_no_enabled"
-    ? "Enable at least one harness before removing this skill from Skill Manager."
-    : "Removes this skill from the Skill Manager store and restores local copies only for the harnesses that are currently enabled.";
+    ? t("detail.removeBlockedHint")
+    : t("detail.removeDescription");
 
   const button = (
     <button
@@ -28,7 +30,7 @@ export function SkillDetailRemoveAction({
         onRequestRemove();
       } : undefined}
     >
-      Remove from Skill Manager
+      {t("detail.removeFromManager")}
     </button>
   );
 

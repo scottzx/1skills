@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 import { ErrorBanner } from "../../../components/ErrorBanner";
 import { MarketplaceFeedPane } from "../components/MarketplaceFeedPane";
 import { McpMarketplaceCard } from "../components/McpMarketplaceCard";
@@ -17,6 +19,7 @@ export default function MarketplaceMcpPage({
   onQueryChange,
   onItemCountChange,
 }: MarketplaceMcpPageProps) {
+  const { t } = useTranslation("marketplace");
   const {
     submittedQuery,
     items,
@@ -33,7 +36,7 @@ export default function MarketplaceMcpPage({
   const feedErrorMessage =
     feedQuery.error instanceof Error
       ? feedQuery.error.message
-      : "Unable to load MCP marketplace.";
+      : t("loading.mcpError");
 
   // Skills and CLIs have explicit marketplace namespaces; MCP owns Smithery ids.
   const ownsItemId = Boolean(
