@@ -22,9 +22,11 @@ class ReleaseTargetTests(unittest.TestCase):
 
         self.assertEqual(target.id, "linux-x64")
 
-    def test_linux_arm64_is_not_packaged_yet(self) -> None:
-        with self.assertRaisesRegex(RuntimeError, "no packaged release target"):
-            resolve_current_target(system="linux", machine="aarch64")
+    def test_resolves_linux_arm64_aliases(self) -> None:
+        target = resolve_current_target(system="linux", machine="aarch64")
+
+        self.assertEqual(target.id, "linux-arm64")
+        self.assertEqual(artifact_name("1.2.3", target), "skill-manager-v1.2.3-linux-arm64.tar.gz")
 
     def test_target_by_id_returns_configured_target(self) -> None:
         self.assertEqual(target_by_id("linux-x64").node_platform, "linux")

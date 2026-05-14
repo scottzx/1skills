@@ -76,6 +76,9 @@ jobs:
       - name: Check version sync
         run: ./.venv/bin/python scripts/sync_version.py --check
 
+      - name: Check release target resolver
+        run: npm run release-targets:check
+
       - name: Frontend typecheck
         run: npm run typecheck
 
@@ -107,6 +110,9 @@ jobs:
             homebrew: true
           - target: linux-x64
             runner: ubuntu-latest
+            homebrew: false
+          - target: linux-arm64
+            runner: ubuntu-24.04-arm
             homebrew: false
     steps:
       - uses: actions/checkout@v6
