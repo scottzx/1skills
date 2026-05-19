@@ -40,6 +40,10 @@ class FakeHomeSpec:
         return self.home / ".cursor" / "skills"
 
     @property
+    def cursor_owned_root(self) -> Path:
+        return self.home / ".cursor" / "skills-cursor"
+
+    @property
     def opencode_root(self) -> Path:
         return self.xdg_config_home / "opencode" / "skills"
 

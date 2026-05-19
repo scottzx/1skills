@@ -112,9 +112,6 @@ SUPPORTED_HARNESS_DEFINITIONS: tuple[HarnessDefinition, ...] = (
             "skills": FileTreeBindingProfile(
                 managed_env="SKILL_MANAGER_CURSOR_ROOT",
                 managed_default=lambda context: context.home / ".cursor" / "skills",
-                managed_candidates=(
-                    lambda context: context.home / ".cursor" / "skills-cursor",
-                ),
                 availability="cli_or_app",
                 app_probe_paths=(
                     lambda _context: Path("/Applications/Cursor.app"),

@@ -29,7 +29,6 @@ class FileTreeBindingProfile:
     shape: Literal["file-tree"] = "file-tree"
     managed_env: str | None = None
     managed_default: PathResolver | None = None
-    managed_candidates: tuple[PathResolver, ...] = ()
     discovery_roots: tuple[FileTreeDiscoveryRoot, ...] = ()
     availability: FileTreeAvailability = "cli"
     app_probe_paths: tuple[PathResolver, ...] = ()
@@ -41,10 +40,6 @@ class FileTreeBindingProfile:
             override = context.env.get(self.managed_env)
             if override:
                 return Path(override)
-        for resolver in self.managed_candidates:
-            candidate = resolver(context)
-            if candidate.is_dir():
-                return candidate
         return self.managed_default(context)
 
 
