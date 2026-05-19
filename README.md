@@ -1,5 +1,7 @@
 # skill-manager
 
+[中文说明](README.zh-CN.md)
+
 <p align="center">
   <img src="assets/skill_manager_logo.svg" alt="Skill Manager" width="520" />
 </p>
