@@ -6,6 +6,7 @@ import { detectLLM } from "../api/scan";
 const SEVERITY_ORDER = ["CRITICAL", "HIGH", "LOW"];
 const SERIOUS_REPORT_MESSAGE = "These are serious issues; please delete them immediately!";
 const NON_SERIOUS_REPORT_MESSAGE = "These problems are not serious, you can use it with confidence.";
+const NO_PROBLEMS_REPORT_MESSAGE = "No problems were detected, please use it with confidence.";
 
 export interface ScanPanelLlmConfig {
   name: string;
@@ -18,6 +19,7 @@ export interface ScanPanelCopy {
   securityReportLabel: string;
   seriousReportMessage: string;
   nonSeriousReportMessage: string;
+  noProblemsReportMessage: string;
   findingsCount: (count: number) => string;
   remediation: string;
   llmModel: string;
@@ -40,6 +42,7 @@ const DEFAULT_COPY: ScanPanelCopy = {
   securityReportLabel: "Security report",
   seriousReportMessage: SERIOUS_REPORT_MESSAGE,
   nonSeriousReportMessage: NON_SERIOUS_REPORT_MESSAGE,
+  noProblemsReportMessage: NO_PROBLEMS_REPORT_MESSAGE,
   findingsCount: (count) => `${count} ${count === 1 ? "Finding" : "Findings"}`,
   remediation: "Remediation",
   llmModel: "LLM model",
@@ -146,7 +149,13 @@ export default function ScanPanel({
   );
   const criticalCount = grouped.CRITICAL.length;
   const hasCriticalFindings = criticalCount > 0;
+  const hasFindings = result.findingsCount > 0;
   const findingsLabel = copy.findingsCount(result.findingsCount);
+  const headline = hasCriticalFindings
+    ? copy.seriousReportMessage
+    : hasFindings
+      ? copy.nonSeriousReportMessage
+      : copy.noProblemsReportMessage;
 
   return (
     <section className="scan-report" aria-label={copy.securityReportLabel}>
@@ -155,7 +164,7 @@ export default function ScanPanel({
           {hasCriticalFindings ? <ShieldAlert size={26} aria-hidden="true" /> : <ShieldCheck size={26} aria-hidden="true" />}
         </div>
         <div className="scan-report__headline">
-          <h3>{hasCriticalFindings ? copy.seriousReportMessage : copy.nonSeriousReportMessage}</h3>
+          <h3>{headline}</h3>
           <p>
             {result.skillName} - {result.durationSeconds.toFixed(1)}s - {findingsLabel}
           </p>

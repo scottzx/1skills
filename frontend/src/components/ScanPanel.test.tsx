@@ -67,4 +67,16 @@ describe("ScanPanel", () => {
     expect(screen.queryByText(/llm_analyzer/i)).not.toBeInTheDocument();
     expect(screen.queryByLabelText(/severity summary/i)).not.toBeInTheDocument();
   });
+
+  it("shows the no-problems message when no findings are detected", () => {
+    render(<ScanPanel result={result([])} llmConfig={llmConfig} />);
+
+    expect(screen.getByRole("heading", {
+      name: "No problems were detected, please use it with confidence.",
+    })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", {
+      name: "These problems are not serious, you can use it with confidence.",
+    })).not.toBeInTheDocument();
+    expect(screen.getByText(/test2 - 0\.4s - 0 Findings/i)).toBeInTheDocument();
+  });
 });
