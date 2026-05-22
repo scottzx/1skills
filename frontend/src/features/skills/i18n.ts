@@ -236,7 +236,7 @@ export const skillsCopy = {
     scan: {
       configNav: "扫描配置",
       configTitle: "扫描配置",
-      configSubtitle: "查看并管理用于安全扫描的 LLM 配置。",
+      configSubtitle: "查看和管理用于安全扫描的所有已保存 LLM 配置。",
       newConfiguration: "新建配置",
       loadingConfigs: "正在加载扫描配置",
       noConfigsTitle: "还没有扫描配置",
@@ -246,7 +246,7 @@ export const skillsCopy = {
       table: {
         name: "名称",
         model: "模型",
-        provider: "提供商",
+        provider: "提供方",
         baseUrl: "Base URL",
         apiKey: "API Key",
         actions: "操作",

@@ -3,7 +3,7 @@ from __future__ import annotations
 import unittest
 from unittest.mock import patch
 
-from skill_manager.application.scan.service import ScanService
+from skill_manager.application.scan.config_service import ScanConfigService
 
 from tests.support.app_harness import AppTestHarness
 
@@ -37,8 +37,8 @@ class ScanRoutesTests(unittest.TestCase):
 
     def test_create_config_validates_and_masks_api_key(self) -> None:
         with (
-            patch("skill_manager.application.scan.service.ProviderConfig", _FakeProviderConfig),
-            patch.object(ScanService, "_run_validation_request", return_value="OK"),
+            patch("skill_manager.application.scan.config_service.ProviderConfig", _FakeProviderConfig),
+            patch.object(ScanConfigService, "_run_validation_request", return_value="OK"),
             AppTestHarness() as harness,
         ):
             created = harness.post_json(
@@ -79,8 +79,8 @@ class ScanRoutesTests(unittest.TestCase):
 
     def test_update_with_empty_api_key_preserves_saved_key(self) -> None:
         with (
-            patch("skill_manager.application.scan.service.ProviderConfig", _FakeProviderConfig),
-            patch.object(ScanService, "_run_validation_request", return_value="OK"),
+            patch("skill_manager.application.scan.config_service.ProviderConfig", _FakeProviderConfig),
+            patch.object(ScanConfigService, "_run_validation_request", return_value="OK"),
             AppTestHarness() as harness,
         ):
             created = harness.post_json(
@@ -110,8 +110,8 @@ class ScanRoutesTests(unittest.TestCase):
 
     def test_validate_existing_config_can_reuse_saved_api_key(self) -> None:
         with (
-            patch("skill_manager.application.scan.service.ProviderConfig", _FakeProviderConfig),
-            patch.object(ScanService, "_run_validation_request", return_value="OK"),
+            patch("skill_manager.application.scan.config_service.ProviderConfig", _FakeProviderConfig),
+            patch.object(ScanConfigService, "_run_validation_request", return_value="OK"),
             AppTestHarness() as harness,
         ):
             created = harness.post_json(

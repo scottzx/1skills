@@ -3,12 +3,11 @@ from __future__ import annotations
 import unittest
 from unittest.mock import patch
 
-from skill_manager.application.scan.service import ScanService
+from skill_manager.application.scan.config_service import ScanConfigService
 from skill_manager.application.scan.llm.provider import ProviderConfig
 from skill_manager.db import Database
-import skill_manager.db.dao.scan_config
 
-from skill_manager.db.repositories import LLMScanConfigRow
+from skill_manager.db.repositories import LLMScanConfigRow, ScanConfigRepository
 from skill_manager.errors import MutationError
 
 
@@ -60,7 +59,7 @@ class ScanConfigTests(unittest.TestCase):
 
     def test_validate_reports_missing_required_fields_without_saving(self) -> None:
         db = Database.memory()
-        service = ScanService(db)
+        service = ScanConfigService(ScanConfigRepository(db))
         try:
             result = service.validate_config(_config(base_url="", api_key="", model=""))
             self.assertFalse(result.ok)
@@ -74,11 +73,11 @@ class ScanConfigTests(unittest.TestCase):
 
     def test_save_validated_config_persists_maskable_valid_config(self) -> None:
         db = Database.memory()
-        service = ScanService(db)
+        service = ScanConfigService(ScanConfigRepository(db))
         try:
             with (
-                patch("skill_manager.application.scan.service.ProviderConfig", _FakeProviderConfig),
-                patch.object(ScanService, "_run_validation_request", return_value="OK"),
+                patch("skill_manager.application.scan.config_service.ProviderConfig", _FakeProviderConfig),
+                patch.object(ScanConfigService, "_run_validation_request", return_value="OK"),
             ):
                 config_id = service.save_config_validated(_config())
 
@@ -95,9 +94,9 @@ class ScanConfigTests(unittest.TestCase):
     def test_openrouter_base_url_infers_openrouter_provider(self) -> None:
         db = Database.memory()
         try:
-            service = ScanService(db)
+            service = ScanConfigService(ScanConfigRepository(db))
             self.assertEqual(
-                service._infer_provider("", "https://openrouter.ai/api/v1", "qwen/qwen3-coder:free"),
+                service.infer_provider("", "https://openrouter.ai/api/v1", "qwen/qwen3-coder:free"),
                 "openrouter",
             )
         finally:
@@ -118,7 +117,7 @@ class ScanConfigTests(unittest.TestCase):
     def test_rate_limit_errors_are_classified_and_sanitized(self) -> None:
         db = Database.memory()
         try:
-            service = ScanService(db)
+            service = ScanConfigService(ScanConfigRepository(db))
             error = RuntimeError("litellm.RateLimitError: OpenAIException - Provider returned error sk-test")
             config = _config(
                 base_url="https://openrouter.ai/api/v1",
@@ -135,17 +134,17 @@ class ScanConfigTests(unittest.TestCase):
 
     def test_failed_update_does_not_overwrite_existing_config(self) -> None:
         db = Database.memory()
-        service = ScanService(db)
+        service = ScanConfigService(ScanConfigRepository(db))
         try:
             with (
-                patch("skill_manager.application.scan.service.ProviderConfig", _FakeProviderConfig),
-                patch.object(ScanService, "_run_validation_request", return_value="OK"),
+                patch("skill_manager.application.scan.config_service.ProviderConfig", _FakeProviderConfig),
+                patch.object(ScanConfigService, "_run_validation_request", return_value="OK"),
             ):
                 config_id = service.save_config_validated(_config())
 
             with (
-                patch("skill_manager.application.scan.service.ProviderConfig", _FakeProviderConfig),
-                patch.object(ScanService, "_run_validation_request", side_effect=RuntimeError("401 invalid API key sk-bad")),
+                patch("skill_manager.application.scan.config_service.ProviderConfig", _FakeProviderConfig),
+                patch.object(ScanConfigService, "_run_validation_request", side_effect=RuntimeError("401 invalid API key sk-bad")),
             ):
                 with self.assertRaises(MutationError):
                     service.save_config_validated(_config(id=config_id, api_key="sk-bad", model="bad-model"))
