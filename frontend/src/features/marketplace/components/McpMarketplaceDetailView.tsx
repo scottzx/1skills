@@ -1,16 +1,14 @@
 import { type ReactNode, useId, useState } from "react";
-import { Activity, CheckCircle2, Copy } from "lucide-react";
+import { Copy } from "lucide-react";
 
 import { DetailHeader } from "../../../components/detail/DetailHeader";
 import { DetailSourceLinks } from "../../../components/detail/DetailSourceLinks";
 import { ErrorBanner } from "../../../components/ErrorBanner";
 import { LoadingSpinner } from "../../../components/LoadingSpinner";
 import { useToast } from "../../../components/Toast";
-import { UiTooltip } from "../../../components/ui/UiTooltip";
 import { useMcpMarketplaceDetailQuery } from "../api/mcp-queries";
 import type { McpMarketplaceItemDto } from "../api/mcp-types";
 import { useMarketplaceCopy, type MarketplaceCopy } from "../i18n";
-import { formatMcpUseCount } from "../model/formatters";
 import {
   detailInstallAvailability,
   useMcpInstallActionState,
@@ -45,10 +43,7 @@ export function McpMarketplaceDetailView({
   const { toast } = useToast();
   const [showAllTools, setShowAllTools] = useState(false);
 
-  const fallbackUseCount = initialItem?.useCount ?? 0;
-  const fallbackVerified = initialItem?.isVerified ?? false;
   const headerDisplayName = detail?.displayName ?? initialItem?.displayName ?? qualifiedName;
-  const headerIsRemote = detail?.isRemote ?? initialItem?.isRemote ?? false;
   const headerIcon = detail?.iconUrl ?? initialItem?.iconUrl ?? null;
   const headerExternalUrl =
     detail?.externalUrl ??
@@ -149,24 +144,6 @@ export function McpMarketplaceDetailView({
                   />
                 ) : null}
                 <code className="mcp-detail__qualified-name">{qualifiedName}</code>
-                <span className="detail-sheet__divider" aria-hidden="true">·</span>
-                <div className="chip-cluster">
-                  <span className={`chip chip--${headerIsRemote ? "remote" : "local"}`}>
-                    {headerIsRemote ? copy.detail.mcp.remote : copy.detail.mcp.local}
-                  </span>
-                  {fallbackVerified ? (
-                    <span className="chip chip--verified">
-                      <CheckCircle2 size={12} aria-hidden="true" />
-                      {copy.detail.mcp.verified}
-                    </span>
-                  ) : null}
-                  <UiTooltip content={copy.detail.mcp.calls(fallbackUseCount.toLocaleString())}>
-                    <span className="mcp-detail__stat">
-                      <Activity size={12} aria-hidden="true" />
-                      {formatMcpUseCount(fallbackUseCount)}
-                    </span>
-                  </UiTooltip>
-                </div>
               </div>
               <DetailSourceLinks
                 ariaLabel={copy.detail.mcp.sourceLinksAria(headerDisplayName)}

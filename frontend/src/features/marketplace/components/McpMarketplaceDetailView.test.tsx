@@ -128,6 +128,9 @@ describe("McpMarketplaceDetailView", () => {
     );
     expect(screen.getByRole("button", { name: /add exa search to mcps/i })).toBeEnabled();
     expect(screen.getByLabelText("Source links for Exa Search")).toBeInTheDocument();
+    expect(screen.queryByText("Remote")).not.toBeInTheDocument();
+    expect(screen.queryByText("Verified")).not.toBeInTheDocument();
+    expect(screen.queryByText("59.1k")).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "View in MCP Registry" })).toHaveAttribute(
       "href",
       "https://registry.modelcontextprotocol.io/?q=exa",
