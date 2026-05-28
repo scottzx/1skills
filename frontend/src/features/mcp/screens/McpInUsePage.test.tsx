@@ -26,6 +26,7 @@ function inventoryFixture(): McpInventoryDto {
         availabilityStatus: "available",
         availabilityReason: null,
         mcpStatus: { kind: "available", reason: null },
+        installConfigStatus: { hasFields: false, missingRequired: [], configured: true },
         spec: {
           name: "exa",
           displayName: "Exa Search",
@@ -50,9 +51,10 @@ function inventoryFixture(): McpInventoryDto {
         availabilityStatus: "unavailable",
         availabilityReason: null,
         mcpStatus: {
-          kind: "connection_issue",
+          kind: "unchecked",
           reason: null,
         },
+        installConfigStatus: { hasFields: false, missingRequired: [], configured: true },
         spec: {
           name: "ctx",
           displayName: "Context7",
@@ -176,6 +178,45 @@ describe("McpInUsePage", () => {
     expect(screen.getByText("1/3")).toBeInTheDocument();
     expect(screen.getByText("0/3")).toBeInTheDocument();
     expect(screen.getByLabelText("MCP status: Available")).toBeInTheDocument();
+    expect(screen.getByLabelText("MCP status: Unchecked")).toBeInTheDocument();
+  });
+
+  it("renders all public MCP status labels", async () => {
+    const inventory = inventoryFixture();
+    inventory.entries = [
+      inventory.entries[0],
+      inventory.entries[1],
+      {
+        ...inventory.entries[1],
+        name: "needs-config",
+        displayName: "Needs Config",
+        mcpStatus: { kind: "needs_config", reason: null },
+        installConfigStatus: {
+          hasFields: true,
+          missingRequired: ["API_KEY"],
+          configured: false,
+        },
+      },
+      {
+        ...inventory.entries[1],
+        name: "failed",
+        displayName: "Failed MCP",
+        availabilityReason: "Connection refused",
+        mcpStatus: { kind: "connection_issue", reason: "Connection refused" },
+      },
+    ];
+    fetchMock.mockImplementation(async (input: RequestInfo | URL) => {
+      const url = typeof input === "string" ? input : input.toString();
+      if (url.includes("/api/mcp/servers")) return okJson(inventory);
+      throw new Error(`Unhandled URL ${url}`);
+    });
+
+    renderPage();
+    await waitFor(() => expect(screen.getByText("Exa Search")).toBeInTheDocument());
+
+    expect(screen.getByLabelText("MCP status: Available")).toBeInTheDocument();
+    expect(screen.getByLabelText("MCP status: Unchecked")).toBeInTheDocument();
+    expect(screen.getByLabelText("MCP status: Needs config")).toBeInTheDocument();
     expect(screen.getByLabelText("MCP status: Connection issue")).toBeInTheDocument();
   });
 
@@ -373,7 +414,7 @@ describe("McpInUsePage", () => {
               availabilityStatus: "unavailable",
               availabilityReason: null,
               mcpStatus: {
-                kind: "connection_issue",
+                kind: "unchecked",
                 reason: null,
               },
             },
@@ -532,8 +573,61 @@ describe("McpInUsePage", () => {
     );
   });
 
+  it("does not fetch registry config when install fields are optional only", async () => {
+    const inventory = inventoryFixture();
+    inventory.entries[0] = {
+      ...inventory.entries[0],
+      installConfigStatus: {
+        hasFields: true,
+        missingRequired: [],
+        configured: true,
+      },
+    };
+    fetchMock.mockImplementation(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = typeof input === "string" ? input : input.toString();
+      if (url.includes("/api/mcp/servers/exa/set-harnesses")) {
+        expect(init?.method).toBe("POST");
+        return okJson({ ok: true, succeeded: ["cursor"], failed: [] });
+      }
+      if (url.includes("/api/marketplace/mcp/items/exa")) {
+        throw new Error("registry detail should not be loaded for optional-only fields");
+      }
+      if (url.includes("/api/mcp/servers")) return okJson(inventory);
+      throw new Error(`Unhandled URL ${url}`);
+    });
+
+    renderPage();
+    await waitFor(() => expect(screen.getByText("Exa Search")).toBeInTheDocument());
+    fireEvent.click(screen.getAllByLabelText(/enable on all harnesses/i)[0]);
+
+    await waitFor(() =>
+      expect(
+        fetchMock.mock.calls.some((call) =>
+          String(call[0]).includes("/api/mcp/servers/exa/set-harnesses"),
+        ),
+      ).toBe(true),
+    );
+    expect(
+      fetchMock.mock.calls.some((call) =>
+        String(call[0]).includes("/api/marketplace/mcp/items/exa"),
+      ),
+    ).toBe(false);
+  });
+
   it("collects required install config before enabling all from a card", async () => {
     const inventory = inventoryFixture();
+    inventory.entries[0] = {
+      ...inventory.entries[0],
+      installConfigStatus: {
+        hasFields: true,
+        missingRequired: ["EXA_API_KEY"],
+        configured: false,
+      },
+      mcpStatus: {
+        kind: "needs_config",
+        reason: null,
+      },
+    };
     fetchMock.mockImplementation(async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = typeof input === "string" ? input : input.toString();
       if (url.includes("/api/mcp/servers/exa/set-harnesses")) {
@@ -585,6 +679,45 @@ describe("McpInUsePage", () => {
         ),
       ).toBe(true),
     );
+  });
+
+  it("blocks multi-select enable when one selected server needs config", async () => {
+    const inventory = inventoryFixture();
+    inventory.entries[0] = {
+      ...inventory.entries[0],
+      installConfigStatus: {
+        hasFields: true,
+        missingRequired: ["EXA_API_KEY"],
+        configured: false,
+      },
+      mcpStatus: {
+        kind: "needs_config",
+        reason: null,
+      },
+    };
+    fetchMock.mockImplementation(async (input: RequestInfo | URL) => {
+      const url = typeof input === "string" ? input : input.toString();
+      if (url.includes("/api/mcp/servers/exa/set-harnesses")) {
+        throw new Error("multi-select should not enable servers that need config");
+      }
+      if (url.includes("/api/mcp/servers")) return okJson(inventory);
+      throw new Error(`Unhandled URL ${url}`);
+    });
+
+    renderPage();
+    await waitFor(() => expect(screen.getByText("Exa Search")).toBeInTheDocument());
+    fireEvent.click(screen.getByRole("checkbox", { name: /select exa search/i }));
+    fireEvent.click(screen.getByRole("checkbox", { name: /select context7/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^enable all$/i }));
+
+    await waitFor(() =>
+      expect(screen.getByText(/exa search requires credentials/i)).toBeInTheDocument(),
+    );
+    expect(
+      fetchMock.mock.calls.some((call) =>
+        String(call[0]).includes("/api/mcp/servers/exa/set-harnesses"),
+      ),
+    ).toBe(false);
   });
 
   it("opens detail instead of toggling all when a server has a different config", async () => {

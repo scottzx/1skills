@@ -51,7 +51,8 @@ describe("capability overview model", () => {
             canEnable: true,
             enabledStatus: "disabled",
             availabilityStatus: "unavailable",
-            mcpStatus: { kind: "connection_issue", reason: null },
+            mcpStatus: { kind: "unchecked", reason: null },
+            installConfigStatus: { hasFields: false, missingRequired: [], configured: true },
             sightings: [],
           },
           {
@@ -66,6 +67,7 @@ describe("capability overview model", () => {
               kind: "connection_issue",
               reason: "Skill Manager does not have a valid MCP spec for this server.",
             },
+            installConfigStatus: { hasFields: false, missingRequired: [], configured: true },
             sightings: [],
           },
         ],

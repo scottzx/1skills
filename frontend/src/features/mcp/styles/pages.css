@@ -75,6 +75,18 @@
   color: var(--color-danger);
 }
 
+.mcp-status-chip[data-kind="needs_config"] {
+  border-color: color-mix(in srgb, var(--color-warning) 36%, transparent);
+  background: color-mix(in srgb, var(--color-warning-soft) 78%, transparent);
+  color: var(--color-warning);
+}
+
+.mcp-status-chip[data-kind="unchecked"] {
+  border-color: var(--color-border);
+  background: color-mix(in srgb, var(--color-text) 4%, transparent);
+  color: var(--color-text-muted);
+}
+
 .mcp-status-chip__dot {
   flex: 0 0 auto;
   width: 6px;

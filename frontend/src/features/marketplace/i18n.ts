@@ -91,8 +91,8 @@ const englishMarketplaceCopy = {
       localStdioCommand: "Local stdio command",
       command: "Command",
       copy: "Copy",
-      sourceInstallerWillWrite:
-        "The source installer will write the actual local command into the selected harness.",
+      connectionMetadataUnavailable:
+        "Connection metadata is unavailable for this registry entry. Add it to MCPs to save the registry record and check availability.",
       showMore: (count: number) => `Show ${count} more`,
       collapseTools: "Collapse tools",
       noDescription: "No description provided.",
@@ -240,7 +240,8 @@ export const marketplaceCopy = {
         localStdioCommand: "本地 stdio command",
         command: "Command",
         copy: "复制",
-        sourceInstallerWillWrite: "来源安装器会把实际的本地 command 写入所选 harness。",
+        connectionMetadataUnavailable:
+          "此 Registry 条目暂未提供连接元数据。添加到 MCP 后会保存 Registry 记录并检查可用性。",
         showMore: (count: number) => `再显示 ${count} 项`,
         collapseTools: "收起 tools",
         noDescription: "没有提供描述。",

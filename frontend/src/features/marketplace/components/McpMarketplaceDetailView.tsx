@@ -230,7 +230,7 @@ export function McpMarketplaceDetailView({
             </div>
           ) : (
             <p className="muted-text">
-              {copy.detail.mcp.sourceInstallerWillWrite}
+              {copy.detail.mcp.connectionMetadataUnavailable}
             </p>
           )}
         </Section>

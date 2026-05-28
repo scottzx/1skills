@@ -226,6 +226,7 @@ export function McpServerDetailView({
                     spec,
                     displayName,
                     targetLabel: harness,
+                    installConfigStatus: detail.installConfigStatus,
                     onProceed: (config) => {
                       if (config === undefined) {
                         onEnableHarness(harness);

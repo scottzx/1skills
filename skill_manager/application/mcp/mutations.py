@@ -11,7 +11,8 @@ from .availability import (
     availability_cache_key,
 )
 from .enrichment import McpEnrichmentService
-from .install_resolver import registry_install_config, resolve_registry_server_spec
+from .install_resolver import resolve_registry_server_spec
+from .install_state import resolve_enable_spec
 from .marketplace.catalog import McpMarketplaceCatalog
 from .planner import McpAdoptionPlanner
 from .read_models import McpReadModelService
@@ -172,6 +173,8 @@ class McpMutationService:
             flipped_any = True
 
         if flipped_any:
+            if target == "enabled" and binding_spec != spec:
+                self.store.upsert_from_spec(binding_spec)
             self.read_models.invalidate()
 
         return {
@@ -191,20 +194,7 @@ class McpMutationService:
         detail = self._marketplace_install_detail(spec.source.locator)
         if detail is None:
             raise MutationError(f"server not found in marketplace: {spec.source.locator}", status=404)
-        if config is None:
-            install_config = registry_install_config(detail)
-            if install_config.required:
-                missing = ", ".join(field.name for field in install_config.fields if field.required)
-                raise MutationError(f"missing required install config: {missing}", status=400)
-            return spec
-        resolved = resolve_registry_server_spec(detail, config=config)
-        return replace(
-            resolved,
-            name=spec.name,
-            display_name=spec.display_name,
-            source=spec.source,
-            installed_at=spec.installed_at,
-        )
+        return resolve_enable_spec(detail, spec, config=config)
 
     # Reconciliation -------------------------------------------------------
 

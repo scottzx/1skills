@@ -12,10 +12,13 @@ from .availability import (
     availability_cache_key,
 )
 from .enrichment import McpEnrichmentService
+from .install_state import McpInstallConfigStatus, install_config_status
 from .inventory import build_inventory
+from .marketplace.catalog import McpMarketplaceCatalog
 from .planner import McpAdoptionPlanner
 from .read_models import McpReadModelService
 from .redaction import annotate_redacted_env, redact_payload, redacted_spec_dict
+from .store import McpServerSpec
 
 
 class McpQueryService:
@@ -27,22 +30,26 @@ class McpQueryService:
         *,
         planner: McpAdoptionPlanner | None = None,
         enrichment: McpEnrichmentService | None = None,
+        marketplace_catalog: McpMarketplaceCatalog | None = None,
         availability_probe: McpAvailabilityProbe | None = None,
         availability_cache: AvailabilityCache | None = None,
     ) -> None:
         self.read_models = read_models
         self.planner = planner
         self.enrichment = enrichment
+        self.marketplace = marketplace_catalog
         self.availability_probe = availability_probe or McpAvailabilityProbe()
         self._availability_cache = availability_cache if availability_cache is not None else {}
 
     def list_servers(self) -> dict[str, object]:
         snapshot = self.read_models.snapshot()
         inventory = self._inventory(snapshot.harness_scans)
+        install_config_statuses = self._install_config_statuses(inventory)
         return _inventory_to_payload(
             inventory,
             self.read_models.visible_scans(snapshot),
             self._availability_cache,
+            install_config_statuses,
         )
 
     def get_server(self, name: str) -> dict[str, object]:
@@ -55,6 +62,7 @@ class McpQueryService:
                     entry,
                     visible_scans,
                     self._availability_cache.get(_availability_cache_key(entry)),
+                    self._install_config_status_for_spec(entry.spec),
                 )
                 if entry.spec is not None:
                     payload["env"] = annotate_redacted_env(entry.spec.env)
@@ -72,7 +80,6 @@ class McpQueryService:
     def check_availability(self, name: str) -> dict[str, object]:
         snapshot = self.read_models.snapshot()
         inventory = self._inventory(snapshot.harness_scans)
-        visible_scans = self.read_models.visible_scans(snapshot)
         entry = next((item for item in inventory.entries if item.name == name), None)
         if entry is None or entry.spec is None:
             raise MutationError(f"unknown mcp server: {name}", status=404)
@@ -183,6 +190,41 @@ class McpQueryService:
             issues=issues,
         )
 
+    def _install_config_statuses(
+        self,
+        inventory: McpInventory,
+    ) -> dict[str, McpInstallConfigStatus]:
+        return {
+            entry.name: self._install_config_status_for_spec(entry.spec)
+            for entry in inventory.entries
+            if entry.spec is not None
+        }
+
+    def _install_config_status_for_spec(
+        self,
+        spec: McpServerSpec | None,
+    ) -> McpInstallConfigStatus:
+        if spec is None or spec.source.kind != "marketplace" or self.marketplace is None:
+            return McpInstallConfigStatus()
+        detail = self._marketplace_install_detail(spec.source.locator)
+        if detail is None:
+            return McpInstallConfigStatus()
+        return install_config_status(detail, spec)
+
+    def _marketplace_install_detail(self, qualified_name: str):
+        if self.marketplace is None:
+            return None
+        install_detail = getattr(self.marketplace, "install_detail", None)
+        try:
+            if callable(install_detail):
+                detail = install_detail(qualified_name)
+                if detail is not None:
+                    to_resolver_detail = getattr(detail, "to_resolver_detail", None)
+                    return to_resolver_detail() if callable(to_resolver_detail) else detail
+            return self.marketplace.detail(qualified_name)
+        except Exception:
+            return None
+
 
 def _binding_to_dict(binding: McpBinding) -> dict[str, object]:
     payload: dict[str, object] = {
@@ -218,11 +260,27 @@ def _entry_enabled_status(
 
 def _entry_mcp_status(
     entry,
-    availability: McpAvailabilityResult,
+    availability: McpAvailabilityResult | None,
+    install_config_status: McpInstallConfigStatus,
 ) -> dict[str, object]:
-    if entry.spec is not None and entry.can_enable and availability.status == "available":
+    if install_config_status.missing_required:
+        return {
+            "kind": "needs_config",
+            "reason": None,
+        }
+    if availability is None:
+        return {
+            "kind": "unchecked",
+            "reason": None,
+        }
+    if availability.status == "available":
         return {
             "kind": "available",
+            "reason": None,
+        }
+    if not availability.reason:
+        return {
+            "kind": "unchecked",
             "reason": None,
         }
     return {
@@ -235,12 +293,14 @@ def _entry_to_payload(
     entry,
     scans: tuple[McpHarnessScan, ...],
     availability: McpAvailabilityResult | None = None,
+    config_status: McpInstallConfigStatus | None = None,
 ) -> dict[str, object]:
     visible_harnesses = {scan.harness for scan in scans}
     addressable_harnesses = _addressable_harnesses(scans)
     spec_payload = redacted_spec_dict(entry.spec) if entry.spec is not None else None
     enabled_status = _entry_enabled_status(entry, addressable_harnesses)
     effective_availability = _entry_effective_availability(availability)
+    effective_config_status = config_status or McpInstallConfigStatus()
     return {
         "name": entry.name,
         "displayName": entry.display_name,
@@ -252,8 +312,10 @@ def _entry_to_payload(
         "availabilityReason": effective_availability.reason,
         "mcpStatus": _entry_mcp_status(
             entry,
-            effective_availability,
+            availability,
+            effective_config_status,
         ),
+        "installConfigStatus": effective_config_status.to_dict(),
         "sightings": [
             _binding_to_dict(binding)
             for binding in entry.sightings
@@ -318,8 +380,10 @@ def _inventory_to_payload(
     inventory: McpInventory,
     scans: tuple[McpHarnessScan, ...],
     availability_cache: dict[tuple[str, str], McpAvailabilityResult] | None = None,
+    install_config_statuses: dict[str, McpInstallConfigStatus] | None = None,
 ) -> dict[str, object]:
     visible_harnesses = {scan.harness for scan in scans}
+    statuses = install_config_statuses or {}
     return {
         "columns": [
             {
@@ -334,7 +398,12 @@ def _inventory_to_payload(
             for scan in scans
         ],
         "entries": [
-            _entry_to_payload(entry, scans, (availability_cache or {}).get(_availability_cache_key(entry)))
+            _entry_to_payload(
+                entry,
+                scans,
+                (availability_cache or {}).get(_availability_cache_key(entry)),
+                statuses.get(entry.name),
+            )
             for entry in inventory.entries
             if entry.kind == "managed"
             or any(binding.harness in visible_harnesses for binding in entry.sightings)

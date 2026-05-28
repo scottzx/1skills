@@ -85,9 +85,17 @@ class McpBindingResponse(BaseModel):
 class McpStatusResponse(BaseModel):
     kind: Literal[
         "available",
+        "needs_config",
         "connection_issue",
+        "unchecked",
     ]
     reason: str | None = None
+
+
+class McpInstallConfigStatusResponse(BaseModel):
+    hasFields: bool
+    missingRequired: list[str]
+    configured: bool
 
 
 class McpInventoryEntryResponse(BaseModel):
@@ -100,6 +108,7 @@ class McpInventoryEntryResponse(BaseModel):
     availabilityStatus: Literal["available", "unavailable"]
     availabilityReason: str | None = None
     mcpStatus: McpStatusResponse
+    installConfigStatus: McpInstallConfigStatusResponse
     sightings: list[McpBindingResponse]
 
 
@@ -356,6 +365,7 @@ __all__ = [
     "McpInventoryResponse",
     "McpInstallConfigFieldResponse",
     "McpInstallConfigResponse",
+    "McpInstallConfigStatusResponse",
     "McpMarketplaceCapabilityCountsResponse",
     "McpMarketplaceConnectionResponse",
     "McpMarketplaceDetailResponse",
@@ -372,6 +382,7 @@ __all__ = [
     "McpServerSpecResponse",
     "McpSetHarnessesResultResponse",
     "McpSourceResponse",
+    "McpStatusResponse",
     "McpUnmanagedByServerResponse",
     "McpUnmanagedHarnessResponse",
     "ReconcileMcpServerRequest",

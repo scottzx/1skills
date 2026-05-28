@@ -60,8 +60,13 @@ def registry_managed_name(qualified_name: str) -> str:
 
 
 def registry_install_config(detail: Mapping[str, object]) -> McpInstallConfig:
+    option = registry_install_option(detail)
+    return McpInstallConfig(option.fields) if option is not None else McpInstallConfig()
+
+
+def registry_install_option(detail: Mapping[str, object]) -> RegistryInstallOption | None:
     options = registry_install_options(_server_payload(detail))
-    return McpInstallConfig(options[0].fields) if options else McpInstallConfig()
+    return options[0] if options else None
 
 
 def resolve_registry_server_spec(
@@ -320,6 +325,7 @@ __all__ = [
     "McpInstallConfigField",
     "RegistryInstallOption",
     "registry_install_config",
+    "registry_install_option",
     "registry_install_options",
     "registry_managed_name",
     "resolve_registry_server_spec",

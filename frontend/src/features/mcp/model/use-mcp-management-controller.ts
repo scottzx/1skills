@@ -59,6 +59,7 @@ export function useMcpManagementController() {
     for (const entry of inventory.entries) {
       if (
         entry.kind !== "managed" ||
+        entry.mcpStatus.kind === "needs_config" ||
         entry.availabilityStatus !== "unavailable" ||
         entry.availabilityReason !== null ||
         !entry.spec

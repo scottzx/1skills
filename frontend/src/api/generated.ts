@@ -1184,6 +1184,15 @@ export interface components {
             /** Required */
             required: boolean;
         };
+        /** McpInstallConfigStatusResponse */
+        McpInstallConfigStatusResponse: {
+            /** Configured */
+            configured: boolean;
+            /** Hasfields */
+            hasFields: boolean;
+            /** Missingrequired */
+            missingRequired: string[];
+        };
         /** McpInventoryColumnResponse */
         McpInventoryColumnResponse: {
             /** Configpresent */
@@ -1222,6 +1231,7 @@ export interface components {
              * @enum {string}
              */
             enabledStatus: "enabled" | "disabled";
+            installConfigStatus: components["schemas"]["McpInstallConfigStatusResponse"];
             /**
              * Kind
              * @enum {string}
@@ -1468,6 +1478,7 @@ export interface components {
             enabledStatus: "enabled" | "disabled";
             /** Env */
             env?: components["schemas"]["McpEnvEntryResponse"][];
+            installConfigStatus: components["schemas"]["McpInstallConfigStatusResponse"];
             /**
              * Kind
              * @enum {string}
@@ -1543,7 +1554,7 @@ export interface components {
              * Kind
              * @enum {string}
              */
-            kind: "available" | "connection_issue";
+            kind: "available" | "needs_config" | "connection_issue" | "unchecked";
             /** Reason */
             reason?: string | null;
         };

@@ -43,9 +43,10 @@ function detailFixture(overrides: Partial<Record<string, unknown>> = {}) {
     availabilityStatus: "unavailable",
     availabilityReason: null,
     mcpStatus: {
-      kind: "connection_issue",
+      kind: "unchecked",
       reason: null,
     },
+    installConfigStatus: { hasFields: false, missingRequired: [], configured: true },
     spec: {
       name: "exa",
       displayName: "Exa Search",
@@ -132,8 +133,8 @@ describe("McpServerDetailView", () => {
     fetchMock.mockResolvedValue(okJson(detailFixture()));
     renderView();
     await waitFor(() => expect(screen.getByRole("heading", { name: "Exa Search" })).toBeInTheDocument());
-    expect(screen.getByLabelText("MCP status: Connection issue")).toBeInTheDocument();
-    expect(screen.getByText("Connection failed. Check this MCP's config.")).toBeInTheDocument();
+    expect(screen.getByLabelText("MCP status: Unchecked")).toBeInTheDocument();
+    expect(screen.getByText("Availability has not been checked yet.")).toBeInTheDocument();
     expect(screen.getByText("Cursor")).toBeInTheDocument();
     expect(screen.getByText("Claude")).toBeInTheDocument();
     expect(screen.getByRole("group", { name: "Cursor, Enabled" })).toBeInTheDocument();
@@ -400,7 +401,19 @@ describe("McpServerDetailView", () => {
     fetchMock.mockImplementation(async (input: RequestInfo | URL) => {
       const url = typeof input === "string" ? input : input.toString();
       if (url.includes("/api/mcp/servers/exa")) {
-        return okJson(detailFixture());
+        return okJson(
+          detailFixture({
+            installConfigStatus: {
+              hasFields: true,
+              missingRequired: ["EXA_API_KEY"],
+              configured: false,
+            },
+            mcpStatus: {
+              kind: "needs_config",
+              reason: null,
+            },
+          }),
+        );
       }
       if (url.includes("/api/marketplace/mcp/items/exa")) {
         return okJson({
@@ -454,7 +467,19 @@ describe("McpServerDetailView", () => {
     fetchMock.mockImplementation(async (input: RequestInfo | URL) => {
       const url = typeof input === "string" ? input : input.toString();
       if (url.includes("/api/mcp/servers/exa")) {
-        return okJson(detailFixture());
+        return okJson(
+          detailFixture({
+            installConfigStatus: {
+              hasFields: true,
+              missingRequired: ["EXA_API_KEY"],
+              configured: false,
+            },
+            mcpStatus: {
+              kind: "needs_config",
+              reason: null,
+            },
+          }),
+        );
       }
       if (url.includes("/api/marketplace/mcp/items/exa")) {
         return errorJson({ detail: "Registry metadata unavailable" }, 503);

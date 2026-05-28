@@ -31,6 +31,7 @@ function entries(): McpInventoryEntryDto[] {
       availabilityStatus: "available",
       availabilityReason: null,
       mcpStatus: { kind: "available", reason: null },
+      installConfigStatus: { hasFields: false, missingRequired: [], configured: true },
       spec: {
         name: "exa",
         displayName: "Exa Search",
@@ -55,9 +56,10 @@ function entries(): McpInventoryEntryDto[] {
       availabilityStatus: "unavailable",
       availabilityReason: null,
       mcpStatus: {
-        kind: "connection_issue",
+        kind: "unchecked",
         reason: null,
       },
+      installConfigStatus: { hasFields: false, missingRequired: [], configured: true },
       spec: {
         name: "drift",
         displayName: "Drift Server",

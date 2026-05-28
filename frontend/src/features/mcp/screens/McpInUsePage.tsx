@@ -14,7 +14,6 @@ import { McpInstallConfigDialog } from "../components/config/McpInstallConfigDia
 import { McpFilterMenu } from "../components/McpFilterMenu";
 import { McpServerCardList } from "../components/McpServerCardList";
 import { McpServerMatrixView } from "../components/McpServerMatrixView";
-import { fetchMcpMarketplaceDetail } from "../api/marketplace-client";
 import type { McpInventoryEntryDto } from "../api/management-types";
 import { useCommonCopy } from "../../../i18n";
 import { useMcpCopy } from "../i18n";
@@ -118,6 +117,7 @@ export default function McpInUsePage() {
         spec: entry.spec ?? null,
         displayName: entry.displayName,
         targetLabel,
+        installConfigStatus: entry.installConfigStatus,
         onProceed,
       });
     },
@@ -157,15 +157,11 @@ export default function McpInUsePage() {
       handleCardSetHarnesses(name, "enabled");
       return;
     }
-    let blocked: McpInventoryEntryDto | null = null;
-    try {
-      blocked = await firstEntryRequiringInstallConfig(selectedNames, findEntry);
-    } catch (error) {
-      setPageActionErrorMessage(
-        error instanceof Error ? error.message : copy.detail.unableToLoadInstallConfig,
-      );
-      return;
-    }
+    const blocked = selectedNames
+      .map((name) => findEntry(name))
+      .find((entry): entry is McpInventoryEntryDto =>
+        Boolean(entry?.installConfigStatus.missingRequired.length),
+      ) ?? null;
     if (blocked) {
       setPageActionErrorMessage(copy.detail.installConfig.bulkRequiresSingle(blocked.displayName));
       return;
@@ -284,7 +280,7 @@ export default function McpInUsePage() {
               checkedNames={multiSelectedNames}
               onOpenDetail={setDetailName}
               onToggleChecked={handleToggleMultiSelect}
-                  onEnableHarness={handleMatrixEnableHarness}
+              onEnableHarness={handleMatrixEnableHarness}
               onDisableHarness={(name, harness) => {
                 void handleDisableInHarness(name, harness);
               }}
@@ -399,22 +395,6 @@ export default function McpInUsePage() {
       />
     </>
   );
-}
-
-async function firstEntryRequiringInstallConfig(
-  names: string[],
-  findEntry: (name: string) => McpInventoryEntryDto | null,
-): Promise<McpInventoryEntryDto | null> {
-  for (const name of names) {
-    const entry = findEntry(name);
-    const locator = entry?.spec?.source.kind === "marketplace" ? entry.spec.source.locator : null;
-    if (!entry || !locator) continue;
-    const detail = await fetchMcpMarketplaceDetail(locator);
-    if (detail.installConfig?.fields?.length) {
-      return entry;
-    }
-  }
-  return null;
 }
 
 function uninstallDisplayName(

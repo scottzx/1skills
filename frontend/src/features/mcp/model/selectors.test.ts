@@ -31,9 +31,10 @@ function makeEntry(
     availabilityStatus: "unavailable",
     availabilityReason: null,
     mcpStatus: {
-      kind: "connection_issue",
+      kind: "unchecked",
       reason: null,
     },
+    installConfigStatus: { hasFields: false, missingRequired: [], configured: true },
     spec: options.transport
       ? {
           name,

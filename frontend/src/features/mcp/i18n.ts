@@ -95,11 +95,15 @@ const englishMcpCopy = {
     enabledStatusAria: (label: string) => `Status: ${label}`,
     mcpStatus: {
       available: "Available",
+      needs_config: "Needs config",
       connection_issue: "Connection issue",
+      unchecked: "Unchecked",
     },
     mcpStatusReason: {
       available: "MCP endpoint is reachable.",
+      needs_config: "Required configuration is missing. Add it when enabling this MCP.",
       connection_issue: "Connection failed. Check this MCP's config.",
+      unchecked: "Availability has not been checked yet.",
       httpUnauthorized: () =>
         "Authentication required, but no auth link is listed.",
       httpUnauthorizedWithDocs: () =>
@@ -298,11 +302,15 @@ export const mcpCopy = {
       enabledStatusAria: (label: string) => `状态：${label}`,
       mcpStatus: {
         available: "可用",
+        needs_config: "需要配置",
         connection_issue: "连接异常",
+        unchecked: "未检查",
       },
       mcpStatusReason: {
         available: "MCP 端点可连接。",
+        needs_config: "缺少必填配置。启用此 MCP 时请补充这些配置。",
         connection_issue: "Skill Manager 无法通过当前配置连接到此 MCP。",
+        unchecked: "尚未检查可用性。",
         httpUnauthorized: () =>
           "远程 MCP 服务器需要认证，但 Registry 未提供认证入口。请打开 MCP 详情查看是否有服务商文档。",
         httpUnauthorizedWithDocs: () =>

@@ -1189,6 +1189,32 @@
         "title": "McpInstallConfigResponse",
         "type": "object"
       },
+      "McpInstallConfigStatusResponse": {
+        "properties": {
+          "configured": {
+            "title": "Configured",
+            "type": "boolean"
+          },
+          "hasFields": {
+            "title": "Hasfields",
+            "type": "boolean"
+          },
+          "missingRequired": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Missingrequired",
+            "type": "array"
+          }
+        },
+        "required": [
+          "hasFields",
+          "missingRequired",
+          "configured"
+        ],
+        "title": "McpInstallConfigStatusResponse",
+        "type": "object"
+      },
       "McpInventoryColumnResponse": {
         "properties": {
           "configPresent": {
@@ -1281,6 +1307,9 @@
             "title": "Enabledstatus",
             "type": "string"
           },
+          "installConfigStatus": {
+            "$ref": "#/components/schemas/McpInstallConfigStatusResponse"
+          },
           "kind": {
             "enum": [
               "managed",
@@ -1322,6 +1351,7 @@
           "enabledStatus",
           "availabilityStatus",
           "mcpStatus",
+          "installConfigStatus",
           "sightings"
         ],
         "title": "McpInventoryEntryResponse",
@@ -2124,6 +2154,9 @@
             "title": "Env",
             "type": "array"
           },
+          "installConfigStatus": {
+            "$ref": "#/components/schemas/McpInstallConfigStatusResponse"
+          },
           "kind": {
             "enum": [
               "managed",
@@ -2175,6 +2208,7 @@
           "enabledStatus",
           "availabilityStatus",
           "mcpStatus",
+          "installConfigStatus",
           "sightings"
         ],
         "title": "McpServerDetailResponse",
@@ -2360,7 +2394,9 @@
           "kind": {
             "enum": [
               "available",
-              "connection_issue"
+              "needs_config",
+              "connection_issue",
+              "unchecked"
             ],
             "title": "Kind",
             "type": "string"
