@@ -47,8 +47,14 @@ export function App() {
   );
 }
 
+function ParentSync() {
+  useParentSync();
+  return null;
+}
+
 function AppContent() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const [refreshPending, setRefreshPending] = useState(false);
   const common = useCommonCopy();
 
@@ -63,6 +69,7 @@ function AppContent() {
 
   return (
     <SkillsWorkspaceSessionProvider>
+      <ParentSync />
       <Shell onRefresh={handleRefreshData} refreshPending={refreshPending}>
         <Routes>
           <Route index element={<Navigate to="/overview" replace />} />

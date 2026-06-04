@@ -15,11 +15,13 @@ import {
   Command,
   Languages,
   LayoutDashboard,
+  Moon,
   RefreshCw,
   Settings,
   Store,
   SunMedium,
   Terminal,
+  X,
 } from "lucide-react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 
@@ -31,9 +33,11 @@ import { useCommonCopy, useLocale } from "../i18n";
 interface SidebarProps {
   onRefresh: () => void | Promise<void>;
   refreshPending: boolean;
+  mobileOpen?: boolean;
+  onMobileClose?: () => void;
 }
 
-export function Sidebar({ onRefresh, refreshPending }: SidebarProps) {
+export function Sidebar({ onRefresh, refreshPending, mobileOpen, onMobileClose }: SidebarProps) {
   const model = useSidebarModel();
   const { toast } = useToast();
   const common = useCommonCopy();
