@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 
-import { productLanguage } from "../../lib/product-language";
+import { useTranslation } from "../i18n/I18nProvider";
 import { mcpRoutes, useMcpInventoryQuery } from "../../features/mcp/public";
 import { skillsRoutes, useSkillsListQuery } from "../../features/skills/public";
 import { slashCommandRoutes, useSlashCommandsQuery } from "../../features/slash-commands/public";

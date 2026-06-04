@@ -12,34 +12,59 @@ import {
   ChevronDown,
   Command,
   LayoutDashboard,
+  Moon,
   RefreshCw,
   Settings,
   Store,
   SunMedium,
   Terminal,
+  X,
 } from "lucide-react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 
 import { useSidebarModel, type SidebarIconKey } from "../app/capability-registry";
 import { LoadingSpinner } from "./LoadingSpinner";
-import { useToast } from "./Toast";
+import { useTranslation } from "../app/i18n/I18nProvider";
+import { useTheme } from "../app/theme-context";
 
 interface SidebarProps {
   onRefresh: () => void | Promise<void>;
   refreshPending: boolean;
+  mobileOpen?: boolean;
+  onMobileClose?: () => void;
 }
 
-export function Sidebar({ onRefresh, refreshPending }: SidebarProps) {
+export function Sidebar({ onRefresh, refreshPending, mobileOpen, onMobileClose }: SidebarProps) {
   const model = useSidebarModel();
-  const { toast } = useToast();
+  const { t } = useTranslation();
+  const { theme, toggleTheme } = useTheme();
 
   return (
-    <aside className="sidebar ui-scrollbar--thin" aria-label="Primary navigation">
-      <div className="sidebar__brand">
-        <Link to="/overview" className="sidebar__brand-name">
-          skill-manager
-        </Link>
-      </div>
+    <>
+      <div
+        className="sidebar__backdrop"
+        data-visible={mobileOpen ?? false}
+        onClick={onMobileClose}
+        aria-hidden="true"
+      />
+      <aside
+        className="sidebar ui-scrollbar--thin"
+        aria-label={t("nav.overview")}
+        data-mobile-open={mobileOpen ?? false}
+      >
+        <div className="sidebar__brand">
+          <Link to="/overview" className="sidebar__brand-name">
+            {t("brand.name")}
+          </Link>
+          <button
+            type="button"
+            className="sidebar__mobile-close"
+            onClick={onMobileClose}
+            aria-label={t("action.close")}
+          >
+            <X size={20} />
+          </button>
+        </div>
 
       <nav className="sidebar__nav">
         {model.topLinks.map((link) => (
@@ -78,26 +103,27 @@ export function Sidebar({ onRefresh, refreshPending }: SidebarProps) {
           disabled={refreshPending}
           aria-busy={refreshPending}
         >
-          {refreshPending ? <LoadingSpinner size="sm" label="Refreshing" /> : <RefreshCw size={16} />}
-          <span>Refresh</span>
+          {refreshPending ? <LoadingSpinner size="sm" label={t("nav.refreshing")} /> : <RefreshCw size={16} />}
+          <span>{t("nav.refresh")}</span>
         </button>
         <button
           type="button"
           className="sidebar-footer-btn"
-          onClick={() => toast("Light theme — coming soon")}
+          onClick={toggleTheme}
         >
-          <SunMedium size={16} />
-          <span>Light</span>
+          {theme === "dark" ? <SunMedium size={16} /> : <Moon size={16} />}
+          <span>{theme === "dark" ? t("nav.light") : t("nav.dark")}</span>
         </button>
         <NavLink
           to="/settings"
           className={({ isActive }) => `sidebar-footer-btn${isActive ? " is-active" : ""}`}
         >
           <Settings size={16} />
-          <span>Settings</span>
+          <span>{t("nav.settings")}</span>
         </NavLink>
       </div>
     </aside>
+    </>
   );
 }
 

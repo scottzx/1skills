@@ -16,6 +16,7 @@ export default defineConfig(({ mode }) => {
 
   return {
     root: "frontend",
+    base: mode === "production" ? "/1skills/" : "/",
     plugins: [react()],
     server: {
       host: "127.0.0.1",

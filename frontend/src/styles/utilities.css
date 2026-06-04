@@ -111,4 +111,15 @@
 
 /* -------------------------------------------------------------------------- */
 
+@media (max-width: 900px) {
+  .action-pill,
+  .sidebar-footer-btn,
+  .sidebar-link,
+  .sidebar-top-link,
+  .sidebar-group__header,
+  button[class*="pill"] {
+    min-height: 44px;
+  }
+}
+
 }

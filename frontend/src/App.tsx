@@ -11,6 +11,9 @@ import { SkillsWorkspaceSessionProvider } from "./features/skills/model/session"
 import SkillsNeedsReviewPage from "./features/skills/screens/SkillsNeedsReviewPage";
 import SkillsInUsePage from "./features/skills/screens/SkillsInUsePage";
 import SkillsWorkspacePage from "./features/skills/screens/SkillsWorkspacePage";
+import { I18nProvider, useTranslation } from "./app/i18n/I18nProvider";
+import { ThemeProvider } from "./app/theme-context";
+import { useParentSync } from "./app/parent-sync";
 
 const MarketplaceLayout = lazy(() => import("./features/marketplace/components/MarketplaceLayout"));
 const OverviewPage = lazy(() => import("./features/overview/screens/OverviewPage"));
@@ -34,17 +37,27 @@ export function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ToastProvider>
-        <UiTooltipProvider>
-          <AppContent />
-        </UiTooltipProvider>
-      </ToastProvider>
+      <I18nProvider>
+        <ThemeProvider>
+          <ToastProvider>
+            <UiTooltipProvider>
+              <AppContent />
+            </UiTooltipProvider>
+          </ToastProvider>
+        </ThemeProvider>
+      </I18nProvider>
     </QueryClientProvider>
   );
 }
 
+function ParentSync() {
+  useParentSync();
+  return null;
+}
+
 function AppContent() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const [refreshPending, setRefreshPending] = useState(false);
 
   async function handleRefreshData() {
@@ -58,6 +71,7 @@ function AppContent() {
 
   return (
     <SkillsWorkspaceSessionProvider>
+      <ParentSync />
       <Shell onRefresh={handleRefreshData} refreshPending={refreshPending}>
         <Routes>
           <Route index element={<Navigate to="/overview" replace />} />
@@ -65,7 +79,7 @@ function AppContent() {
           <Route
             path="overview"
             element={
-              <Suspense fallback={<RouteLoadingPanel label="Loading overview" />}>
+              <Suspense fallback={<RouteLoadingPanel label={t("loading.overview")} />}>
                 <OverviewPage />
               </Suspense>
             }
@@ -83,7 +97,7 @@ function AppContent() {
           <Route
             path="mcp/use"
             element={
-              <Suspense fallback={<RouteLoadingPanel label="Loading MCP" />}>
+              <Suspense fallback={<RouteLoadingPanel label={t("loading.mcp")} />}>
                 <McpInUsePage />
               </Suspense>
             }
@@ -91,7 +105,7 @@ function AppContent() {
           <Route
             path="mcp/review"
             element={
-              <Suspense fallback={<RouteLoadingPanel label="Loading MCP" />}>
+              <Suspense fallback={<RouteLoadingPanel label={t("loading.mcp")} />}>
                 <McpNeedsReviewPage />
               </Suspense>
             }
@@ -102,7 +116,7 @@ function AppContent() {
           <Route
             path="marketplace"
             element={
-              <Suspense fallback={<RouteLoadingPanel label="Loading marketplace" />}>
+              <Suspense fallback={<RouteLoadingPanel label={t("loading.marketplace")} />}>
                 <MarketplaceLayout />
               </Suspense>
             }
@@ -121,7 +135,7 @@ function AppContent() {
           <Route
             path="slash-commands/use"
             element={
-              <Suspense fallback={<RouteLoadingPanel label="Loading slash commands" />}>
+              <Suspense fallback={<RouteLoadingPanel label={t("loading.slashCommands")} />}>
                 <SlashCommandsPage />
               </Suspense>
             }
@@ -129,7 +143,7 @@ function AppContent() {
           <Route
             path="slash-commands/review"
             element={
-              <Suspense fallback={<RouteLoadingPanel label="Loading slash commands" />}>
+              <Suspense fallback={<RouteLoadingPanel label={t("loading.slashCommands")} />}>
                 <SlashCommandsReviewPage />
               </Suspense>
             }
@@ -138,7 +152,7 @@ function AppContent() {
           <Route
             path="settings"
             element={
-              <Suspense fallback={<RouteLoadingPanel label="Loading settings" />}>
+              <Suspense fallback={<RouteLoadingPanel label={t("loading.settings")} />}>
                 <SettingsPage />
               </Suspense>
             }
