@@ -2,7 +2,7 @@ import { useCallback, useState, type ReactNode } from "react";
 import { Menu } from "lucide-react";
 
 import { Sidebar } from "./Sidebar";
-import { useTranslation } from "../app/i18n/I18nProvider";
+import { useCommonCopy } from "../i18n";
 
 interface ShellProps {
   children: ReactNode;
@@ -11,7 +11,7 @@ interface ShellProps {
 }
 
 export function Shell({ children, onRefresh, refreshPending }: ShellProps) {
-  const { t } = useTranslation();
+  const common = useCommonCopy();
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   const handleMobileClose = useCallback(() => setMobileSidebarOpen(false), []);
@@ -22,7 +22,7 @@ export function Shell({ children, onRefresh, refreshPending }: ShellProps) {
         type="button"
         className="shell__hamburger"
         onClick={() => setMobileSidebarOpen((v) => !v)}
-        aria-label={t("nav.overview")}
+        aria-label={common.nav.overview}
       >
         <Menu size={20} />
       </button>

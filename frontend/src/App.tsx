@@ -7,6 +7,7 @@ import { Shell } from "./components/Shell";
 import { ToastProvider } from "./components/Toast";
 import { UiTooltipProvider } from "./components/ui/UiTooltipProvider";
 import { invalidateCapabilityQueries } from "./app/capability-registry";
+import { useParentSync } from "./app/parent-sync";
 import { SkillsWorkspaceSessionProvider } from "./features/skills/model/session";
 import SkillsNeedsReviewPage from "./features/skills/screens/SkillsNeedsReviewPage";
 import SkillsInUsePage from "./features/skills/screens/SkillsInUsePage";
@@ -54,7 +55,6 @@ function ParentSync() {
 
 function AppContent() {
   const queryClient = useQueryClient();
-  const { t } = useTranslation();
   const [refreshPending, setRefreshPending] = useState(false);
   const common = useCommonCopy();
 
