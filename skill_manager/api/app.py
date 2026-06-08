@@ -8,7 +8,7 @@ from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from skill_manager.application import BackendContainer
 
 from .errors import install_error_handlers
-from .routers import health, marketplace, mcp, scan, settings, skills, slash_commands
+from .routers import health, manifest, marketplace, mcp, scan, settings, skills, slash_commands
 
 
 def create_app(
@@ -21,6 +21,7 @@ def create_app(
     app.state.frontend_dist = frontend_dist if frontend_dist is not None and frontend_dist.exists() else None
     install_error_handlers(app)
     app.include_router(health.router)
+    app.include_router(manifest.router)
     app.include_router(settings.router)
     app.include_router(skills.router)
     app.include_router(slash_commands.router)

@@ -1,0 +1,32 @@
+/**
+ * Reports the current route up to the host window (1agents main app).
+ *
+ * The host owns the main app's URL. When the user clicks a link inside the
+ * iframe (e.g. a router-driven <Link> in 1skills), the route changes here
+ * first — we mirror it up via postMessage so the host's `<ModuleNav />` can
+ * highlight the active item and the host URL can stay in sync.
+ *
+ * Only fires when the page is running inside a parent frame (i.e. the host
+ * embedded us). In standalone mode there's no parent to report to, and the
+ * hook becomes a no-op.
+ */
+
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
+
+export function useNavReporter(): void {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (window.parent === window) return; // standalone — no parent
+    try {
+      window.parent.postMessage(
+        { type: "NAV_CHANGE", path: pathname },
+        "*",
+      );
+    } catch {
+      // ignore — some embedded contexts restrict postMessage
+    }
+  }, [pathname]);
+}

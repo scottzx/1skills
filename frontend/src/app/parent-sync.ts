@@ -10,7 +10,12 @@ interface LangChangeMessage {
   lang: "en-US" | "zh-CN";
 }
 
-type ParentMessage = ThemeChangeMessage | LangChangeMessage;
+interface NavigateMessage {
+  type: "NAVIGATE";
+  to: string;
+}
+
+type ParentMessage = ThemeChangeMessage | LangChangeMessage | NavigateMessage;
 
 function isParentMessage(data: unknown): data is ParentMessage {
   if (typeof data !== "object" || data === null) return false;
@@ -19,6 +24,9 @@ function isParentMessage(data: unknown): data is ParentMessage {
     return true;
   }
   if (msg.type === "LANG_CHANGE" && (msg.lang === "en-US" || msg.lang === "zh-CN")) {
+    return true;
+  }
+  if (msg.type === "NAVIGATE" && typeof msg.to === "string") {
     return true;
   }
   return false;
@@ -49,6 +57,19 @@ export function useParentSync(): void {
         window.dispatchEvent(
           new CustomEvent("lang-sync", { detail: { lang: data.lang } }),
         );
+      } else if (data.type === "NAVIGATE") {
+        // Host asked us to navigate. Push the path and emit a popstate so
+        // React Router re-matches the new URL. We use pushState (not
+        // replaceState) so the user's iframe-internal back/forward still
+        // works inside the iframe.
+        const target = data.to.startsWith("/") ? data.to : "/" + data.to;
+        if (target === window.location.pathname) return;
+        try {
+          window.history.pushState({}, "", target);
+          window.dispatchEvent(new PopStateEvent("popstate"));
+        } catch {
+          // ignore
+        }
       }
     }
 

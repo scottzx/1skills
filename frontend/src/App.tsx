@@ -8,6 +8,7 @@ import { ToastProvider } from "./components/Toast";
 import { UiTooltipProvider } from "./components/ui/UiTooltipProvider";
 import { invalidateCapabilityQueries } from "./app/capability-registry";
 import { useParentSync } from "./app/parent-sync";
+import { useNavReporter } from "./app/nav-reporter";
 import { SkillsWorkspaceSessionProvider } from "./features/skills/model/session";
 import SkillsNeedsReviewPage from "./features/skills/screens/SkillsNeedsReviewPage";
 import SkillsInUsePage from "./features/skills/screens/SkillsInUsePage";
@@ -56,6 +57,11 @@ function ParentSync() {
   return null;
 }
 
+function NavReporter() {
+  useNavReporter();
+  return null;
+}
+
 function AppContent() {
   const queryClient = useQueryClient();
   const [refreshPending, setRefreshPending] = useState(false);
@@ -73,6 +79,7 @@ function AppContent() {
   return (
     <SkillsWorkspaceSessionProvider>
       <ParentSync />
+      <NavReporter />
       <Shell onRefresh={handleRefreshData} refreshPending={refreshPending}>
         <Routes>
           <Route index element={<Navigate to="/overview" replace />} />
