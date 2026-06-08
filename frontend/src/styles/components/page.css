@@ -35,6 +35,25 @@
   }
 }
 
+/* Bare mode — used when the page is embedded as a module slot inside the
+ * 1agents host. The host owns navigation and chrome, so we drop the
+ * Sidebar column, let the main pane fill the iframe, and remove the
+ * page-shell max-width so content stretches edge-to-edge. */
+.app-shell--bare {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.app-shell--bare .app-main {
+  padding: 0;
+}
+
+.app-shell--bare .page-shell {
+  max-width: none;
+  width: 100%;
+  margin: 0;
+  padding: var(--space-8) var(--space-10);
+}
+
 @media (max-width: 480px) {
   .app-main {
     padding: var(--space-5);
