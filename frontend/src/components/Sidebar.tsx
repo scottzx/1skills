@@ -29,6 +29,7 @@ import { useSidebarModel, type SidebarIconKey } from "../app/capability-registry
 import { LoadingSpinner } from "./LoadingSpinner";
 import { useToast } from "./Toast";
 import { useCommonCopy, useLocale } from "../i18n";
+import { useTheme } from "../app/theme";
 
 interface SidebarProps {
   onRefresh: () => void | Promise<void>;
@@ -41,73 +42,96 @@ export function Sidebar({ onRefresh, refreshPending, mobileOpen, onMobileClose }
   const model = useSidebarModel();
   const { toast } = useToast();
   const common = useCommonCopy();
+  const { theme, toggleTheme } = useTheme();
 
   return (
-    <aside className="sidebar ui-scrollbar--thin" aria-label={common.nav.primary}>
-      <div className="sidebar__brand">
-        <Link to="/overview" className="sidebar__brand-name">
-          skill-manager
-        </Link>
-      </div>
-
-      <nav className="sidebar__nav">
-        {model.topLinks.map((link) => (
-          <SidebarTopLink
-            key={link.key}
-            to={link.to}
-            label={link.label}
-            icon={<LayoutDashboard size={16} />}
-          />
-        ))}
-
-        {model.groups.map((group) => (
-          <NavGroup
-            key={group.key}
-            label={group.label}
-            icon={sidebarIcon(group.iconKey)}
-            count={group.count}
+    <>
+      <aside
+        className="sidebar ui-scrollbar--thin"
+        aria-label={common.nav.primary}
+        data-mobile-open={mobileOpen ?? false}
+      >
+        <div className="sidebar__brand">
+          <Link to="/overview" className="sidebar__brand-name">
+            skill-manager
+          </Link>
+          <button
+            type="button"
+            className="sidebar__mobile-close"
+            onClick={onMobileClose}
+            aria-label={common.nav.close}
           >
-            {group.links.map((link) => (
-              <SidebarLink
-                key={link.key}
-                to={link.to}
-                label={link.label}
-                count={link.count}
-              />
-            ))}
-          </NavGroup>
-        ))}
-      </nav>
+            <X size={18} />
+          </button>
+        </div>
 
-      <div className="sidebar__footer">
-        <button
-          type="button"
-          className="sidebar-footer-btn"
-          onClick={() => void onRefresh()}
-          disabled={refreshPending}
-          aria-busy={refreshPending}
-        >
-          {refreshPending ? <LoadingSpinner size="sm" label={common.actions.refreshing} /> : <RefreshCw size={16} />}
-          <span>{common.actions.refresh}</span>
-        </button>
-        <button
-          type="button"
-          className="sidebar-footer-btn"
-          onClick={() => toast(common.nav.lightComingSoon)}
-        >
-          <SunMedium size={16} />
-          <span>{common.nav.light}</span>
-        </button>
-        <SidebarLanguageMenu />
-        <NavLink
-          to="/settings"
-          className={({ isActive }) => `sidebar-footer-btn${isActive ? " is-active" : ""}`}
-        >
-          <Settings size={16} />
-          <span>{common.nav.settings}</span>
-        </NavLink>
-      </div>
-    </aside>
+        <nav className="sidebar__nav">
+          {model.topLinks.map((link) => (
+            <SidebarTopLink
+              key={link.key}
+              to={link.to}
+              label={link.label}
+              icon={<LayoutDashboard size={16} />}
+            />
+          ))}
+
+          {model.groups.map((group) => (
+            <NavGroup
+              key={group.key}
+              label={group.label}
+              icon={sidebarIcon(group.iconKey)}
+              count={group.count}
+            >
+              {group.links.map((link) => (
+                <SidebarLink
+                  key={link.key}
+                  to={link.to}
+                  label={link.label}
+                  count={link.count}
+                />
+              ))}
+            </NavGroup>
+          ))}
+        </nav>
+
+        <div className="sidebar__footer">
+          <button
+            type="button"
+            className="sidebar-footer-btn"
+            onClick={() => void onRefresh()}
+            disabled={refreshPending}
+            aria-busy={refreshPending}
+          >
+            {refreshPending ? <LoadingSpinner size="sm" label={common.actions.refreshing} /> : <RefreshCw size={16} />}
+            <span>{common.actions.refresh}</span>
+          </button>
+          <button
+            type="button"
+            className="sidebar-footer-btn"
+            onClick={toggleTheme}
+            aria-label={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
+          >
+            {theme === "dark" ? <SunMedium size={16} /> : <Moon size={16} />}
+            <span>{theme === "dark" ? common.nav.light : common.nav.dark}</span>
+          </button>
+          <SidebarLanguageMenu />
+          <NavLink
+            to="/settings"
+            className={({ isActive }) => `sidebar-footer-btn${isActive ? " is-active" : ""}`}
+          >
+            <Settings size={16} />
+            <span>{common.nav.settings}</span>
+          </NavLink>
+        </div>
+      </aside>
+      {/* Tap-outside-to-close backdrop — only visible on mobile */}
+      <div
+        className="sidebar__backdrop"
+        data-visible={mobileOpen ?? false}
+        onClick={onMobileClose}
+        aria-hidden="true"
+      />
+    </>
   );
 }
 

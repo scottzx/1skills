@@ -1,4 +1,7 @@
 :root {
+  /* Lock base font size — prevents host page from bleeding into this iframe. */
+  font-size: 16px;
+
   --font-sans: "Inter", "SF Pro Text", "Segoe UI", system-ui, -apple-system, sans-serif;
   --font-mono: "SF Mono", "JetBrains Mono", "IBM Plex Mono", ui-monospace, Menlo, monospace;
 
@@ -81,6 +84,12 @@
 
   /* Layout */
   --sidebar-width: 256px;
+
+  /* Safe area insets — wraps env() so tokens are reusable in calc(). */
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-left: env(safe-area-inset-left, 0px);
+  --safe-area-right: env(safe-area-inset-right, 0px);
 }
 
 [data-theme="light"] {

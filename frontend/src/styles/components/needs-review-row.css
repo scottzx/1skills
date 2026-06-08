@@ -96,4 +96,16 @@
   justify-content: flex-end;
 }
 
+@media (max-width: 600px) {
+  .needs-review-row {
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+  }
+
+  .needs-review-row__trailing {
+    justify-content: flex-start;
+    margin-top: 0;
+  }
+}
+
 }
