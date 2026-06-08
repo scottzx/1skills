@@ -32,6 +32,17 @@ function isParentMessage(data: unknown): data is ParentMessage {
   return false;
 }
 
+/**
+ * Returns true when the page is loaded as a module slot inside the host
+ * (1agents main app). In that case the host owns navigation, and we use
+ * hash-based navigation since the iframe is served at /1skills/ while the
+ * host sends bare paths like /skills/review.
+ */
+function isBareMode(): boolean {
+  if (typeof window === "undefined") return false;
+  return new URLSearchParams(window.location.search).get("bare") === "1";
+}
+
 export function useParentSync(): void {
   useEffect(() => {
     function handleMessage(event: MessageEvent) {
@@ -58,17 +69,27 @@ export function useParentSync(): void {
           new CustomEvent("lang-sync", { detail: { lang: data.lang } }),
         );
       } else if (data.type === "NAVIGATE") {
-        // Host asked us to navigate. Push the path and emit a popstate so
-        // React Router re-matches the new URL. We use pushState (not
-        // replaceState) so the user's iframe-internal back/forward still
-        // works inside the iframe.
+        // Host asked us to navigate. In bare mode the router is HashRouter
+        // (configured in main.tsx), so we update window.location.hash which
+        // triggers React Router's hashchange listener. In standalone mode
+        // we use BrowserRouter + pushState + popstate instead.
         const target = data.to.startsWith("/") ? data.to : "/" + data.to;
-        if (target === window.location.pathname) return;
-        try {
-          window.history.pushState({}, "", target);
-          window.dispatchEvent(new PopStateEvent("popstate"));
-        } catch {
-          // ignore
+        if (isBareMode()) {
+          const newHash = "#" + target;
+          if (window.location.hash === newHash) return;
+          try {
+            window.location.hash = newHash;
+          } catch {
+            // ignore
+          }
+        } else {
+          if (target === window.location.pathname) return;
+          try {
+            window.history.pushState({}, "", target);
+            window.dispatchEvent(new PopStateEvent("popstate"));
+          } catch {
+            // ignore
+          }
         }
       }
     }

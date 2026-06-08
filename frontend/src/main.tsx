@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { BrowserRouter } from "react-router-dom";
+import { BrowserRouter, HashRouter } from "react-router-dom";
 
 import { App } from "./App";
 import "./styles/index.css";
@@ -24,10 +24,22 @@ import "./features/mcp/styles/pages.css";
 import "./features/mcp/styles/detail-sheet.css";
 import "./features/mcp/styles/edit-dialogs.css";
 
+/**
+ * When the page is embedded as a module slot inside the host (1agents main
+ * app), the host owns the URL and pushes NAVIGATE messages via
+ * postMessage. We switch to HashRouter in bare mode so the iframe's
+ * internal routes (e.g. /skills/review) live in the URL hash, not the
+ * pathname — this avoids the basename mismatch that would otherwise break
+ * route matching when 1skills is served at /1skills/ and the host sends a
+ * bare path like /skills/review.
+ */
+const isBareMode = new URLSearchParams(window.location.search).get("bare") === "1";
+const Router = isBareMode ? HashRouter : BrowserRouter;
+
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <BrowserRouter>
+    <Router>
       <App />
-    </BrowserRouter>
+    </Router>
   </React.StrictMode>,
 );

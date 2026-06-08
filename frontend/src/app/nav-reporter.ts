@@ -21,6 +21,9 @@ export function useNavReporter(): void {
     if (typeof window === "undefined") return;
     if (window.parent === window) return; // standalone — no parent
     try {
+      // Always report the bare path (e.g. "/skills/review"), never the
+      // hash or the iframe mount prefix. The host's manifest links use
+      // bare paths too, so this keeps active-highlighting consistent.
       window.parent.postMessage(
         { type: "NAV_CHANGE", path: pathname },
         "*",
