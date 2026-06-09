@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter, HashRouter } from "react-router-dom";
 
 import { App } from "./App";
+import { isBareModeNow } from "./lib/bare-mode";
 import "./styles/index.css";
 
 /* Feature-local CSS.
@@ -33,8 +34,7 @@ import "./features/mcp/styles/edit-dialogs.css";
  * route matching when 1skills is served at /1skills/ and the host sends a
  * bare path like /skills/review.
  */
-const isBareMode = new URLSearchParams(window.location.search).get("bare") === "1";
-const Router = isBareMode ? HashRouter : BrowserRouter;
+const Router = isBareModeNow() ? HashRouter : BrowserRouter;
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

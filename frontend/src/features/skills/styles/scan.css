@@ -186,7 +186,7 @@
 
 .detail-sheet.scan-config-detail-modal {
   grid-template-rows: auto minmax(0, 1fr);
-  width: min(760px, calc(100vw - 48px));
+  width: var(--modal-width-lg);
   overflow: hidden;
 }
 
@@ -285,6 +285,15 @@
   font-size: var(--font-size-sm);
 }
 
+@container page (max-width: 600px) {
+  /* Drop the 960px floor on narrow containers so the table fits. The
+   * action column will be tight but everything stays visible. Full
+   * card-stack refactor is a follow-up that needs data-label on cells. */
+  .scan-config-table {
+    min-width: 0;
+  }
+}
+
 .scan-config-table__col-name {
   width: 17%;
 }
@@ -381,7 +390,7 @@
   z-index: 90;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
-  width: min(920px, calc(100vw - 48px));
+  width: var(--modal-width-xl);
   max-height: calc(100vh - 48px);
   padding: 0;
   border: 1px solid var(--color-border);

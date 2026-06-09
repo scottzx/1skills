@@ -13,7 +13,7 @@
   top: 50%;
   left: 50%;
   z-index: 80;
-  width: min(480px, calc(100vw - 32px));
+  width: var(--modal-width-md);
   padding: 20px;
   border-radius: 14px;
   background: var(--color-surface-raised);
@@ -58,7 +58,7 @@
 }
 
 .confirm-dialog {
-  width: min(500px, calc(100vw - 32px));
+  width: var(--modal-width-md);
   padding: 24px;
   border: 1px solid color-mix(in srgb, var(--color-border-strong) 72%, transparent);
   border-radius: var(--radius-lg);
@@ -100,7 +100,8 @@
 
 .confirm-dialog__button {
   min-width: 110px;
-  height: 38px;
+  height: var(--icon-button-size-md);
+  min-height: var(--tap-target-min);
   padding: 0 var(--space-4);
   border: 1px solid transparent;
   border-radius: var(--radius-md);
@@ -148,6 +149,79 @@
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-danger) 58%, transparent);
 }
 
+/* -------------------------------------------------------------------------- */
+/* <Modal> primitive — chrome + close button.                                  */
+/* -------------------------------------------------------------------------- */
+/*
+ * The Modal primitive (see components/ui/Modal.tsx) renders the standard
+ * chrome + close button. Width/size variants are data-driven (data-size,
+ * data-render); Phase 2 layers the compact-viewport sheet switch on top.
+ */
+
+.modal__chrome {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.modal__title {
+  margin: 0;
+  font-size: 1.18rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--color-text);
+}
+
+.modal__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--icon-button-size-sm);
+  height: var(--icon-button-size-sm);
+  min-width: var(--tap-target-min);
+  min-height: var(--tap-target-min);
+  padding: 0;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.modal__close:hover:not(:disabled) {
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+}
+
+.modal__close:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.modal__description {
+  margin: 8px 0 0;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+  font-size: var(--font-size-md);
+}
+
+.modal__body {
+  display: grid;
+  gap: var(--space-4);
+  margin-top: 16px;
+}
+
+.modal__footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
 @media (max-width: 680px) {
   .dialog-content {
     width: min(100vw - 20px, 480px);
@@ -176,7 +250,7 @@
   z-index: 90;
   display: grid;
   gap: var(--space-4);
-  width: min(480px, calc(100vw - 48px));
+  width: var(--modal-width-md);
   max-height: calc(100vh - 48px);
   padding: var(--space-5);
   border-radius: var(--radius-lg);
@@ -210,8 +284,10 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: var(--icon-button-size-sm);
+  height: var(--icon-button-size-sm);
+  min-width: var(--tap-target-min);
+  min-height: var(--tap-target-min);
   padding: 0;
   border: none;
   background: transparent;
@@ -277,6 +353,100 @@
 @media (prefers-reduced-motion: reduce) {
   .mcp-dialog__spinner {
     animation: none;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Bottom sheet — applied to any centered dialog on a compact viewport.       */
+/* -------------------------------------------------------------------------- */
+/*
+ * Modal dialogs are portaled to document.body (Radix Dialog), so container
+ * queries on the page shell cannot reach them. The only correct signal for
+ * "should this dialog be a bottom sheet?" is the user's actual viewport —
+ * which is what `@media (max-width)` measures. The Phase 2 work uses viewport
+ * @media; Phase 3 leaves @container for in-shell page content (cards, matrix,
+ * forms, etc.) where the iframe-slot width is the relevant signal.
+ *
+ * Reached via:
+ *   - the data-render="sheet" attribute (set by <Modal mode="sheet-auto">
+ *     and <BottomSheet>), AND
+ *   - the bare `.dialog-content` baseline at narrow viewports (so existing
+ *     hand-rolled dialogs also benefit without code changes).
+ */
+
+@media (max-width: 600px) {
+  .dialog-content[data-render="sheet"],
+  .dialog-content[data-render="dialog"] {
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: none;
+    max-height: var(--sheet-max-height);
+    padding: var(--space-5);
+    padding-bottom: max(var(--space-5), var(--sheet-bottom-inset));
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    transform: none;
+    overscroll-behavior: contain;
+  }
+
+  .modal {
+    width: 100%;
+    max-width: none;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    transform: none;
+  }
+
+  .modal__footer {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .modal__footer > * {
+    width: 100%;
+  }
+
+  .confirm-dialog {
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    transform: none;
+  }
+
+  .mcp-dialog {
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: none;
+    max-height: var(--sheet-max-height);
+    padding: var(--space-5);
+    padding-bottom: max(var(--space-5), var(--sheet-bottom-inset));
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    transform: none;
+    overscroll-behavior: contain;
+  }
+
+  .mcp-dialog__footer {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .mcp-dialog__footer > * {
+    width: 100%;
+  }
+
+  /* Drag-handle affordance for sheet mode. Rendered via a ::before on the
+   * content so hand-rolled dialogs (ConfirmActionDialog etc.) automatically
+   * get the handle without code changes — only visible in sheet render. */
+  [data-render="sheet"]::before {
+    content: "";
+    display: block;
+    width: 36px;
+    height: var(--sheet-handle-size);
+    margin: 0 auto var(--space-3);
+    border-radius: 999px;
+    background: var(--color-border-strong);
   }
 }
 

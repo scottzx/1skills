@@ -1,0 +1,91 @@
+@layer components {
+
+/* -------------------------------------------------------------------------- */
+/* Form grids                                                                  */
+/* -------------------------------------------------------------------------- */
+/*
+ * Standardized label/value row pattern. Replaces the ad-hoc fixed-px label
+ * columns in MCP detail env-table, MCP connection grid, CLI detail metadata,
+ * settings storage path, and any similar "two-column key/value with a wide
+ * label gutter" layout.
+ *
+ * The wide-column variant (`.form-grid--label-value-wide`) uses a 0.5fr
+ * label column on desktop and stacks fully on narrow containers.
+ */
+
+.form-grid--label-value,
+.form-grid--label-value-wide {
+  display: grid;
+  gap: var(--space-2) var(--space-4);
+  align-items: baseline;
+  min-width: 0;
+}
+
+.form-grid--label-value {
+  grid-template-columns: minmax(120px, 0.35fr) minmax(0, 1fr);
+}
+
+.form-grid--label-value-wide {
+  grid-template-columns: minmax(160px, 0.5fr) minmax(0, 1fr);
+}
+
+.form-grid__label {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.form-grid__value {
+  color: var(--color-text);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+@container page (max-width: 600px) {
+  .form-grid--label-value,
+  .form-grid--label-value-wide {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-1) 0;
+  }
+
+  .form-grid__label {
+    font-weight: 600;
+    color: var(--color-text);
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Stack                                                                       */
+/* -------------------------------------------------------------------------- */
+/*
+ * Minimal flex utility that consolidates the "flex row with wrap and a gap"
+ * pattern reinvented in filter-bar, detail-sheet__footer, mcp-detail__meta,
+ * etc. Use `<div class="stack">` (or `.stack--wrap`) instead of hand-rolling
+ * a new flex container.
+ */
+
+.stack {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.stack--wrap {
+  flex-wrap: wrap;
+}
+
+.stack--column {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.stack--end {
+  justify-content: flex-end;
+}
+
+.stack--between {
+  justify-content: space-between;
+}
+
+}

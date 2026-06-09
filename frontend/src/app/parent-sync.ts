@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 
+import { useBareMode } from "../lib/bare-mode";
 import { LOCALE_STORAGE_KEY, type Locale } from "../i18n/locales";
 
 interface ThemeChangeMessage {
@@ -45,18 +46,13 @@ function toLocale(lang: string): Locale | null {
   return null;
 }
 
-/**
- * Returns true when the page is loaded as a module slot inside the host
- * (1agents main app). In that case the host owns navigation, and we use
- * hash-based navigation since the iframe is served at /1skills/ while the
- * host sends bare paths like /skills/review.
- */
-function isBareMode(): boolean {
-  if (typeof window === "undefined") return false;
-  return new URLSearchParams(window.location.search).get("bare") === "1";
-}
-
 export function useParentSync(): void {
+  // When the page is loaded as a module slot inside the host (1agents main
+  // app), the host owns navigation, and we use hash-based navigation since
+  // the iframe is served at /1skills/ while the host sends bare paths like
+  // /skills/review. In standalone mode we use BrowserRouter + pushState +
+  // popstate instead.
+  const bareMode = useBareMode();
   useEffect(() => {
     function handleMessage(event: MessageEvent) {
       const data = event.data;
@@ -92,7 +88,7 @@ export function useParentSync(): void {
         // triggers React Router's hashchange listener. In standalone mode
         // we use BrowserRouter + pushState + popstate instead.
         const target = data.to.startsWith("/") ? data.to : "/" + data.to;
-        if (isBareMode()) {
+        if (bareMode) {
           const newHash = "#" + target;
           if (window.location.hash === newHash) return;
           try {
@@ -114,5 +110,5 @@ export function useParentSync(): void {
 
     window.addEventListener("message", handleMessage);
     return () => window.removeEventListener("message", handleMessage);
-  }, []);
+  }, [bareMode]);
 }

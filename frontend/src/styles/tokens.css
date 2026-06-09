@@ -62,7 +62,17 @@
   --space-9: 40px;
   --space-10: 56px;
 
-  /* Breakpoints (for reference — @media queries use these px values inline) */
+  /* Breakpoint scale — source of truth. @media queries in CSS and the
+   * BREAKPOINTS constant in lib/breakpoints.ts both consume these px values
+   * (the JS constant is duplicated literally because @media rules cannot
+   * read CSS custom properties). Keep in sync. */
+  --bp-compact: 600px;
+  --bp-tablet: 900px;
+  --bp-wide: 1100px;
+  --bp-extra: 1280px;
+
+  /* Legacy aliases — kept for any external consumer that referenced the
+   * old names. Prefer the new --bp-* tokens. */
   --breakpoint-sm: 680px;
   --breakpoint-md: 900px;
   --breakpoint-lg: 1100px;
@@ -90,6 +100,24 @@
   --safe-area-bottom: env(safe-area-inset-bottom, 0px);
   --safe-area-left: env(safe-area-inset-left, 0px);
   --safe-area-right: env(safe-area-inset-right, 0px);
+
+  /* Touch targets — minimum recommended tap area (WCAG 2.5.5 / Apple HIG). */
+  --tap-target-min: 44px;
+  --icon-button-size-md: 40px;
+  --icon-button-size-sm: 32px;
+  --checkbox-size: 20px;
+
+  /* Modal width scale — replaces the 8 hand-rolled
+   * `width: min(NN, calc(100vw - …))` declarations. */
+  --modal-width-sm: min(420px, calc(100vw - 24px));
+  --modal-width-md: min(560px, calc(100vw - 32px));
+  --modal-width-lg: min(720px, calc(100vw - 32px));
+  --modal-width-xl: min(960px, calc(100vw - 32px));
+
+  /* Bottom sheet — safe-area aware padding and visual handle. */
+  --sheet-bottom-inset: var(--safe-area-bottom);
+  --sheet-handle-size: 4px;
+  --sheet-max-height: 92dvh;
 }
 
 [data-theme="light"] {

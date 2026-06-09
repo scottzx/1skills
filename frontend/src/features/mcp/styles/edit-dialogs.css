@@ -9,7 +9,7 @@
   z-index: 90;
   display: flex;
   flex-direction: column;
-  width: min(640px, calc(100vw - 48px));
+  width: var(--modal-width-lg);
   max-height: calc(100vh - 48px);
   border-radius: var(--radius-lg);
   background: var(--color-surface);
@@ -236,6 +236,39 @@
   .mcp-choose-version__option {
     animation: none;
     transition: none;
+  }
+}
+
+/* Bottom-sheet treatment on narrow viewports. Uses viewport @media
+ * because .mcp-choose-version is portaled to document.body (Radix
+ * Dialog), so container queries on the page shell cannot reach it.
+ * Mirrors the @media block in dialogs.css. */
+@media (max-width: 600px) {
+  .mcp-choose-version {
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: none;
+    max-height: var(--sheet-max-height);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    padding-bottom: max(var(--space-4), var(--sheet-bottom-inset));
+    transform: none;
+    overscroll-behavior: contain;
+  }
+
+  .mcp-choose-version__head {
+    border-bottom: none;
+  }
+
+  .mcp-choose-version__footer {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .mcp-choose-version__footer > * {
+    width: 100%;
   }
 }
 

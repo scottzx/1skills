@@ -47,51 +47,51 @@ def get_manifest(container: BackendContainer = Depends(get_container)) -> dict[s
         "version": 1,
         "entryPath": "/overview",
         "topLinks": [
-            {"key": "overview", "to": "/overview", "label": "概览", "iconKey": "overview"},
+            {"key": "overview", "to": "/overview", "label": "module.skills.nav.overview", "iconKey": "overview"},
         ],
         "groups": [
             {
                 "key": "skills",
-                "label": "技能",
+                "label": "module.skills.group.skills",
                 "iconKey": "skills",
                 "count": in_use_skills + needs_review_skills,
                 "links": [
                     {
                         "key": "skills-use",
                         "to": "/skills/use",
-                        "label": "使用中",
+                        "label": "module.skills.link.inUse",
                         "count": in_use_skills,
                     },
                     {
                         "key": "skills-review",
                         "to": "/skills/review",
-                        "label": "待审阅",
+                        "label": "module.skills.link.review",
                         "count": needs_review_skills,
                         "badge": "review",
                     },
                     {
                         "key": "skills-scan-config",
                         "to": "/scan-config",
-                        "label": "扫描配置",
+                        "label": "module.skills.link.scanConfig",
                     },
                 ],
             },
             {
                 "key": "slash-commands",
-                "label": "Slash 命令",
+                "label": "module.skills.group.slashCommands",
                 "iconKey": "slash-commands",
                 "count": slash_total,
                 "links": [
                     {
                         "key": "slash-commands-use",
                         "to": "/slash-commands/use",
-                        "label": "使用中",
+                        "label": "module.skills.link.inUse",
                         "count": slash_total,
                     },
                     {
                         "key": "slash-commands-review",
                         "to": "/slash-commands/review",
-                        "label": "待审阅",
+                        "label": "module.skills.link.review",
                         "count": slash_review,
                         "badge": "review",
                     },
@@ -99,20 +99,20 @@ def get_manifest(container: BackendContainer = Depends(get_container)) -> dict[s
             },
             {
                 "key": "mcp",
-                "label": "MCP",
+                "label": "module.skills.group.mcp",
                 "iconKey": "mcp",
                 "count": mcp_managed + mcp_unmanaged,
                 "links": [
                     {
                         "key": "mcp-use",
                         "to": "/mcp/use",
-                        "label": "使用中",
+                        "label": "module.skills.link.inUse",
                         "count": mcp_managed,
                     },
                     {
                         "key": "mcp-review",
                         "to": "/mcp/review",
-                        "label": "待审阅",
+                        "label": "module.skills.link.review",
                         "count": mcp_unmanaged,
                         "badge": "review",
                     },
@@ -120,16 +120,16 @@ def get_manifest(container: BackendContainer = Depends(get_container)) -> dict[s
             },
             {
                 "key": "marketplace",
-                "label": "市场",
+                "label": "module.skills.group.marketplace",
                 "iconKey": "marketplace",
                 "links": [
-                    {"key": "marketplace-skills", "to": "/marketplace", "label": "技能"},
-                    {"key": "marketplace-mcp", "to": "/marketplace/mcp", "label": "MCP"},
-                    {"key": "marketplace-clis", "to": "/marketplace/clis", "label": "CLI"},
+                    {"key": "marketplace-skills", "to": "/marketplace", "label": "module.skills.group.skills"},
+                    {"key": "marketplace-mcp", "to": "/marketplace/mcp", "label": "module.skills.group.mcp"},
+                    {"key": "marketplace-clis", "to": "/marketplace/clis", "label": "module.skills.link.cli"},
                 ],
             },
         ],
         "headerActions": [
-            {"key": "refresh", "label": "刷新", "iconKey": "refresh"},
+            {"key": "refresh", "label": "module.skills.action.refresh", "iconKey": "refresh"},
         ],
     }

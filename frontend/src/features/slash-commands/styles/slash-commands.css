@@ -139,7 +139,7 @@
 }
 
 .slash-dialog {
-  width: min(960px, calc(100vw - 48px));
+  width: var(--modal-width-xl);
   max-width: none;
   max-height: calc(100vh - 48px);
   padding: var(--space-6);
@@ -395,7 +395,7 @@
   line-height: 1.5;
 }
 
-@media (max-width: 560px) {
+@container page (max-width: 560px) {
   .slash-written-location-row {
     grid-template-columns: 22px minmax(0, 1fr);
   }
@@ -419,6 +419,9 @@
   animation: spin 700ms linear infinite;
 }
 
+/* .slash-dialog is a Radix Dialog content (portaled to document.body), so
+ * this rule uses viewport @media — container queries on the page shell
+ * cannot reach portaled content. */
 @media (max-width: 680px) {
   .slash-dialog {
     width: calc(100vw - 16px);
@@ -428,7 +431,7 @@
   }
 }
 
-@media (max-width: 480px) {
+@container page (max-width: 480px) {
   .slash-target-binding-row {
     grid-template-columns: 22px minmax(0, 1fr);
   }

@@ -1,6 +1,19 @@
 @layer components {
 
 /* -------------------------------------------------------------------------- */
+/* Container query root                                                         */
+/* -------------------------------------------------------------------------- */
+
+/* Applied by <Container> on the page shell. Establishes a named container
+ * so descendants can use @container page (max-width: ...) rules instead of
+ * viewport @media — this is what makes the responsive layer robust to the
+ * iframe slot width that the 1agents host assigns. */
+.container-query {
+  container-type: inline-size;
+  container-name: page;
+}
+
+/* -------------------------------------------------------------------------- */
 /* App shell — sidebar + main pane                                              */
 /* -------------------------------------------------------------------------- */
 
@@ -93,7 +106,7 @@
   align-items: start;
 }
 
-@media (max-width: 600px) {
+@container page (max-width: 600px) {
   .page-header {
     grid-template-columns: 1fr;
     gap: var(--space-4);

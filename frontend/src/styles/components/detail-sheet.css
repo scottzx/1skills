@@ -17,7 +17,7 @@
   z-index: 80;
   display: grid;
   gap: var(--space-4);
-  width: min(960px, calc(100vw - 48px));
+  width: var(--modal-width-xl);
   max-height: calc(100vh - 48px);
   padding: var(--space-6);
   border-radius: var(--radius-lg);

@@ -2,6 +2,7 @@ import { useCallback, useState, type ReactNode } from "react";
 import { Menu } from "lucide-react";
 
 import { Sidebar } from "./Sidebar";
+import { useBareMode } from "../lib/bare-mode";
 import { useCommonCopy } from "../i18n";
 
 interface ShellProps {
@@ -10,28 +11,19 @@ interface ShellProps {
   refreshPending: boolean;
 }
 
-/**
- * Returns true when the page is loaded as a module slot inside the host
- * (1agents main app). In that case we skip the chrome — no hamburger, no
- * Sidebar, no footer buttons — so the host owns navigation and chrome.
- */
-function isBareMode(): boolean {
-  if (typeof window === "undefined") return false;
-  return new URLSearchParams(window.location.search).get("bare") === "1";
-}
-
 export function Shell({ children, onRefresh, refreshPending }: ShellProps) {
   const common = useCommonCopy();
+  const bareMode = useBareMode();
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   const handleMobileClose = useCallback(() => setMobileSidebarOpen(false), []);
 
-  if (isBareMode()) {
+  if (bareMode) {
     // Bare mode: render only the page content. The host provides navigation
     // via postMessage NAVIGATE and the host's own sidebar.
     return (
       <div className="app-shell app-shell--bare">
-        <main className="app-main ui-scrollbar">
+        <main className="app-main ui-scrollbar container-query">
           <div className="page-shell">{children}</div>
         </main>
       </div>
@@ -54,7 +46,7 @@ export function Shell({ children, onRefresh, refreshPending }: ShellProps) {
         mobileOpen={mobileSidebarOpen}
         onMobileClose={handleMobileClose}
       />
-      <main className="app-main ui-scrollbar">
+      <main className="app-main ui-scrollbar container-query">
         <div className="page-shell">{children}</div>
       </main>
     </div>

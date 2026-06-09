@@ -251,11 +251,11 @@
 }
 
 .mcp-edit-dialog {
-  width: min(560px, calc(100vw - 48px));
+  width: var(--modal-width-md);
 }
 
 .mcp-config-dialog {
-  width: min(620px, calc(100vw - 48px));
+  width: var(--modal-width-lg);
 }
 
 .mcp-config-dialog__notice {

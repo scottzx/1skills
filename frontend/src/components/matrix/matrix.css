@@ -223,8 +223,10 @@
   align-items: center;
   justify-content: center;
   position: relative;
-  width: 40px;
-  height: 40px;
+  width: var(--tap-target-min);
+  min-width: var(--tap-target-min);
+  height: var(--tap-target-min);
+  min-height: var(--tap-target-min);
   padding: 0;
   border: none;
   border-radius: var(--radius-sm);
@@ -315,7 +317,7 @@
   cursor: progress;
 }
 
-@media (max-width: 900px) {
+@container page (max-width: 900px) {
   .matrix-table__col-harness {
     width: 0;
   }
