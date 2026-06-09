@@ -71,6 +71,22 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
     document.documentElement.lang = locale;
   }, [locale]);
 
+  // Listen for language pushes from the host (postMessage LANG_CHANGE →
+  // "lang-sync" CustomEvent). In bare mode this is the only way the iframe
+  // learns the host's current language after mount.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    function onLangSync(event: Event) {
+      const detail = (event as CustomEvent<{ locale?: string }>).detail;
+      if (!detail || typeof detail.locale !== "string") return;
+      if (!isLocale(detail.locale)) return;
+      setLocaleState(detail.locale);
+      writeStoredLocale(detail.locale);
+    }
+    window.addEventListener("lang-sync", onLangSync);
+    return () => window.removeEventListener("lang-sync", onLangSync);
+  }, []);
+
   const setLocale = useCallback((next: Locale) => {
     setLocaleState(next);
     writeStoredLocale(next);
