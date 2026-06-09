@@ -13,3 +13,4 @@ packaging/npm/vendor/
 task_plan.md
 findings.md
 progress.md
+dist-embed/
