@@ -3,6 +3,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import type { McpIdentityGroupDto } from "../../api/management-types";
 import { useMcpCopy } from "../../i18n";
 import { McpNeedsReviewDetailView } from "./McpNeedsReviewDetailView";
+import { usePortalContainer } from "../../../../lib/portal-container";
 
 interface McpNeedsReviewDetailSheetProps {
   name: string | null;
@@ -21,6 +22,7 @@ export function McpNeedsReviewDetailSheet({
   ...rest
 }: McpNeedsReviewDetailSheetProps) {
   const copy = useMcpCopy();
+  const portalContainer = usePortalContainer();
   if (!name) {
     return null;
   }
@@ -31,7 +33,7 @@ export function McpNeedsReviewDetailSheet({
         if (!open) onClose();
       }}
     >
-      <Dialog.Portal>
+      <Dialog.Portal container={portalContainer || undefined}>
         <Dialog.Overlay className="dialog-overlay" />
         <Dialog.Content
           className="detail-sheet mcp-detail-modal"

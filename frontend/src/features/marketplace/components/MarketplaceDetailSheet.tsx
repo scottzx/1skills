@@ -3,6 +3,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import type { MarketplaceItemDto } from "../api/types";
 import { useMarketplaceCopy } from "../i18n";
 import { MarketplaceDetailView } from "./MarketplaceDetailView";
+import { usePortalContainer } from "../../../lib/portal-container";
 
 interface MarketplaceDetailSheetProps {
   itemId: string | null;
@@ -26,6 +27,7 @@ export function MarketplaceDetailSheet({
   onOpenInstalledSkill,
 }: MarketplaceDetailSheetProps) {
   const copy = useMarketplaceCopy();
+  const portalContainer = usePortalContainer();
 
   if (!itemId) {
     return null;
@@ -38,7 +40,7 @@ export function MarketplaceDetailSheet({
       }
     }}
     >
-      <Dialog.Portal>
+      <Dialog.Portal container={portalContainer || undefined}>
         <Dialog.Overlay className="dialog-overlay" />
         <Dialog.Content className="detail-sheet ui-scrollbar" aria-label={copy.detail.sheet.skillLabel}>
           <Dialog.Title className="u-visually-hidden">{copy.detail.sheet.skillLabel}</Dialog.Title>

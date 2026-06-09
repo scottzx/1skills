@@ -45,6 +45,8 @@ interface ModalProps {
  * class so it looks identical to hand-rolled dialogs; Phase 2 layers the
  * sheet/dialog auto-switch on top.
  */
+import { usePortalContainer } from "../../lib/portal-container";
+
 export function Modal({
   open,
   onOpenChange,
@@ -59,13 +61,14 @@ export function Modal({
   const common = useCommonCopy();
   const isCompact = useBreakpoint("compact");
   const renderAsSheet = mode === "sheet-auto" && isCompact;
+  const portalContainer = usePortalContainer();
 
   return (
     <Dialog.Root
       open={open}
       onOpenChange={dismissDisabled ? undefined : onOpenChange}
     >
-      <Dialog.Portal>
+      <Dialog.Portal container={portalContainer || undefined}>
         <Dialog.Overlay
           className="dialog-overlay"
           data-render={renderAsSheet ? "sheet" : "dialog"}

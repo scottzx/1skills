@@ -18,7 +18,9 @@
 
 @container page (max-width: 600px) {
   .market-grid {
-    grid-template-columns: minmax(0, 1fr);
+    /* Two-up grid on phones — was single-column; user requested 2. */
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3);
   }
 }
 

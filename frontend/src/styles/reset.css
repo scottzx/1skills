@@ -1,5 +1,14 @@
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
 *, *::before, *::after { box-sizing: border-box; }
-body { margin: 0; font-family: var(--font-sans); background: var(--color-bg); color: var(--color-text); line-height: 1.5; -webkit-font-smoothing: antialiased; }
+body, .skills-panel-root { margin: 0; font-family: var(--font-sans); background: var(--color-bg); color: var(--color-text); line-height: 1.5; -webkit-font-smoothing: antialiased; }
+.skills-panel-root {
+  width: 100%;
+  height: 100%;
+}
 img, svg { display: block; max-width: 100%; }
 input, button, textarea, select { font: inherit; }
 p, h1, h2, h3, h4 { overflow-wrap: break-word; margin: 0; }

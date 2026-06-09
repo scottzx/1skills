@@ -2,6 +2,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 
 import type { SlashCommandDto, SlashCommandReviewDto, SlashReviewAction, SlashTargetDto } from "../../api/types";
 import { SlashCommandReviewDetailView } from "./SlashCommandReviewDetailView";
+import { usePortalContainer } from "../../../../lib/portal-container";
 
 interface SlashCommandReviewDetailSheetProps {
   row: SlashCommandReviewDto | null;
@@ -25,6 +26,7 @@ export function SlashCommandReviewDetailSheet({
   if (!row) {
     return null;
   }
+  const portalContainer = usePortalContainer();
 
   return (
     <Dialog.Root
@@ -33,7 +35,7 @@ export function SlashCommandReviewDetailSheet({
         if (!open) onClose();
       }}
     >
-      <Dialog.Portal>
+      <Dialog.Portal container={portalContainer || undefined}>
         <Dialog.Overlay className="dialog-overlay" />
         <Dialog.Content
           className="detail-sheet slash-review-detail-modal"

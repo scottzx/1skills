@@ -7,6 +7,7 @@ import { DetailHeader } from "../../../../components/detail/DetailHeader";
 import { useCommonCopy, useLocale } from "../../../../i18n";
 import { useSkillsCopy } from "../../i18n";
 import type { LLMScanConfigInput } from "../../model/use-skill-scan";
+import { usePortalContainer } from "../../../../lib/portal-container";
 
 type ScanConfigEditorMode = "create" | "edit";
 
@@ -174,6 +175,7 @@ export function ScanConfigDetailModal({
   const copy = useSkillsCopy().scan.detail;
   const common = useCommonCopy();
   const { locale } = useLocale();
+  const portalContainer = usePortalContainer();
   const [form, setForm] = useState<ConfigFormState>(emptyForm);
   const [apiKeyVisible, setApiKeyVisible] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -338,7 +340,7 @@ export function ScanConfigDetailModal({
 
   return (
     <Dialog.Root open={open} onOpenChange={(next) => (next ? null : onClose())}>
-      <Dialog.Portal>
+      <Dialog.Portal container={portalContainer || undefined}>
         <Dialog.Overlay className="dialog-overlay" />
         <Dialog.Content className="detail-sheet scan-config-detail-modal">
           <Dialog.Title asChild>

@@ -6,6 +6,7 @@ import type { ScanResult } from "../../api/scan-types";
 import { useLocale } from "../../../../i18n";
 import { useSkillsCopy } from "../../i18n";
 import type { LLMScanConfig } from "../../model/use-skill-scan";
+import { usePortalContainer } from "../../../../lib/portal-container";
 
 interface ScanResultModalProps {
   open: boolean;
@@ -18,10 +19,11 @@ interface ScanResultModalProps {
 export function ScanResultModal({ open, result, completedAt, llmConfig, onClose }: ScanResultModalProps) {
   const copy = useSkillsCopy().scan.result;
   const { locale } = useLocale();
+  const portalContainer = usePortalContainer();
 
   return (
     <Dialog.Root open={open && result !== null} onOpenChange={(next) => (next ? null : onClose())}>
-      <Dialog.Portal>
+      <Dialog.Portal container={portalContainer || undefined}>
         <Dialog.Overlay className="dialog-overlay" />
         <Dialog.Content className="scan-result-modal">
           <Dialog.Title className="u-visually-hidden">{copy.dialogTitle}</Dialog.Title>

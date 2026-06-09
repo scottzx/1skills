@@ -19,6 +19,18 @@ export function useNavReporter(): void {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
+
+    // Embed mode (custom element): dispatch a CustomEvent on the window.
+    // The <skills-panel> element listens for this and re-dispatches a
+    // bubbling/composed CustomEvent('navigate') on itself, which the host
+    // React tree catches.
+    if ((globalThis as unknown as { __SKILLS_EMBED_MODE__?: boolean }).__SKILLS_EMBED_MODE__ === true) {
+      window.dispatchEvent(
+        new CustomEvent("skills-navigate", { detail: { path: pathname } }),
+      );
+      return;
+    }
+
     if (window.parent === window) return; // standalone — no parent
     try {
       // Always report the bare path (e.g. "/skills/review"), never the

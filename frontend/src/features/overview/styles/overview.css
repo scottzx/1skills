@@ -35,6 +35,12 @@
   border-radius: calc(var(--radius-lg) + 2px);
   background: var(--color-surface);
   overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.overview-stats-band:hover {
+  box-shadow: var(--shadow-md);
 }
 
 .overview-stat-tile {
@@ -43,10 +49,24 @@
   min-height: 170px;
   padding: var(--space-6);
   border-right: 1px solid var(--color-border);
+  transition: background-color 0.25s ease;
+}
+
+.overview-stat-tile:hover {
+  background-color: var(--color-surface-raised);
 }
 
 .overview-stat-tile:last-child {
   border-right: none;
+}
+
+@media (max-width: 900px) {
+  /* 3 columns so the three stat tiles (In Use / Needs Review / Harnesses)
+   * sit side-by-side at tablet and phone widths. The 4th column slot
+   * becomes implicit (empty). */
+  .overview-stats-band {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 .overview-stat-tile[data-loading="true"] {
@@ -84,6 +104,12 @@
   border-radius: var(--radius-lg);
   background: var(--color-surface);
   overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.overview-row-panel:hover {
+  box-shadow: var(--shadow-md);
 }
 
 .overview-row {
@@ -94,6 +120,11 @@
   min-height: 94px;
   padding: var(--space-4) var(--space-5);
   border-bottom: 1px solid var(--color-border);
+  transition: background-color 0.2s ease;
+}
+
+.overview-row:hover {
+  background-color: var(--color-surface-raised);
 }
 
 .overview-row-panel--compact .overview-row {
@@ -117,6 +148,12 @@
   border-radius: var(--radius-sm);
   background: var(--color-surface-raised);
   color: var(--color-accent);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.25s ease, color 0.25s ease;
+}
+
+.overview-row:hover .overview-row__icon {
+  transform: scale(1.05);
+  background-color: var(--color-accent-soft);
 }
 
 .overview-row__main {
@@ -215,7 +252,7 @@
   font-size: var(--font-size-sm);
   font-weight: 600;
   text-decoration: none;
-  transition: color 120ms ease, border-color 120ms ease, background 120ms ease;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .overview-route-chip:hover,
@@ -224,6 +261,8 @@
   border-color: var(--color-border-strong);
   background: var(--color-surface-raised);
   outline: none;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px var(--color-accent-softer);
 }
 
 .overview-route-chip--primary {
@@ -250,6 +289,13 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.overview-review-queue:hover,
+.overview-coverage-map:hover {
+  box-shadow: var(--shadow-md);
 }
 
 .overview-review-list {
@@ -267,14 +313,15 @@
   background: var(--color-surface-sunken);
   color: inherit;
   text-decoration: none;
-  transition: background 120ms ease, transform 120ms ease;
+  transition: background-color 0.2s ease, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
 }
 
 .overview-review-row:hover,
 .overview-review-row:focus-visible {
   background: var(--color-surface-raised);
   outline: none;
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
 }
 
 .overview-review-row--skeleton {
@@ -336,26 +383,18 @@
 .overview-coverage-table {
   display: grid;
   overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
 }
 
 .overview-coverage-row {
   display: grid;
-  grid-template-columns: minmax(180px, 1.5fr) minmax(72px, 0.5fr) minmax(120px, 0.8fr) minmax(94px, 0.7fr);
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 0.6fr) minmax(0, 0.8fr) minmax(0, 0.7fr);
   gap: var(--space-3);
   align-items: center;
-  min-width: 520px;
-  padding: var(--space-3) 0;
+  padding: var(--space-3);
   border-bottom: 1px solid var(--color-border);
-}
-
-@container page (max-width: 600px) {
-  .overview-coverage-row {
-    /* Drop the 520px floor on narrow containers. The 4 numeric columns
-     * collapse to a compact 2-column layout to keep the row readable. */
-    grid-template-columns: minmax(0, 1fr) auto;
-    min-width: 0;
-    gap: var(--space-2) var(--space-3);
-  }
+  background: var(--color-surface);
 }
 
 .overview-coverage-row:last-child {
@@ -363,8 +402,10 @@
 }
 
 .overview-coverage-row--head {
-  padding-top: 0;
+  padding-top: var(--space-2);
+  padding-bottom: var(--space-2);
   color: var(--color-text-subtle);
+  background: var(--color-surface-sunken);
   font-family: var(--font-mono);
   font-size: var(--font-size-xs);
   letter-spacing: 0.06em;
@@ -455,19 +496,7 @@
   gap: var(--space-4);
 }
 
-@media (max-width: 1100px) {
-  .overview-stats-band {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .overview-stat-tile:nth-child(2) {
-    border-right: none;
-  }
-
-  .overview-stat-tile:nth-child(-n + 2) {
-    border-bottom: 1px solid var(--color-border);
-  }
-
+@media (max-width: 900px) {
   .overview-dashboard-grid {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -479,14 +508,9 @@
     flex-direction: column;
   }
 
-  .overview-stats-band {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
   .overview-stat-tile {
     min-height: 132px;
-    border-right: none;
-    border-bottom: 1px solid var(--color-border);
+    padding: var(--space-4);
   }
 
   .overview-stat-tile__detail {
@@ -501,9 +525,121 @@
     grid-column: 1 / -1;
     justify-content: flex-start;
   }
+}
 
-  .overview-stat-tile:last-child {
+/* -------------------------------------------------------------------------- */
+/* Mobile compact — three extension/marketplace cards per row                  */
+/* -------------------------------------------------------------------------- */
+
+@media (max-width: 600px) {
+  /* Re-flow the ExtensionPortfolio and MarketplacePanel rows into a
+   * 3-column grid of compact cards on phones. Each row becomes a card
+   * with icon on top, label below, facts condensed. */
+  .overview-row-panel {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-2);
+    padding: var(--space-2);
+  }
+
+  .overview-row {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+    min-height: 0;
+    padding: var(--space-3);
     border-bottom: none;
+  }
+
+  .overview-row__icon {
+    width: 28px;
+    height: 28px;
+    font-size: 0;
+  }
+
+  .overview-row__main {
+    gap: var(--space-1);
+  }
+
+  .overview-row__title h3 {
+    font-size: var(--font-size-md);
+  }
+
+  .overview-row__facts {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+    font-size: var(--font-size-xs);
+  }
+
+  .overview-row__facts > div + div::before {
+    content: none;
+  }
+
+  .overview-row__actions {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-1);
+  }
+
+  .overview-route-chip {
+    min-height: 28px;
+    padding: 0 var(--space-2);
+    font-size: var(--font-size-xs);
+  }
+
+  /* ReviewQueue — 3 review items in a row on phones. */
+  .overview-review-list {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-2);
+  }
+
+  .overview-review-row {
+    grid-template-columns: 1fr;
+    gap: var(--space-1);
+    padding: var(--space-3);
+  }
+
+  .overview-review-row__count {
+    width: 32px;
+    height: 32px;
+    font-size: var(--font-size-md);
+  }
+
+  .overview-review-row__copy strong {
+    font-size: var(--font-size-xs);
+  }
+
+  .overview-review-row__copy span {
+    font-size: 0.66rem;
+    line-height: 1.3;
+  }
+
+  /* HarnessCoverageMap — tighter table on phones, hide dot+detail to keep
+   * numbers legible in a 4-column grid. */
+  .overview-coverage-row {
+    gap: var(--space-2);
+    padding: var(--space-2);
+    font-size: var(--font-size-xs);
+  }
+
+  .overview-coverage-row--head {
+    font-size: 0.62rem;
+  }
+
+  .overview-coverage-cell {
+    gap: var(--space-1);
+    font-size: var(--font-size-xs);
+  }
+
+  .overview-coverage-cell__dot {
+    display: none;
+  }
+
+  .overview-coverage-cell__detail {
+    display: none;
   }
 }
 

@@ -18,7 +18,10 @@
 
 @container page (max-width: 600px) {
   .skill-grid {
-    grid-template-columns: minmax(0, 1fr);
+    /* Two-up grid on phones — keeps each card readable while packing more
+     * into a single screen. Was single-column; user requested 2. */
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3);
   }
 }
 

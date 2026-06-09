@@ -30,10 +30,12 @@ export function ViewModeToggle<T extends string>({
             className="view-mode-toggle__btn"
             data-active={active}
             aria-pressed={active}
+            aria-label={label}
+            title={label}
             onClick={() => onChange(value)}
           >
-            <Icon size={15} />
-            {label}
+            <Icon size={15} aria-hidden="true" />
+            <span className="view-mode-toggle__label">{label}</span>
           </button>
         );
       })}

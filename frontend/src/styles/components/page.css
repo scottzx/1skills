@@ -48,13 +48,14 @@
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 600px) {
   .app-main {
-    padding: var(--space-5);
+    /* Tight 16px gutter on phones — desktop keeps the breathing room. */
+    padding: 16px;
     padding-top: calc(52px + var(--safe-area-top));
-    padding-bottom: max(var(--space-5), var(--safe-area-bottom));
-    padding-left: max(var(--space-5), var(--safe-area-left));
-    padding-right: max(var(--space-5), var(--safe-area-right));
+    padding-bottom: max(16px, var(--safe-area-bottom));
+    padding-left: max(16px, var(--safe-area-left));
+    padding-right: max(16px, var(--safe-area-right));
   }
 }
 
@@ -97,6 +98,12 @@
   min-width: 0;
   margin: 0;
   padding: var(--space-8) var(--space-10);
+}
+
+@media (max-width: 600px) {
+  .app-shell--bare .page-shell {
+    padding: 16px;
+  }
 }
 
 .page-header {

@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import * as Popover from "@radix-ui/react-popover";
 import { Check, ListFilter } from "lucide-react";
+import { usePortalContainer } from "../../lib/portal-container";
 
 export interface SelectionMenuOption<T extends string> {
   value: T;
@@ -28,6 +29,7 @@ export function SelectionMenu<T extends string>({
   sideOffset = 6,
 }: SelectionMenuProps<T>) {
   const activeLabel = options.find((option) => option.value === value)?.label ?? "";
+  const portalContainer = usePortalContainer();
 
   return (
     <Popover.Root>
@@ -45,7 +47,7 @@ export function SelectionMenu<T extends string>({
           {active ? <span className="filter-trigger__dot" aria-hidden="true" /> : null}
         </button>
       </Popover.Trigger>
-      <Popover.Portal>
+      <Popover.Portal container={portalContainer || undefined}>
         <Popover.Content className="ui-popup ui-popup--menu ui-menu" align={align} sideOffset={sideOffset}>
           <ul className="ui-menu__list">
             {options.map((option) => {

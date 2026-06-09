@@ -3,6 +3,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import type { HarnessCellState } from "../../model/types";
 import type { StructuralSkillAction } from "../../model/pending";
 import { SkillDetailView } from "./SkillDetailView";
+import { usePortalContainer } from "../../../../lib/portal-container";
 
 interface SkillDetailModalProps {
   open: boolean;
@@ -29,9 +30,10 @@ export function SkillDetailModal({
   onRemoveSkill,
   onDeleteSkill,
 }: SkillDetailModalProps) {
+  const portalContainer = usePortalContainer();
   return (
     <Dialog.Root open={open && Boolean(skillRef)} onOpenChange={(next) => (next ? null : onClose())}>
-      <Dialog.Portal>
+      <Dialog.Portal container={portalContainer || undefined}>
         <Dialog.Overlay className="dialog-overlay" />
         <Dialog.Content className="detail-sheet skill-detail-modal">
           <Dialog.Title className="u-visually-hidden">Skill details</Dialog.Title>

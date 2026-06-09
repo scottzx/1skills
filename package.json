@@ -12,6 +12,7 @@
     "version:sync": "python3 scripts/sync_version.py --check",
     "build:release": "./.venv/bin/python scripts/build_release.py",
     "build": "VITE_API_BASE=/api vite build",
+    "build:embed": "vite build --config vite.embed.config.ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "release-targets:check": "node scripts/check_release_targets_js.cjs",

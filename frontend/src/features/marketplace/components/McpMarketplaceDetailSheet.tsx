@@ -3,6 +3,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import type { McpMarketplaceItemDto } from "../api/mcp-types";
 import { useMarketplaceCopy } from "../i18n";
 import { McpMarketplaceDetailView } from "./McpMarketplaceDetailView";
+import { usePortalContainer } from "../../../lib/portal-container";
 
 interface McpMarketplaceDetailSheetProps {
   qualifiedName: string | null;
@@ -16,6 +17,7 @@ export function McpMarketplaceDetailSheet({
   onClose,
 }: McpMarketplaceDetailSheetProps) {
   const copy = useMarketplaceCopy();
+  const portalContainer = usePortalContainer();
 
   if (!qualifiedName) {
     return null;
@@ -30,7 +32,7 @@ export function McpMarketplaceDetailSheet({
         }
       }}
     >
-      <Dialog.Portal>
+      <Dialog.Portal container={portalContainer || undefined}>
         <Dialog.Overlay className="dialog-overlay" />
         <Dialog.Content
           className="detail-sheet ui-scrollbar"

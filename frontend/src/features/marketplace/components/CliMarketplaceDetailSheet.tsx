@@ -3,6 +3,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import type { CliMarketplaceItemDto } from "../api/cli-types";
 import { useMarketplaceCopy } from "../i18n";
 import { CliMarketplaceDetailView } from "./CliMarketplaceDetailView";
+import { usePortalContainer } from "../../../lib/portal-container";
 
 interface CliMarketplaceDetailSheetProps {
   itemId: string | null;
@@ -16,6 +17,7 @@ export function CliMarketplaceDetailSheet({
   onClose,
 }: CliMarketplaceDetailSheetProps) {
   const copy = useMarketplaceCopy();
+  const portalContainer = usePortalContainer();
 
   if (!itemId) {
     return null;
@@ -30,7 +32,7 @@ export function CliMarketplaceDetailSheet({
         }
       }}
     >
-      <Dialog.Portal>
+      <Dialog.Portal container={portalContainer || undefined}>
         <Dialog.Overlay className="dialog-overlay" />
         <Dialog.Content className="detail-sheet ui-scrollbar" aria-label={copy.detail.sheet.cliLabel}>
           <Dialog.Title className="u-visually-hidden">{copy.detail.sheet.cliLabel}</Dialog.Title>

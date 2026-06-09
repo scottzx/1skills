@@ -4,6 +4,7 @@ import type { McpInventoryColumnDto } from "../../api/management-types";
 import { useMcpCopy } from "../../i18n";
 import type { McpInstallConfigValues } from "../../model/install-config";
 import { McpServerDetailView } from "./McpServerDetailView";
+import { usePortalContainer } from "../../../../lib/portal-container";
 
 interface McpServerDetailSheetProps {
   name: string | null;
@@ -26,6 +27,7 @@ interface McpServerDetailSheetProps {
 
 export function McpServerDetailSheet({ name, onClose, ...rest }: McpServerDetailSheetProps) {
   const copy = useMcpCopy();
+  const portalContainer = usePortalContainer();
   if (!name) {
     return null;
   }
@@ -36,7 +38,7 @@ export function McpServerDetailSheet({ name, onClose, ...rest }: McpServerDetail
         if (!open) onClose();
       }}
     >
-      <Dialog.Portal>
+      <Dialog.Portal container={portalContainer || undefined}>
         <Dialog.Overlay className="dialog-overlay" />
         <Dialog.Content
           className="detail-sheet mcp-detail-modal"

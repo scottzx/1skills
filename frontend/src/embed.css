@@ -1,0 +1,19 @@
+/* Bundle every 1skills stylesheet into one file that can be inlined into
+ * the custom element. Keep this list in sync with `main.tsx`'s imports so
+ * embed mode looks identical to standalone mode. */
+
+@import "./styles/index.css";
+@import "./components/detail/index.css";
+@import "./features/overview/styles/overview.css";
+@import "./features/marketplace/styles/cards.css";
+@import "./features/settings/styles/settings.css";
+@import "./features/slash-commands/styles/slash-commands.css";
+@import "./features/skills/styles/detail.css";
+@import "./features/skills/styles/board.css";
+@import "./features/skills/styles/scan.css";
+@import "./components/matrix/matrix.css";
+@import "./features/marketplace/styles/panes.css";
+@import "./features/marketplace/styles/mcp-detail.css";
+@import "./features/mcp/styles/pages.css";
+@import "./features/mcp/styles/detail-sheet.css";
+@import "./features/mcp/styles/edit-dialogs.css";

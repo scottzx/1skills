@@ -24,12 +24,13 @@
   width: 100%;
   height: 38px;
   padding: 0 var(--filter-search-icon-space);
-  border: none;
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   background: var(--color-surface);
   color: var(--color-text);
   font: inherit;
   font-size: 0.9rem;
+  transition: border-color 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
 }
 
 .filter-bar__search input::-webkit-search-cancel-button,
@@ -39,8 +40,9 @@
 
 .filter-bar__search input:focus-visible {
   outline: none;
-  background: var(--color-surface-raised);
-  box-shadow: 0 0 0 2px var(--color-accent-softer);
+  border-color: var(--color-accent);
+  background: var(--color-surface);
+  box-shadow: 0 0 0 3px var(--color-accent-soft);
 }
 
 .filter-bar__search input::placeholder {
@@ -92,28 +94,33 @@
 .pill-group {
   display: inline-flex;
   align-items: center;
+  height: 38px;
   padding: 3px;
   border-radius: var(--radius-sm);
   background: var(--color-surface);
+  border: 1px solid var(--color-border);
 }
 
 .pill-group__pill {
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);
-  padding: 5px var(--space-3);
+  height: 100%;
+  padding: 0 var(--space-3);
   border: none;
-  border-radius: var(--radius-sm);
+  border-radius: calc(var(--radius-sm) - 3px);
   background: transparent;
   color: var(--color-text-muted);
   font: inherit;
   font-size: var(--font-size-sm);
   text-decoration: none;
   cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease;
 }
 
 .pill-group__pill:hover {
   color: var(--color-text);
+  background: var(--color-surface-sunken);
 }
 
 .pill-group__pill[data-active="true"],

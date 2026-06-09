@@ -8,6 +8,8 @@ import {
   UiTooltipProvider,
 } from "./UiTooltipProvider";
 
+import { usePortalContainer } from "../../lib/portal-container";
+
 export interface UiTooltipProps {
   content: ReactNode;
   children: ReactElement;
@@ -39,11 +41,12 @@ export function UiTooltip({
   const tooltipClassName = contentClassName
     ? `ui-popup ui-popup--tooltip ${contentClassName}`
     : "ui-popup ui-popup--tooltip";
+  const portalContainer = usePortalContainer();
 
   const tooltip = (
     <Tooltip.Root delayDuration={delayDuration}>
       <Tooltip.Trigger asChild>{children}</Tooltip.Trigger>
-      <Tooltip.Portal>
+      <Tooltip.Portal container={portalContainer || undefined}>
         <Tooltip.Content
           className={tooltipClassName}
           side={side}

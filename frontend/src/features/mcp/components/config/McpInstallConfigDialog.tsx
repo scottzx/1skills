@@ -13,6 +13,7 @@ import {
   type PendingMcpInstallConfig,
 } from "../../model/install-config";
 import { McpInstallConfigField } from "./McpInstallConfigField";
+import { usePortalContainer } from "../../../../lib/portal-container";
 
 interface McpInstallConfigDialogProps {
   pending: PendingMcpInstallConfig | null;
@@ -28,6 +29,7 @@ export function McpInstallConfigDialog({
   onSubmit,
 }: McpInstallConfigDialogProps) {
   const copy = useMcpCopy();
+  const portalContainer = usePortalContainer();
   const fields = useMemo(() => pending?.installConfig.fields ?? [], [pending]);
   const [values, setValues] = useState<InstallConfigFormValues>({});
   const [visibleSecrets, setVisibleSecrets] = useState<Set<string>>(new Set());
@@ -66,7 +68,7 @@ export function McpInstallConfigDialog({
 
   return (
     <Dialog.Root open onOpenChange={(next) => (next ? null : onClose())}>
-      <Dialog.Portal>
+      <Dialog.Portal container={portalContainer || undefined}>
         <Dialog.Overlay className="dialog-overlay" />
         <Dialog.Content className="detail-sheet scan-config-detail-modal">
           <Dialog.Title className="u-visually-hidden">

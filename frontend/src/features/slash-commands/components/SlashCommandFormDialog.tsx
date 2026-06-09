@@ -5,6 +5,7 @@ import { Loader2, X } from "lucide-react";
 import { DetailBindingIdentity } from "../../../components/detail/DetailBindingIdentity";
 import type { SlashCommandDto, SlashSyncEntryDto, SlashTargetDto, SlashTargetId } from "../api/types";
 import { useSlashCommandsCopy, type SlashCommandsCopy } from "../i18n";
+import { usePortalContainer } from "../../../lib/portal-container";
 
 interface SlashCommandFormValue {
   name: string;
@@ -35,6 +36,7 @@ export function SlashCommandFormDialog({
   onSubmit,
 }: SlashCommandFormDialogProps) {
   const copy = useSlashCommandsCopy();
+  const portalContainer = usePortalContainer();
   const initialTargets = useMemo(() => {
     if (!command) return defaultTargets;
     return command.syncTargets
@@ -98,7 +100,7 @@ export function SlashCommandFormDialog({
         if (!pending) onOpenChange(nextOpen);
       }}
     >
-      <Dialog.Portal>
+      <Dialog.Portal container={portalContainer || undefined}>
         <Dialog.Overlay className="dialog-overlay" />
         <Dialog.Content className="dialog-content slash-dialog">
           <div className="dialog-header slash-dialog__header">

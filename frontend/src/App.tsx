@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
-import { lazy, Suspense, useState } from "react";
+import { lazy, Suspense, useState, type ReactNode } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 
 import RouteLoadingPanel from "./components/RouteLoadingPanel";
@@ -15,7 +15,7 @@ import SkillsInUsePage from "./features/skills/screens/SkillsInUsePage";
 import ScanConfigPage from "./features/skills/screens/ScanConfigPage";
 import SkillsWorkspacePage from "./features/skills/screens/SkillsWorkspacePage";
 import { LocaleProvider, useCommonCopy } from "./i18n";
-import { ThemeProvider } from "./app/theme";
+import { ThemeProvider, useTheme } from "./app/theme";
 
 const MarketplaceLayout = lazy(() => import("./features/marketplace/components/MarketplaceLayout"));
 const OverviewPage = lazy(() => import("./features/overview/screens/OverviewPage"));
@@ -24,6 +24,15 @@ const SlashCommandsPage = lazy(() => import("./features/slash-commands/screens/S
 const SlashCommandsReviewPage = lazy(() => import("./features/slash-commands/screens/SlashCommandsReviewPage"));
 const McpNeedsReviewPage = lazy(() => import("./features/mcp/screens/McpNeedsReviewPage"));
 const McpInUsePage = lazy(() => import("./features/mcp/screens/McpInUsePage"));
+
+function AppWrapper({ children }: { children: ReactNode }) {
+  const { theme } = useTheme();
+  return (
+    <div className="skills-panel-root" data-theme={theme}>
+      {children}
+    </div>
+  );
+}
 
 export function App() {
   const [queryClient] = useState(
@@ -43,7 +52,9 @@ export function App() {
         <ThemeProvider>
           <ToastProvider>
             <UiTooltipProvider>
-              <AppContent />
+              <AppWrapper>
+                <AppContent />
+              </AppWrapper>
             </UiTooltipProvider>
           </ToastProvider>
         </ThemeProvider>

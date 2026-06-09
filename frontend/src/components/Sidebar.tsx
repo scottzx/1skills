@@ -31,6 +31,8 @@ import { useToast } from "./Toast";
 import { useCommonCopy, useLocale } from "../i18n";
 import { useTheme } from "../app/theme";
 
+import { usePortalContainer } from "../lib/portal-container";
+
 interface SidebarProps {
   onRefresh: () => void | Promise<void>;
   refreshPending: boolean;
@@ -139,6 +141,7 @@ function SidebarLanguageMenu() {
   const common = useCommonCopy();
   const { locale, setLocale, supportedLocales } = useLocale();
   const activeLabel = supportedLocales.find((option) => option.value === locale)?.nativeLabel ?? locale;
+  const portalContainer = usePortalContainer();
 
   return (
     <Popover.Root>
@@ -154,7 +157,7 @@ function SidebarLanguageMenu() {
           <ChevronDown className="sidebar-footer-btn__chevron" size={14} aria-hidden="true" />
         </button>
       </Popover.Trigger>
-      <Popover.Portal>
+      <Popover.Portal container={portalContainer || undefined}>
         <Popover.Content
           className="ui-popup ui-popup--menu ui-menu"
           side="right"

@@ -98,13 +98,25 @@
 
 @container page (max-width: 600px) {
   .needs-review-row {
+    /* Two columns on phones — the row layout (icon + body + actions) is
+     * condensed into a compact card. The trailing chip stacks below. */
     grid-template-columns: 1fr;
-    gap: var(--space-3);
+    gap: var(--space-2);
+    padding: var(--space-3);
   }
 
   .needs-review-row__trailing {
     justify-content: flex-start;
     margin-top: 0;
+  }
+}
+
+@media (max-width: 600px) {
+  /* On phones, two needs-review cards per row instead of a single column. */
+  .needs-review-rows {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3);
   }
 }
 

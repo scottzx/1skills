@@ -3,6 +3,8 @@ import type { ReactNode } from "react";
 
 import { useCommonCopy } from "../../i18n";
 
+import { usePortalContainer } from "../../lib/portal-container";
+
 interface BottomSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -39,9 +41,10 @@ export function BottomSheet({
   maxHeight = "var(--sheet-max-height)",
 }: BottomSheetProps) {
   const common = useCommonCopy();
+  const portalContainer = usePortalContainer();
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
-      <Dialog.Portal>
+      <Dialog.Portal container={portalContainer || undefined}>
         <Dialog.Overlay
           className="dialog-overlay"
           data-render="sheet"

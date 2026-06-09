@@ -17,6 +17,7 @@ import { useEffect, useState } from "react";
  */
 export function isBareModeNow(): boolean {
   if (typeof window === "undefined") return false;
+  if ((globalThis as any).__SKILLS_EMBED_MODE__ === true) return true;
   return new URLSearchParams(window.location.search).get("bare") === "1";
 }
 

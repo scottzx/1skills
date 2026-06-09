@@ -14,6 +14,7 @@ import {
   formatEnvKeyPreview,
   summarizeMcpConfig,
 } from "../../model/selectors";
+import { usePortalContainer } from "../../../../lib/portal-container";
 
 export interface McpConfigChoiceOption {
   id: string;
@@ -48,6 +49,7 @@ export function McpConfigChoiceDialog({
   onConfirm,
 }: McpConfigChoiceDialogProps) {
   const copy = useMcpCopy();
+  const portalContainer = usePortalContainer();
   const recommendedId = useMemo(
     () => options.find((option) => option.recommended)?.id ?? null,
     [options],
@@ -84,7 +86,7 @@ export function McpConfigChoiceDialog({
 
   return (
     <Dialog.Root open={open} onOpenChange={(next) => (next ? null : onClose())}>
-      <Dialog.Portal>
+      <Dialog.Portal container={portalContainer || undefined}>
         <Dialog.Overlay className="dialog-overlay" />
         <Dialog.Content className="mcp-choose-version" aria-label={copy.detail.configChoice.ariaLabel(title, serverName)}>
           <header className="mcp-choose-version__head">

@@ -1,6 +1,7 @@
 import { type ReactNode, useState } from "react";
 import * as Popover from "@radix-ui/react-popover";
 import { MoreHorizontal } from "lucide-react";
+import { usePortalContainer } from "../../lib/portal-container";
 
 export interface CardMenuItem {
   key: string;
@@ -22,6 +23,8 @@ interface CardMenuProps {
  */
 export function CardMenu({ label, items, disabled = false }: CardMenuProps) {
   const [open, setOpen] = useState(false);
+  const portalContainer = usePortalContainer();
+
   if (items.length === 0) {
     return null;
   }
@@ -39,7 +42,7 @@ export function CardMenu({ label, items, disabled = false }: CardMenuProps) {
           <MoreHorizontal size={14} aria-hidden="true" />
         </button>
       </Popover.Trigger>
-      <Popover.Portal>
+      <Popover.Portal container={portalContainer || undefined}>
         <Popover.Content
           className="ui-popup ui-popup--menu ui-menu"
           align="end"

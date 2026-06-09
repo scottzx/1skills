@@ -49,7 +49,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   // Apply theme to document element
   useEffect(() => {
-    document.documentElement.setAttribute("data-theme", theme);
+    if (!globalThis.__SKILLS_EMBED_MODE__) {
+      document.documentElement.setAttribute("data-theme", theme);
+    }
   }, [theme]);
 
   // Listen for sync events from parent container
