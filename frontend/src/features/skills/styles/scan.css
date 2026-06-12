@@ -391,7 +391,7 @@
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
   width: var(--modal-width-xl);
-  max-height: calc(100vh - 48px);
+  max-height: calc(100dvh - 48px);
   padding: 0;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);

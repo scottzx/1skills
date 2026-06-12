@@ -560,10 +560,22 @@
 
   .overview-row__main {
     gap: var(--space-1);
+    /* The row is a column flex with align-items: flex-start here, so
+     * children default to max-content width and bleed out of the 3-up
+     * card. Stretch pins them back to the card width. */
+    align-self: stretch;
+    min-width: 0;
+  }
+
+  .overview-row__title {
+    flex-wrap: wrap;
+    min-width: 0;
   }
 
   .overview-row__title h3 {
     font-size: var(--font-size-md);
+    min-width: 0;
+    overflow-wrap: anywhere;
   }
 
   .overview-row__facts {

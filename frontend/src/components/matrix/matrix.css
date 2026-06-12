@@ -334,9 +334,20 @@
     padding-right: var(--space-3);
   }
 
+  /* Collapse the per-harness columns to zero width instead of
+   * `display: none`. With `table-layout: fixed`, cells map to columns by
+   * position; removing the harness cells from the grid shifts the compact
+   * and coverage cells onto the now-zero-width harness tracks, so they
+   * render at width 0 and their content (logo stack + coverage count)
+   * overlaps. Keeping the cells as zero-width, content-hidden boxes
+   * preserves the positional mapping; `visibility: hidden` drops the
+   * inner toggle buttons out of tab order and AT. */
   .matrix-table__th--harness,
   .matrix-table__cell--harness {
-    display: none;
+    width: 0;
+    padding: 0;
+    overflow: hidden;
+    visibility: hidden;
   }
 }
 

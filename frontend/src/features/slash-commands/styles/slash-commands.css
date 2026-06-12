@@ -72,6 +72,13 @@
   opacity: 1;
 }
 
+/* Touch devices have no row hover — keep the actions at full strength. */
+@media (hover: none) {
+  .slash-row__actions {
+    opacity: 1;
+  }
+}
+
 .slash-row__targets {
   display: flex;
   align-items: center;
@@ -141,7 +148,7 @@
 .slash-dialog {
   width: var(--modal-width-xl);
   max-width: none;
-  max-height: calc(100vh - 48px);
+  max-height: calc(100dvh - 48px);
   padding: var(--space-6);
   border-radius: var(--radius-lg);
   background: var(--color-surface);
@@ -425,7 +432,7 @@
 @media (max-width: 680px) {
   .slash-dialog {
     width: calc(100vw - 16px);
-    max-height: calc(100vh - 16px);
+    max-height: calc(100dvh - 16px);
     padding: var(--space-4);
     border-radius: var(--radius-md);
   }

@@ -18,7 +18,7 @@
   display: grid;
   gap: var(--space-4);
   width: var(--modal-width-xl);
-  max-height: calc(100vh - 48px);
+  max-height: calc(100dvh - 48px);
   padding: var(--space-6);
   border-radius: var(--radius-lg);
   background: var(--color-surface);
@@ -26,6 +26,8 @@
   /* hidden horizontally so wide content (long URLs, code blocks, JSON
    * payloads) gets its own scroll instead of pushing the whole modal. */
   overflow: hidden auto;
+  /* Keep touch scrolling inside the sheet from chaining to the page. */
+  overscroll-behavior: contain;
   transform: translate(-50%, -50%);
 }
 

@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   DndContext,
-  PointerSensor,
+  MouseSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   type DragEndEvent,
@@ -47,7 +48,12 @@ export function BoardView({
   onSetManySkillsAllHarnesses,
 }: BoardViewProps) {
   const { toast } = useToast();
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }));
+  // Mouse drags start after 8px of travel; touch requires a 250ms long-press
+  // (with 8px wiggle room) so swipe-scrolling the board never starts a drag.
+  const sensors = useSensors(
+    useSensor(MouseSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 8 } }),
+  );
   const [transitionTarget, setTransitionTarget] = useState<Map<string, "enabled" | "disabled">>(() => new Map());
 
   // Clear a pin once all of the skill's cells have settled (no pending toggles).

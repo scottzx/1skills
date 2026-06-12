@@ -321,4 +321,28 @@
   gap: var(--space-1);
 }
 
+/* Narrow phones: the fixed label gutters (120–160px) leave no room for
+ * values inside the sheet — stack label above value instead. Viewport
+ * @media, not @container: these live in fixed-position modals whose
+ * width tracks the viewport (same convention as detail-sheet.css). */
+@media (max-width: 680px) {
+  .mcp-detail__connection-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .mcp-detail__env-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .mcp-edit-dialog__env-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  /* Key input takes the full first row; value + row actions share the
+   * second. */
+  .mcp-edit-dialog__env-row > :first-child {
+    grid-column: 1 / -1;
+  }
+}
+
 }

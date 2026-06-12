@@ -34,13 +34,18 @@ export function SkillDetailRemoveAction({
 
   if (isBlocked) {
     return (
-      <UiTooltipTriggerBoundary
-        content={copy}
-        contentClassName="ui-popup--tooltip--hint"
-        align="end"
-      >
-        {button}
-      </UiTooltipTriggerBoundary>
+      <div>
+        <UiTooltipTriggerBoundary
+          content={copy}
+          contentClassName="ui-popup--tooltip--hint"
+          align="end"
+        >
+          {button}
+        </UiTooltipTriggerBoundary>
+        {/* Hover tooltips never open on touch — surface the blocked
+            reason as visible text there instead. */}
+        <span className="u-touch-hint">{copy}</span>
+      </div>
     );
   }
 

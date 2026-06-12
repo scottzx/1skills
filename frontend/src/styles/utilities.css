@@ -63,6 +63,21 @@
 /* Utilities                                                                    */
 /* -------------------------------------------------------------------------- */
 
+/* Helper text that surfaces tooltip-only explanations on touch devices,
+ * where hover tooltips never open. Hidden wherever hover exists. */
+.u-touch-hint {
+  display: none;
+}
+
+@media (hover: none) {
+  .u-touch-hint {
+    display: block;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-xs);
+    line-height: 1.45;
+  }
+}
+
 .u-visually-hidden {
   position: absolute;
   width: 1px;
@@ -119,6 +134,39 @@
   .sidebar-group__header,
   button[class*="pill"] {
     min-height: 44px;
+  }
+}
+
+/* iOS Safari zooms the whole page when a focused form control's font-size
+ * is below 16px. On coarse-pointer devices force controls to 16px; the
+ * triple :not() keeps specificity above feature-layer class rules like
+ * .scan-config-panel__input, and the utilities layer beats features
+ * regardless. Checkbox/radio/range never trigger the zoom. */
+@media (pointer: coarse) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  textarea,
+  select {
+    font-size: 16px;
+  }
+}
+
+/* Invisible hit-area extension for the two icon buttons that stay visually
+ * small (the search clear sits inside the input, the detail close inside a
+ * tight header). Everything else already uses --tap-target-min directly.
+ * The ::after square brings the touchable area up to ~44px without
+ * changing the rendered size. */
+@media (pointer: coarse) {
+  /* .filter-bar__clear is already position: absolute — don't touch it,
+   * any positioned box works as the ::after containing block. */
+  .skill-detail__close-button {
+    position: relative;
+  }
+
+  .filter-bar__clear::after,
+  .skill-detail__close-button::after {
+    content: "";
+    position: absolute;
+    inset: calc((var(--tap-target-min) - 100%) / -2);
   }
 }
 

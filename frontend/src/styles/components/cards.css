@@ -58,6 +58,41 @@
   margin-top: auto;
 }
 
+/* Two-up cards on phones leave ~150px of content width; the head's
+ * trailing controls (menu + 44px checkbox) would squeeze the title down
+ * to a couple of characters. Wrap instead: title on its own full row,
+ * controls right-aligned on the row below. Applies to every
+ * .skill-card__head variant (skills, MCP, slash) — same anatomy. */
+@container page (max-width: 480px) {
+  .skill-card {
+    padding: var(--space-4) var(--space-4) var(--space-3);
+  }
+
+  .skill-card__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--space-1) var(--space-2);
+  }
+
+  .skill-card__head > :first-child {
+    flex: 1 0 100%;
+    min-width: 0;
+  }
+
+  /* Footer action pills ("Disable everywhere") are wider than the card —
+   * let the row wrap and the label break instead of clipping. */
+  .skill-card__footer {
+    flex-wrap: wrap;
+  }
+
+  .skill-card__footer .action-pill {
+    white-space: normal;
+    text-align: center;
+  }
+}
+
 .skill-card__footer .skill-card__harness-row {
   flex: 1;
   border-top: none;
@@ -103,6 +138,13 @@
 
 .card-select-checkbox[data-state="checked"] {
   opacity: 1;
+}
+
+/* No hover on touch — show the checkbox at full strength all the time. */
+@media (hover: none) {
+  .card-select-checkbox {
+    opacity: 1;
+  }
 }
 
 .card-select-checkbox[data-state="checked"]::before {

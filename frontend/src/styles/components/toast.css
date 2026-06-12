@@ -42,4 +42,20 @@
   }
 }
 
+/* Phones: pin the stack across the bottom (above the home-indicator safe
+ * area) instead of floating at the bottom-right where a 240px-min toast
+ * would crowd the viewport edge. */
+@media (max-width: 600px) {
+  .toast-viewport {
+    left: var(--space-4);
+    right: var(--space-4);
+    bottom: calc(var(--space-4) + var(--safe-area-bottom));
+  }
+
+  .toast {
+    min-width: 0;
+    max-width: none;
+  }
+}
+
 }

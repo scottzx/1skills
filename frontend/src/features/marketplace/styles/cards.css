@@ -43,7 +43,10 @@
 
 .market-card__head {
   display: grid;
-  grid-template-columns: 36px 1fr auto;
+  /* minmax(0, 1fr), not bare 1fr: the title renders inside a classless
+   * tooltip wrapper whose min-width:auto would otherwise hold the track
+   * at the title's min-content width and push it out of the card. */
+  grid-template-columns: 36px minmax(0, 1fr) auto;
   gap: var(--space-3);
   align-items: start;
 }

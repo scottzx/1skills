@@ -105,8 +105,14 @@
   padding: var(--space-4);
   gap: var(--space-2);
   background: var(--color-surface);
-  touch-action: none;
+  /* `manipulation`, not `none`: drags activate via long-press (TouchSensor
+   * delay), so swipes that start on a card must still scroll the board.
+   * The callout suppression keeps iOS from opening its long-press menu
+   * over the drag gesture. */
+  touch-action: manipulation;
   user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
   transition: background 120ms ease, box-shadow 120ms ease, transform 120ms ease, opacity 120ms ease;
 }
 
