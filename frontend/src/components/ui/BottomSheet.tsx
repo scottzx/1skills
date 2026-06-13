@@ -53,6 +53,7 @@ export function BottomSheet({
           className="dialog-content bottom-sheet"
           data-render="sheet"
           style={{ maxHeight }}
+          aria-describedby={undefined}
         >
           <div className="bottom-sheet__handle" aria-hidden="true" />
           <div className="bottom-sheet__chrome">

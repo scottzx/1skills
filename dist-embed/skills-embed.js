@@ -22257,6 +22257,7 @@ function $4({
             className: "dialog-content modal",
             "data-size": l,
             "data-render": g ? "sheet" : "dialog",
+            "aria-describedby": void 0,
             onEscapeKeyDown: (b) => {
               h && b.preventDefault();
             },

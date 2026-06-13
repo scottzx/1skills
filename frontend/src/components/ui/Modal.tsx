@@ -77,6 +77,7 @@ export function Modal({
           className="dialog-content modal"
           data-size={size}
           data-render={renderAsSheet ? "sheet" : "dialog"}
+          aria-describedby={undefined}
           onEscapeKeyDown={(event) => {
             if (dismissDisabled) event.preventDefault();
           }}
