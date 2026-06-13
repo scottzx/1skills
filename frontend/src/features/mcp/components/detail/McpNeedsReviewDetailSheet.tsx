@@ -38,6 +38,7 @@ export function McpNeedsReviewDetailSheet({
         <Dialog.Content
           className="detail-sheet mcp-detail-modal"
           aria-label={copy.detail.sheet.reviewLabel(name)}
+          aria-describedby={undefined}
         >
           <Dialog.Title className="u-visually-hidden">{copy.detail.sheet.reviewTitle(name)}</Dialog.Title>
           <Dialog.Description className="u-visually-hidden">

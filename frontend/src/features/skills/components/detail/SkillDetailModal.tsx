@@ -35,7 +35,11 @@ export function SkillDetailModal({
     <Dialog.Root open={open && Boolean(skillRef)} onOpenChange={(next) => (next ? null : onClose())}>
       <Dialog.Portal container={portalContainer || undefined}>
         <Dialog.Overlay className="dialog-overlay" />
-        <Dialog.Content className="detail-sheet skill-detail-modal">
+        <Dialog.Content
+          className="detail-sheet skill-detail-modal"
+          aria-label="Skill details"
+          aria-describedby={undefined}
+        >
           <Dialog.Title className="u-visually-hidden">Skill details</Dialog.Title>
           <Dialog.Description className="u-visually-hidden">
             Inspect and manage this skill across harnesses.

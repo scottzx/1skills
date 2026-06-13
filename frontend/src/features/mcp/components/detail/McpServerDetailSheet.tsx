@@ -43,6 +43,7 @@ export function McpServerDetailSheet({ name, onClose, ...rest }: McpServerDetail
         <Dialog.Content
           className="detail-sheet mcp-detail-modal"
           aria-label={copy.detail.sheet.inUseLabel(name)}
+          aria-describedby={undefined}
         >
           <Dialog.Title className="u-visually-hidden">{copy.detail.sheet.inUseTitle(name)}</Dialog.Title>
           <Dialog.Description className="u-visually-hidden">

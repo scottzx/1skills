@@ -40,6 +40,7 @@ export function SlashCommandReviewDetailSheet({
         <Dialog.Content
           className="detail-sheet slash-review-detail-modal"
           aria-label={`Slash command to review ${row.name}`}
+          aria-describedby={undefined}
         >
           <Dialog.Title className="u-visually-hidden">Slash command to review {row.name}</Dialog.Title>
           <Dialog.Description className="u-visually-hidden">

@@ -17,3 +17,17 @@
 @import "./features/mcp/styles/pages.css";
 @import "./features/mcp/styles/detail-sheet.css";
 @import "./features/mcp/styles/edit-dialogs.css";
+
+/* Styles for the portals container inside the shadow root to prevent flex layout
+   alignment issues and WebKit fixed positioning offset bugs. */
+.skills-panel-portals {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.skills-panel-portals > * {
+  pointer-events: auto;
+}
+

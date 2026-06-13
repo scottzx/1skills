@@ -34,7 +34,11 @@ export function CliMarketplaceDetailSheet({
     >
       <Dialog.Portal container={portalContainer || undefined}>
         <Dialog.Overlay className="dialog-overlay" />
-        <Dialog.Content className="detail-sheet ui-scrollbar" aria-label={copy.detail.sheet.cliLabel}>
+        <Dialog.Content
+          className="detail-sheet ui-scrollbar"
+          aria-label={copy.detail.sheet.cliLabel}
+          aria-describedby={undefined}
+        >
           <Dialog.Title className="u-visually-hidden">{copy.detail.sheet.cliLabel}</Dialog.Title>
           <Dialog.Description className="u-visually-hidden">
             {copy.detail.sheet.cliDescription}

@@ -25,7 +25,11 @@ export function ScanResultModal({ open, result, completedAt, llmConfig, onClose 
     <Dialog.Root open={open && result !== null} onOpenChange={(next) => (next ? null : onClose())}>
       <Dialog.Portal container={portalContainer || undefined}>
         <Dialog.Overlay className="dialog-overlay" />
-        <Dialog.Content className="scan-result-modal">
+        <Dialog.Content
+          className="scan-result-modal"
+          aria-label={copy.dialogTitle}
+          aria-describedby={undefined}
+        >
           <Dialog.Title className="u-visually-hidden">{copy.dialogTitle}</Dialog.Title>
           <Dialog.Description className="u-visually-hidden">
             {copy.description}

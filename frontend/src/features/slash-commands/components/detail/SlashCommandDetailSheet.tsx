@@ -42,6 +42,7 @@ export function SlashCommandDetailSheet({
         <Dialog.Content
           className="detail-sheet slash-command-detail-modal"
           aria-label={`Slash command details ${command.name}`}
+          aria-describedby={undefined}
         >
           <Dialog.Title className="u-visually-hidden">Slash command details {command.name}</Dialog.Title>
           <Dialog.Description className="u-visually-hidden">

@@ -342,7 +342,11 @@ export function ScanConfigDetailModal({
     <Dialog.Root open={open} onOpenChange={(next) => (next ? null : onClose())}>
       <Dialog.Portal container={portalContainer || undefined}>
         <Dialog.Overlay className="dialog-overlay" />
-        <Dialog.Content className="detail-sheet scan-config-detail-modal">
+        <Dialog.Content
+          className="detail-sheet scan-config-detail-modal"
+          aria-label={title}
+          aria-describedby={undefined}
+        >
           <Dialog.Title asChild>
             <span className="u-visually-hidden">{title}</span>
           </Dialog.Title>

@@ -42,7 +42,11 @@ export function MarketplaceDetailSheet({
     >
       <Dialog.Portal container={portalContainer || undefined}>
         <Dialog.Overlay className="dialog-overlay" />
-        <Dialog.Content className="detail-sheet ui-scrollbar" aria-label={copy.detail.sheet.skillLabel}>
+        <Dialog.Content
+          className="detail-sheet ui-scrollbar"
+          aria-label={copy.detail.sheet.skillLabel}
+          aria-describedby={undefined}
+        >
           <Dialog.Title className="u-visually-hidden">{copy.detail.sheet.skillLabel}</Dialog.Title>
           <Dialog.Description className="u-visually-hidden">
             {copy.detail.sheet.skillDescription}

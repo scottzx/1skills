@@ -102,7 +102,11 @@ export function SlashCommandFormDialog({
     >
       <Dialog.Portal container={portalContainer || undefined}>
         <Dialog.Overlay className="dialog-overlay" />
-        <Dialog.Content className="dialog-content slash-dialog">
+        <Dialog.Content
+          className="dialog-content slash-dialog"
+          aria-label={title}
+          aria-describedby={undefined}
+        >
           <div className="dialog-header slash-dialog__header">
             <div>
               <Dialog.Title className="dialog-title">{title}</Dialog.Title>

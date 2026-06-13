@@ -70,7 +70,11 @@ export function McpInstallConfigDialog({
     <Dialog.Root open onOpenChange={(next) => (next ? null : onClose())}>
       <Dialog.Portal container={portalContainer || undefined}>
         <Dialog.Overlay className="dialog-overlay" />
-        <Dialog.Content className="detail-sheet scan-config-detail-modal">
+        <Dialog.Content
+          className="detail-sheet scan-config-detail-modal"
+          aria-label={copy.detail.installConfig.title(pending.displayName)}
+          aria-describedby={undefined}
+        >
           <Dialog.Title className="u-visually-hidden">
             {copy.detail.installConfig.title(pending.displayName)}
           </Dialog.Title>

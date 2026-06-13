@@ -37,6 +37,7 @@ export function McpMarketplaceDetailSheet({
         <Dialog.Content
           className="detail-sheet ui-scrollbar"
           aria-label={copy.detail.sheet.mcpLabel}
+          aria-describedby={undefined}
         >
           <Dialog.Title className="u-visually-hidden">{copy.detail.sheet.mcpLabel}</Dialog.Title>
           <Dialog.Description className="u-visually-hidden">
