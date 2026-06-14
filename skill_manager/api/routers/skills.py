@@ -9,6 +9,7 @@ from skill_manager.api.schemas import (
     DisableSkillRequest,
     EnableSkillRequest,
     OkResponse,
+    ResolveSkillConflictRequest,
     SetSkillHarnessesRequest,
     SetSkillHarnessesResultResponse,
     SkillDetailResponse,
@@ -75,6 +76,15 @@ def manage_skill(skill_ref: str, container: BackendContainer = Depends(get_conta
 @router.post("/manage-all", response_model=BulkManageResultResponse)
 def manage_all_skills(container: BackendContainer = Depends(get_container)) -> dict[str, object]:
     return container.skills_mutations.manage_all_skills()
+
+
+@router.post("/{skill_ref:path}/resolve-conflict", response_model=OkResponse)
+def resolve_skill_conflict(
+    skill_ref: str,
+    body: ResolveSkillConflictRequest,
+    container: BackendContainer = Depends(get_container),
+) -> dict[str, bool]:
+    return container.skills_mutations.resolve_skill_conflict(skill_ref, body.chosen_ref)
 
 
 @router.post("/{skill_ref:path}/update", response_model=OkResponse)

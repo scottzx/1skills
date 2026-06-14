@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import shutil
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -253,6 +254,98 @@ class SkillsMutationService:
                 raise MutationError(str(error), status=409) from error
         self.read_models.invalidate()
         return {"ok": True}
+
+    def resolve_skill_conflict(self, skill_ref: str, chosen_ref: str) -> dict[str, bool]:
+        """Consolidate every same-named copy down to one managed version.
+
+        `chosen_ref` is the version the user picked. Its content becomes the
+        single shared-store package; enabled canonical harness copies are
+        re-pointed at the store (symlink), and the remaining divergent real-dir
+        copies elsewhere are deleted. Symlink bindings are left alone — they
+        already follow the (now updated) store content.
+        """
+        chosen = self.queries.require_entry(chosen_ref)
+        group = [entry for entry in self.queries.inventory().entries if entry.name == chosen.name]
+        if len(group) < 2:
+            raise MutationError("no duplicate versions to resolve for this skill", status=400)
+
+        store = self.read_models.store
+
+        # 1. Resolve the chosen version's content (the source we converge on).
+        if chosen.kind == "managed":
+            if chosen.package_dir is None or chosen.package_path is None:
+                raise MutationError("managed skill is missing its package metadata", status=500)
+            chosen_source = chosen.package_path
+        else:
+            sighting = next(
+                (s for s in chosen.sightings if s.kind == "harness" and s.path is not None),
+                None,
+            )
+            if sighting is None:
+                raise MutationError("no local copy found for the chosen version", status=400)
+            chosen_source = sighting.path
+
+        # 2. Make the store hold the chosen content (update in place, or ingest).
+        managed = next((entry for entry in group if entry.kind == "managed"), None)
+        if managed is not None:
+            if managed.package_dir is None:
+                raise MutationError("managed skill is missing its package directory name", status=500)
+            package_dir = managed.package_dir
+            if chosen.kind != "managed":
+                try:
+                    store.update(package_dir, source_path=chosen_source)
+                except ValueError as error:
+                    raise MutationError(str(error), status=409) from error
+        else:
+            source = chosen.source
+            if source.is_source_backed:
+                source_kind, source_locator = source.kind, source.locator
+            else:
+                source_kind = "centralized"
+                source_locator = f"centralized:{chosen.name}"
+            try:
+                ingested = store.ingest(
+                    source_path=chosen_source,
+                    declared_name=chosen.name,
+                    source_kind=source_kind,
+                    source_locator=source_locator,
+                )
+            except ValueError as error:
+                raise MutationError(str(error), status=409) from error
+            package_dir = ingested.name
+
+        store_path = (store.root / package_dir).resolve()
+
+        # 3. Rebind enabled canonical copies to the store; delete divergent strays.
+        enabled = set(self.read_models.enabled_harnesses())
+        for entry in group:
+            for sighting in entry.sightings:
+                if sighting.kind != "harness" or sighting.path is None:
+                    continue
+                path = sighting.path
+                # Existing symlink bindings already follow the updated store.
+                if path.is_symlink():
+                    continue
+                if sighting.harness in enabled and sighting.scope == "canonical":
+                    adapter = self.read_models.require_enabled_adapter(sighting.harness)
+                    adapter.adopt_local_copy(existing_dir=path, package_path=store_path)
+                else:
+                    self._delete_stray_copy(path, store_path)
+
+        self.read_models.invalidate()
+        return {"ok": True}
+
+    def _delete_stray_copy(self, path: Path, store_path: Path) -> None:
+        """Delete one divergent copy. Never touches the store or a symlink."""
+        try:
+            if path.is_symlink():
+                return
+            if path.resolve() == store_path:
+                return
+            if path.is_dir():
+                shutil.rmtree(path)
+        except OSError as error:
+            raise MutationError(f"unable to remove duplicate copy at {path}: {error}", status=409) from error
 
     def _manage_entry(self, entry: InventoryEntry) -> None:
         harness_sightings = [s for s in entry.sightings if s.kind == "harness" and s.path is not None]

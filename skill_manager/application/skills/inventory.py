@@ -192,6 +192,20 @@ class SkillInventory:
     def entries_by_kind(self, kind: EntryKind) -> tuple[InventoryEntry, ...]:
         return tuple(entry for entry in self.entries if entry.kind == kind)
 
+    def conflict_groups(self) -> dict[str, tuple[InventoryEntry, ...]]:
+        """Names that resolve to more than one distinct version.
+
+        Each inventory entry is one version (managed store package, or an
+        unmanaged copy keyed by name+revision). When a single skill name maps to
+        two or more entries — e.g. a managed version plus a divergent unmanaged
+        copy the user downloaded elsewhere — those versions collide on the
+        store's directory-name key and need consolidation.
+        """
+        by_name: dict[str, list[InventoryEntry]] = {}
+        for entry in self.entries:
+            by_name.setdefault(entry.name, []).append(entry)
+        return {name: tuple(group) for name, group in by_name.items() if len(group) > 1}
+
 
 def _unmanaged_entry_key(declared_name: str, source: SourceDescriptor, revision: str) -> str:
     if source.is_source_backed:

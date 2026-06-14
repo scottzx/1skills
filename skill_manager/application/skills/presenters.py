@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import os
+
 from .inventory import InventoryColumn, InventoryEntry, InventorySighting, SkillInventory
 from .policy import (
     attention_message,
@@ -16,10 +18,14 @@ def skills_page_payload(inventory: SkillInventory) -> dict[str, object]:
         "managed": sum(1 for entry in inventory.entries if display_status(entry) == "Managed"),
         "unmanaged": sum(1 for entry in inventory.entries if display_status(entry) == "Unmanaged"),
     }
+    conflicts = inventory.conflict_groups()
     return {
         "summary": counts,
         "harnessColumns": [column_payload(column) for column in inventory.columns],
-        "rows": [row_payload(entry, inventory.columns) for entry in inventory.entries],
+        "rows": [
+            row_payload(entry, inventory.columns, conflicts.get(entry.name))
+            for entry in inventory.entries
+        ],
     }
 
 
@@ -63,7 +69,11 @@ def column_payload(column: InventoryColumn) -> dict[str, object]:
     }
 
 
-def row_payload(entry: InventoryEntry, columns: tuple[InventoryColumn, ...]) -> dict[str, object]:
+def row_payload(
+    entry: InventoryEntry,
+    columns: tuple[InventoryColumn, ...],
+    conflict_group: tuple[InventoryEntry, ...] | None = None,
+) -> dict[str, object]:
     return {
         "skillRef": entry.skill_ref,
         "name": entry.name,
@@ -73,9 +83,50 @@ def row_payload(entry: InventoryEntry, columns: tuple[InventoryColumn, ...]) -> 
             "canManage": can_manage(entry),
             "canStopManaging": stop_managing_status(entry) == "available",
             "canDelete": can_delete(entry),
+            "canResolveConflict": conflict_group is not None,
         },
         "cells": [cell_payload(entry, column) for column in columns],
+        "conflict": conflict_payload(conflict_group),
     }
+
+
+def conflict_payload(group: tuple[InventoryEntry, ...] | None) -> dict[str, object] | None:
+    if not group:
+        return None
+    return {"versions": [conflict_version_payload(entry) for entry in group]}
+
+
+def conflict_version_payload(entry: InventoryEntry) -> dict[str, object]:
+    representative = entry.package_path
+    if representative is None:
+        representative = next(
+            (s.path for s in entry.sightings if s.kind == "harness" and s.path is not None),
+            None,
+        )
+    return {
+        "skillRef": entry.skill_ref,
+        "isManaged": entry.kind == "managed",
+        "revision": entry.current_revision,
+        "modifiedAt": _safe_mtime(representative),
+        "locations": [
+            {
+                "harness": sighting.harness,
+                "label": sighting.label,
+                "scope": sighting.scope,
+                "path": str(sighting.path) if sighting.path is not None else None,
+            }
+            for sighting in entry.detail_sightings()
+        ],
+    }
+
+
+def _safe_mtime(path) -> float | None:
+    if path is None:
+        return None
+    try:
+        return os.path.getmtime(path)
+    except OSError:
+        return None
 
 
 def cell_payload(entry: InventoryEntry, column: InventoryColumn) -> dict[str, object]:

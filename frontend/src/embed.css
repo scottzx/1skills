@@ -45,20 +45,37 @@
   pointer-events: auto;
 }
 
-/* Centered modals cap their height to the viewport (`100dvh`). Now that the
-   modal layer is confined to the (shorter) host box, that cap is never reached,
-   so a tall modal overflows the host and gets clipped with no scrollbar — the
-   user can't wheel-scroll to the rest. Re-cap to the containing block (`100%`
-   resolves to the transformed portal = host box) so the modal's own
-   `overflow-y: auto` engages and mouse-wheel scrolling works.
+/* Centered modals size themselves with viewport units — `width: min(960px,
+   100vw - 32px)` and `max-height: 100dvh - 48px`. But the modal layer is now
+   confined to the host box (main content), which is both NARROWER (sidebar) and
+   SHORTER than the viewport. So on anything smaller than a wide screen the modal
+   exceeds the host box and gets clipped (`.detail-sheet` is `overflow: hidden
+   auto`, so the horizontal spill is simply cut off and the user can neither see
+   nor scroll to it).
+
+   Re-cap both axes to the containing block: `100%` resolves to the transformed
+   portal = host box (definite, since `:host` has a definite height up the stage
+   chain). The modal then shrinks to fit the main content area at any screen size
+   and its own `overflow-y: auto` engages, so mouse-wheel scrolling works.
+
+   `.dialog-content` (shared Modal) has no overflow of its own, so add one too —
+   the others already scroll internally; `.mcp-choose-version` deliberately keeps
+   `overflow: hidden` (inner zones scroll) so it is intentionally left untouched.
 
    Scoped to ≥601px (the centered layout); the ≤600px bottom-sheet variant keeps
    its own `--sheet-max-height`. */
 @media (min-width: 601px) {
   .skills-panel-portals .detail-sheet,
   .skills-panel-portals .dialog-content,
-  .skills-panel-portals .mcp-dialog {
+  .skills-panel-portals .mcp-dialog,
+  .skills-panel-portals .mcp-choose-version,
+  .skills-panel-portals .scan-result-modal {
+    max-width: calc(100% - 32px);
     max-height: calc(100% - 48px);
+  }
+
+  .skills-panel-portals .dialog-content {
+    overflow-y: auto;
   }
 }
 

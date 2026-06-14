@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
-import { lazy, Suspense, useEffect, useState, type ReactNode } from "react";
+import { lazy, Suspense, useState, type ReactNode } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 
 import RouteLoadingPanel from "./components/RouteLoadingPanel";
@@ -16,7 +16,7 @@ import ScanConfigPage from "./features/skills/screens/ScanConfigPage";
 import SkillsWorkspacePage from "./features/skills/screens/SkillsWorkspacePage";
 import { LocaleProvider, useCommonCopy } from "./i18n";
 import { ThemeProvider, useTheme } from "./app/theme";
-import { usePortalContainer } from "./lib/portal-container";
+import { PortalContainerContext } from "./lib/portal-container";
 
 const MarketplaceLayout = lazy(() => import("./features/marketplace/components/MarketplaceLayout"));
 const OverviewPage = lazy(() => import("./features/overview/screens/OverviewPage"));
@@ -28,19 +28,24 @@ const McpInUsePage = lazy(() => import("./features/mcp/screens/McpInUsePage"));
 
 function AppWrapper({ children }: { children: ReactNode }) {
   const { theme } = useTheme();
-  const portalContainer = usePortalContainer();
+  const [portalNode, setPortalNode] = useState<HTMLDivElement | null>(null);
+  const isEmbed = Boolean(globalThis.__SKILLS_EMBED_MODE__);
 
-  // Embed mode only: the portal host is a sibling of this `.skills-panel-root`
-  // div (see embed.tsx), so it doesn't inherit our `data-theme`. Mirror it so
-  // light-mode token overrides resolve for modals portaled there. No-op in
-  // standalone mode where there is no portal container.
-  useEffect(() => {
-    if (portalContainer) portalContainer.dataset.theme = theme;
-  }, [portalContainer, theme]);
-
+  // Embed mode only: render the portal host for modals/overlays INSIDE the React
+  // root tree (here, within `.skills-panel-root`) rather than as a shadow-root
+  // sibling. This keeps it under React's event delegation so Radix's
+  // react-remove-scroll wheel whitelist works — a sibling host silently blocks
+  // mouse-wheel scrolling inside dialogs. Being inside `.skills-panel-root` also
+  // means it inherits the theme tokens for free. In standalone mode there is no
+  // portal container, so dialogs portal to document.body as before.
   return (
     <div className="skills-panel-root" data-theme={theme}>
-      {children}
+      <PortalContainerContext.Provider value={isEmbed ? portalNode : null}>
+        {children}
+      </PortalContainerContext.Provider>
+      {isEmbed ? (
+        <div className="skills-panel-portals" data-theme={theme} ref={setPortalNode} />
+      ) : null}
     </div>
   );
 }

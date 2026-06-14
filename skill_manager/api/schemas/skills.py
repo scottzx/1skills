@@ -28,6 +28,17 @@ class InstallMarketplaceSkillRequest(BaseModel):
     install_token: str = Field(..., alias="installToken", min_length=1)
 
 
+class ResolveSkillConflictRequest(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    chosen_ref: str = Field(
+        ...,
+        alias="chosenRef",
+        min_length=1,
+        description="skillRef of the version to keep as the single managed copy",
+    )
+
+
 SkillStatus = Literal["Managed", "Unmanaged"]
 HarnessCellState = Literal["enabled", "disabled", "found", "empty"]
 SkillUpdateStatus = Literal[
@@ -79,6 +90,26 @@ class SkillRowActionsResponse(BaseModel):
     canManage: bool
     canStopManaging: bool
     canDelete: bool
+    canResolveConflict: bool = False
+
+
+class SkillConflictLocationResponse(BaseModel):
+    harness: str | None
+    label: str
+    scope: str | None
+    path: str | None
+
+
+class SkillConflictVersionResponse(BaseModel):
+    skillRef: str
+    isManaged: bool
+    revision: str | None
+    modifiedAt: float | None
+    locations: list[SkillConflictLocationResponse]
+
+
+class SkillConflictResponse(BaseModel):
+    versions: list[SkillConflictVersionResponse]
 
 
 class HarnessCellResponse(BaseModel):
@@ -96,6 +127,7 @@ class SkillTableRowResponse(BaseModel):
     displayStatus: SkillStatus
     actions: SkillRowActionsResponse
     cells: list[HarnessCellResponse]
+    conflict: SkillConflictResponse | None = None
 
 
 class SkillsPageResponse(BaseModel):
@@ -156,6 +188,10 @@ __all__ = [
     "HarnessCellState",
     "HarnessColumnResponse",
     "InstallMarketplaceSkillRequest",
+    "ResolveSkillConflictRequest",
+    "SkillConflictLocationResponse",
+    "SkillConflictResponse",
+    "SkillConflictVersionResponse",
     "SetSkillHarnessesFailureResponse",
     "SetSkillHarnessesRequest",
     "SetSkillHarnessesResultResponse",

@@ -33,13 +33,40 @@ import { App } from "./App";
 import { isTheme, type Theme } from "./app/theme";
 import type { Locale } from "./i18n/locales";
 import embedCss from "./embed.css?inline";
-import { PortalContainerContext } from "./lib/portal-container";
 
 declare global {
   // Set in connectedCallback so useBareMode() / useNavReporter() can
   // detect embed mode at runtime.
   // eslint-disable-next-line no-var
   var __SKILLS_EMBED_MODE__: boolean | undefined;
+  // Guards the one-time console.error patch below.
+  // eslint-disable-next-line no-var
+  var __SKILLS_RADIX_WARN_PATCHED__: boolean | undefined;
+}
+
+/**
+ * Radix UI's Dialog accessibility warning is a false positive inside a shadow
+ * root. Radix verifies the title exists via `document.getElementById(titleId)`,
+ * which cannot see into our shadow tree, so it fires `console.error` even though
+ * `<Dialog.Title>` IS rendered every time (screen readers, which traverse the
+ * shadow tree, find it correctly). Filter only this one known message — anything
+ * else still reaches the real console.error untouched.
+ */
+function suppressRadixShadowDomDialogWarning(): void {
+  if (globalThis.__SKILLS_RADIX_WARN_PATCHED__) return;
+  globalThis.__SKILLS_RADIX_WARN_PATCHED__ = true;
+  const original = console.error.bind(console);
+  console.error = (...args: unknown[]) => {
+    const first = args[0];
+    if (
+      typeof first === "string" &&
+      first.includes("requires a `DialogTitle`") &&
+      first.includes("radix-ui.com/primitives/docs/components/dialog")
+    ) {
+      return;
+    }
+    original(...args);
+  };
 }
 
 function toLocale(lang: string): Locale | null {
@@ -113,14 +140,19 @@ class SkillsPanelElement extends HTMLElement {
     rootContainer.style.height = "100%";
     shadowRoot.appendChild(rootContainer);
 
-    // Create container for portals inside shadow root
-    const portalContainer = document.createElement("div");
-    portalContainer.className = "skills-panel-portals";
-    shadowRoot.appendChild(portalContainer);
+    // NOTE: the portal host for modals/overlays is rendered by React *inside*
+    // the root tree (see AppWrapper in App.tsx), NOT as a shadow-root sibling.
+    // It must stay within the React root container so React's event delegation
+    // (and therefore Radix's react-remove-scroll wheel whitelist) reaches it —
+    // otherwise mouse-wheel scrolling inside dialogs is silently blocked.
 
     // Flip the embed flag so existing useBareMode / useNavReporter
     // hooks take the embed branch (see bare-mode.ts / nav-reporter.ts).
     globalThis.__SKILLS_EMBED_MODE__ = true;
+
+    // Silence Radix's shadow-DOM-incompatible Dialog title warning (false
+    // positive — our dialogs do render <Dialog.Title>).
+    suppressRadixShadowDomDialogWarning();
 
     const initialPath = this.getAttribute("route")
       ? normalizeRoute(this.getAttribute("route") as string)
@@ -128,12 +160,10 @@ class SkillsPanelElement extends HTMLElement {
 
     this.root = createRoot(rootContainer);
     this.root.render(
-      <PortalContainerContext.Provider value={portalContainer}>
-        <MemoryRouter initialEntries={[initialPath]}>
-          <App />
-          <EmbedBridge target={this} />
-        </MemoryRouter>
-      </PortalContainerContext.Provider>,
+      <MemoryRouter initialEntries={[initialPath]}>
+        <App />
+        <EmbedBridge target={this} />
+      </MemoryRouter>,
     );
 
     // Replay any attributes the host set before mount completed.
