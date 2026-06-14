@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
-import { lazy, Suspense, useState, type ReactNode } from "react";
+import { lazy, Suspense, useEffect, useState, type ReactNode } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 
 import RouteLoadingPanel from "./components/RouteLoadingPanel";
@@ -16,6 +16,7 @@ import ScanConfigPage from "./features/skills/screens/ScanConfigPage";
 import SkillsWorkspacePage from "./features/skills/screens/SkillsWorkspacePage";
 import { LocaleProvider, useCommonCopy } from "./i18n";
 import { ThemeProvider, useTheme } from "./app/theme";
+import { usePortalContainer } from "./lib/portal-container";
 
 const MarketplaceLayout = lazy(() => import("./features/marketplace/components/MarketplaceLayout"));
 const OverviewPage = lazy(() => import("./features/overview/screens/OverviewPage"));
@@ -27,6 +28,16 @@ const McpInUsePage = lazy(() => import("./features/mcp/screens/McpInUsePage"));
 
 function AppWrapper({ children }: { children: ReactNode }) {
   const { theme } = useTheme();
+  const portalContainer = usePortalContainer();
+
+  // Embed mode only: the portal host is a sibling of this `.skills-panel-root`
+  // div (see embed.tsx), so it doesn't inherit our `data-theme`. Mirror it so
+  // light-mode token overrides resolve for modals portaled there. No-op in
+  // standalone mode where there is no portal container.
+  useEffect(() => {
+    if (portalContainer) portalContainer.dataset.theme = theme;
+  }, [portalContainer, theme]);
+
   return (
     <div className="skills-panel-root" data-theme={theme}>
       {children}

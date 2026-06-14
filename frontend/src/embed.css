@@ -18,16 +18,47 @@
 @import "./features/mcp/styles/detail-sheet.css";
 @import "./features/mcp/styles/edit-dialogs.css";
 
-/* Styles for the portals container inside the shadow root to prevent flex layout
-   alignment issues and WebKit fixed positioning offset bugs. */
+/* Confine the modal/overlay layer to the host element (the main content area)
+   instead of the full viewport, so dialogs never paint over the host's sidebar.
+
+   - `:host { position: relative }` makes the custom element the offset parent,
+     so the portal layer below sizes itself to the host box (`inset: 0`).
+   - `transform` turns the portal into the *containing block* for its
+     `position: fixed` descendants (the Radix overlay + dialog content). That
+     reframes their `fixed` positioning from the viewport to this box, keeping
+     them centered inside the main content area and off the sidebar — while also
+     sidestepping the WebKit flex-offset bug that the previous `position: fixed`
+     workaround was guarding against (an `absolute` layer is out of flex flow). */
+:host {
+  position: relative;
+}
+
 .skills-panel-portals {
-  position: fixed;
+  position: absolute;
   inset: 0;
   z-index: 9999;
   pointer-events: none;
+  transform: translateZ(0);
 }
 
 .skills-panel-portals > * {
   pointer-events: auto;
+}
+
+/* Centered modals cap their height to the viewport (`100dvh`). Now that the
+   modal layer is confined to the (shorter) host box, that cap is never reached,
+   so a tall modal overflows the host and gets clipped with no scrollbar — the
+   user can't wheel-scroll to the rest. Re-cap to the containing block (`100%`
+   resolves to the transformed portal = host box) so the modal's own
+   `overflow-y: auto` engages and mouse-wheel scrolling works.
+
+   Scoped to ≥601px (the centered layout); the ≤600px bottom-sheet variant keeps
+   its own `--sheet-max-height`. */
+@media (min-width: 601px) {
+  .skills-panel-portals .detail-sheet,
+  .skills-panel-portals .dialog-content,
+  .skills-panel-portals .mcp-dialog {
+    max-height: calc(100% - 48px);
+  }
 }
 

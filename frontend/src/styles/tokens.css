@@ -1,4 +1,9 @@
-:root, .skills-panel-root {
+:root, .skills-panel-root, .skills-panel-portals {
+  /* `.skills-panel-portals` is the embed-mode portal host: it lives as a
+   * sibling of `.skills-panel-root` in the shadow root (see embed.tsx), so it
+   * must redeclare the tokens or modals portaled into it inherit nothing
+   * (transparent background, auto width). It does NOT get the `.skills-panel-root`
+   * class itself, which would paint a full-viewport background over the page. */
   /* Lock base font size — prevents host page from bleeding into this iframe. */
   font-size: 16px;
 
@@ -120,7 +125,7 @@
   --sheet-max-height: 92dvh;
 }
 
-[data-theme="light"], .skills-panel-root[data-theme="light"] {
+[data-theme="light"], .skills-panel-root[data-theme="light"], .skills-panel-portals[data-theme="light"] {
   --color-bg: #f7f6f3;
   --color-surface: #ffffff;
   --color-surface-raised: #f0efe9;
