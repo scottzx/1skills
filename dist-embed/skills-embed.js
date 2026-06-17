@@ -28518,7 +28518,13 @@ function S6() {
 const C6 = /* @__PURE__ */ new Set(), j6 = w.lazy(() => Promise.resolve().then(() => jF)), E6 = w.lazy(() => Promise.resolve().then(() => HF)), M6 = w.lazy(() => Promise.resolve().then(() => n$)), N6 = w.lazy(() => Promise.resolve().then(() => P$)), A6 = w.lazy(() => Promise.resolve().then(() => W$)), R6 = w.lazy(() => Promise.resolve().then(() => f7)), T6 = w.lazy(() => Promise.resolve().then(() => eq));
 function D6({ children: e }) {
   const { theme: t } = oS(), [n, i] = w.useState(null), l = !!globalThis.__SKILLS_EMBED_MODE__;
-  return /* @__PURE__ */ o.jsxs("div", { className: "skills-panel-root", "data-theme": t, children: [
+  return w.useEffect(() => {
+    if (!l || !n) return;
+    const c = (u) => u.stopPropagation();
+    return n.addEventListener("wheel", c), n.addEventListener("touchmove", c), () => {
+      n.removeEventListener("wheel", c), n.removeEventListener("touchmove", c);
+    };
+  }, [l, n]), /* @__PURE__ */ o.jsxs("div", { className: "skills-panel-root", "data-theme": t, children: [
     /* @__PURE__ */ o.jsx(cS.Provider, { value: l ? n : null, children: e }),
     l ? /* @__PURE__ */ o.jsx("div", { className: "skills-panel-portals", "data-theme": t, ref: i }) : null
   ] });

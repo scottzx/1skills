@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
-import { lazy, Suspense, useState, type ReactNode } from "react";
+import { lazy, Suspense, useEffect, useState, type ReactNode } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 
 import RouteLoadingPanel from "./components/RouteLoadingPanel";
@@ -38,6 +38,26 @@ function AppWrapper({ children }: { children: ReactNode }) {
   // mouse-wheel scrolling inside dialogs. Being inside `.skills-panel-root` also
   // means it inherits the theme tokens for free. In standalone mode there is no
   // portal container, so dialogs portal to document.body as before.
+
+  // Embed mode only: Radix Dialog's scroll lock (react-remove-scroll) attaches its
+  // wheel/touchmove listeners on the *outer* document. Because our dialogs live inside
+  // this custom element's shadow root, those events are retargeted to the <skills-panel>
+  // host before they reach the document, so react-remove-scroll's "is this inside the
+  // dialog?" check fails and it preventDefault()s every scroll — making dialog content
+  // impossible to scroll by wheel/touch. Stop these events from leaving the shadow root
+  // so the browser scrolls dialog content natively; `overscroll-behavior: contain` on the
+  // scroll surfaces already keeps the scroll from chaining to the panel behind the overlay.
+  useEffect(() => {
+    if (!isEmbed || !portalNode) return;
+    const stopScroll = (event: Event) => event.stopPropagation();
+    portalNode.addEventListener("wheel", stopScroll);
+    portalNode.addEventListener("touchmove", stopScroll);
+    return () => {
+      portalNode.removeEventListener("wheel", stopScroll);
+      portalNode.removeEventListener("touchmove", stopScroll);
+    };
+  }, [isEmbed, portalNode]);
+
   return (
     <div className="skills-panel-root" data-theme={theme}>
       <PortalContainerContext.Provider value={isEmbed ? portalNode : null}>
