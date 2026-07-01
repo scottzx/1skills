@@ -53,20 +53,29 @@ describe("App shell", () => {
     vi.unstubAllGlobals();
   });
 
-  it("renders the sidebar with primary nav groups", async () => {
+  function openTabFlyout(tabName: string) {
+    const tab = screen.getByRole("link", { name: tabName });
+    const item = tab.closest(".skills-topnav__tab-item");
+    if (!item) throw new Error(`no tab flyout container for ${tabName}`);
+    fireEvent.mouseEnter(item);
+  }
+
+  it("renders the top navigation with primary tabs", async () => {
     renderApp("/skills/use");
     await waitFor(() => expect(screen.getByLabelText(/primary navigation/i)).toBeInTheDocument());
-    expect(screen.getByText(/skill-manager/)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /^Overview$/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Skills/i })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Scan Config" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Slash Commands/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /MCP Servers/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Marketplace/i })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /^Settings$/i })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Overview" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Skills" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Slash Commands" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "MCP Servers" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Marketplace" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Settings" })).toBeInTheDocument();
+    // Second-level links stay hidden until the tab is hovered.
+    expect(screen.queryByRole("menuitem", { name: "Scan Config" })).not.toBeInTheDocument();
+    openTabFlyout("Skills");
+    expect(await screen.findByRole("menuitem", { name: "Scan Config" })).toBeInTheDocument();
   });
 
-  it("renders right-aligned section counts for skills and MCP servers", async () => {
+  it("reveals second-level counts in the hovered tab flyout", async () => {
     fetchMock.mockImplementation(async (input: RequestInfo | URL) => {
       const url = typeof input === "string" ? input : input.toString();
       if (url === "/api/skills") {
@@ -90,37 +99,31 @@ describe("App shell", () => {
       return okJson({});
     });
 
-    renderApp("/settings");
+    renderApp("/skills/use");
+    await waitFor(() => expect(screen.getByRole("link", { name: "Skills" })).toBeInTheDocument());
 
-    await waitFor(() => {
-      expect(screen.getByRole("button", { name: "Skills 13" })).toBeInTheDocument();
-      expect(screen.getByRole("button", { name: "Slash Commands 6" })).toBeInTheDocument();
-      expect(screen.getByRole("button", { name: "MCP Servers 3" })).toBeInTheDocument();
-    });
-    expect(screen.getByRole("link", { name: "In use 10" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Needs review 3" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Scan Config" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "In use 2" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Needs review 1" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Marketplace" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Skills" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "MCP" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "CLIs" })).toBeInTheDocument();
+    openTabFlyout("Skills");
+    expect(await screen.findByRole("menuitem", { name: "In use 10" })).toBeInTheDocument();
+    expect(screen.getByRole("menuitem", { name: "Needs review 3" })).toBeInTheDocument();
+    expect(screen.getByRole("menuitem", { name: "Scan Config" })).toBeInTheDocument();
+
+    openTabFlyout("MCP Servers");
+    expect(await screen.findByRole("menuitem", { name: "In use 2" })).toBeInTheDocument();
+    expect(screen.getByRole("menuitem", { name: "Needs review 1" })).toBeInTheDocument();
   });
 
-  it("omits sidebar counts before query data resolves", () => {
+  it("omits flyout counts before query data resolves", async () => {
     fetchMock.mockImplementation(
       () => new Promise<Response>(() => {
-        // Keep the query pending so the sidebar renders its unloaded state.
+        // Keep the query pending so the nav renders its unloaded state.
       }),
     );
 
-    renderApp("/settings");
+    renderApp("/skills/use");
 
-    expect(screen.getByRole("button", { name: "Skills" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Slash Commands" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "MCP Servers" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Marketplace" })).toBeInTheDocument();
+    openTabFlyout("Skills");
+    expect(await screen.findByRole("menuitem", { name: "In use" })).toBeInTheDocument();
+    expect(screen.getByRole("menuitem", { name: "Needs review" })).toBeInTheDocument();
   });
 
   it.each([
@@ -188,20 +191,20 @@ describe("App shell", () => {
     );
   });
 
-  it("navigates to overview from the skill-manager brand", async () => {
+  it("navigates to overview from the Overview tab", async () => {
     renderApp("/settings");
     await waitFor(() =>
       expect(screen.getByRole("heading", { name: "Settings" })).toBeInTheDocument(),
     );
 
-    fireEvent.click(screen.getByRole("link", { name: /skill-manager/i }));
+    fireEvent.click(screen.getByRole("link", { name: "Overview" }));
 
     await waitFor(() =>
       expect(screen.getByRole("heading", { name: "Overview" })).toBeInTheDocument(),
     );
   });
 
-  it("switches the app chrome to Chinese from the sidebar footer while preserving product terms", async () => {
+  it("switches the app chrome to Chinese from the top nav while preserving product terms", async () => {
     renderApp("/settings");
     await waitFor(() =>
       expect(screen.getByRole("heading", { name: "Settings" })).toBeInTheDocument(),
@@ -216,16 +219,15 @@ describe("App shell", () => {
     );
     expect(window.localStorage.getItem(LOCALE_STORAGE_KEY)).toBe("zh-CN");
     await waitFor(() => expect(document.documentElement.lang).toBe("zh-CN"));
-    expect(screen.getByRole("link", { name: /^总览$/ })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "总览" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "刷新" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "设置" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Skill/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /MCP 服务器/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /^商城$/ })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /^CLI$/ })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Skill" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "MCP 服务器" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "商城" })).toBeInTheDocument();
     expect(screen.queryByText("界面语言")).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("link", { name: /^总览$/ }));
+    fireEvent.click(screen.getByRole("link", { name: "总览" }));
 
     await waitFor(() =>
       expect(screen.getByRole("heading", { name: "总览" })).toBeInTheDocument(),

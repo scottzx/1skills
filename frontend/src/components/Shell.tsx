@@ -1,9 +1,7 @@
-import { useCallback, useState, type ReactNode } from "react";
-import { Menu } from "lucide-react";
+import { type ReactNode } from "react";
 
-import { Sidebar } from "./Sidebar";
+import { TopNav } from "./TopNav";
 import { useBareMode } from "../lib/bare-mode";
-import { useCommonCopy } from "../i18n";
 
 interface ShellProps {
   children: ReactNode;
@@ -11,42 +9,20 @@ interface ShellProps {
   refreshPending: boolean;
 }
 
+/**
+ * App chrome — a project-page-style top navigation (breadcrumb + two-level
+ * tabs) over the scrolling content pane. Used in both standalone and embedded
+ * (bare) modes; the sidebar has been retired in favor of TopNav so the module
+ * reads like a 1agents host project page. Bare mode only trims the theme /
+ * language toggles (the host owns those) — handled inside TopNav.
+ */
 export function Shell({ children, onRefresh, refreshPending }: ShellProps) {
-  const common = useCommonCopy();
-  const bareMode = useBareMode();
-  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-
-  const handleMobileClose = useCallback(() => setMobileSidebarOpen(false), []);
-
-  if (bareMode) {
-    // Bare mode: render only the page content. The host provides navigation
-    // via postMessage NAVIGATE and the host's own sidebar.
-    return (
-      <div className="app-shell app-shell--bare">
-        <main className="app-main ui-scrollbar container-query">
-          <div className="page-shell">{children}</div>
-        </main>
-      </div>
-    );
-  }
+  const bare = useBareMode();
 
   return (
-    <div className="app-shell">
-      <button
-        type="button"
-        className="shell__hamburger"
-        onClick={() => setMobileSidebarOpen((v) => !v)}
-        aria-label={common.nav.overview}
-      >
-        <Menu size={20} />
-      </button>
-      <Sidebar
-        onRefresh={onRefresh}
-        refreshPending={refreshPending}
-        mobileOpen={mobileSidebarOpen}
-        onMobileClose={handleMobileClose}
-      />
-      <main className="app-main ui-scrollbar container-query">
+    <div className={`skills-shell${bare ? " skills-shell--bare" : ""}`}>
+      <TopNav onRefresh={onRefresh} refreshPending={refreshPending} />
+      <main className="skills-shell__body ui-scrollbar container-query">
         <div className="page-shell">{children}</div>
       </main>
     </div>

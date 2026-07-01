@@ -27,7 +27,7 @@
  * Order preserves the original app.css → ui.css → dialogs.css sequence so
  * in-layer source-order ties resolve identically to pre-split behavior. */
 @import "./components/page.css";
-@import "./components/sidebar.css";
+@import "./components/topnav.css";
 @import "./components/filter.css";
 @import "./components/bulk-bar.css";
 @import "./components/toast.css";
