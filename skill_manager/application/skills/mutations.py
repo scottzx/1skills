@@ -351,6 +351,14 @@ class SkillsMutationService:
         harness_sightings = [s for s in entry.sightings if s.kind == "harness" and s.path is not None]
         if not harness_sightings:
             raise MutationError("no local skill copy found to manage", status=400)
+        # Only bind harnesses that are actually installed & enabled. A single
+        # on-disk copy (e.g. ~/.agents/skills/<skill>) is co-discovered through
+        # several harnesses' discovery roots; binding an uninstalled one would
+        # abort the whole manage with a 400.
+        installed_harnesses = {a.harness for a in self.read_models.enabled_installed_adapters()}
+        harness_sightings = [s for s in harness_sightings if s.harness in installed_harnesses]
+        if not harness_sightings:
+            raise MutationError("no installed harness available to manage this skill", status=400)
         source = harness_sightings[0].source
         if source.is_source_backed:
             source_kind, source_locator = source.kind, source.locator
