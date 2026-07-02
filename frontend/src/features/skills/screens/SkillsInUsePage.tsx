@@ -3,10 +3,10 @@ import { Columns3, FolderPlus, LayoutGrid, Rows3, Shield } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import { SkillActionConfirmDialog } from "../components/dialogs/SkillActionConfirmDialog";
+import { ImportFolderModal } from "../components/import/ImportFolderModal";
 import { FilterBar } from "../../../components/FilterBar";
 import { LoadingSpinner } from "../../../components/LoadingSpinner";
 import { PageHeader } from "../../../components/PageHeader";
-import { useToast } from "../../../components/Toast";
 import { SelectionMenu } from "../../../components/ui/SelectionMenu";
 import { ViewModeToggle, type ViewModeOption } from "../../../components/ViewModeToggle";
 import { useCommonCopy } from "../../../i18n";
@@ -59,12 +59,12 @@ export default function SkillsInUsePage() {
     isInitialLoading,
   } = useSkillsWorkspace();
   const { filters, updateFilters, resetFilters } = useSkillsInUseSession();
-  const { toast } = useToast();
   const copy = useSkillsCopy();
   const common = useCommonCopy();
   const [pill, setPill] = useState<InUsePillValue>("all");
   const [viewMode, setViewMode] = useInUseViewMode();
   const [showScanConfig, setShowScanConfig] = useState(false);
+  const [showImport, setShowImport] = useState(false);
   const scan = useSkillScan();
   const [pendingConfirm, setPendingConfirm] = useState<{
     action: "unmanage" | "delete";
@@ -169,7 +169,7 @@ export default function SkillsInUsePage() {
               <button
                 type="button"
                 className="action-pill action-pill--md"
-                onClick={() => toast(copy.inUse.importFolderComingSoon)}
+                onClick={() => setShowImport(true)}
               >
                 <FolderPlus size={14} />
                 {copy.inUse.importFolder}
@@ -307,6 +307,8 @@ export default function SkillsInUsePage() {
           onConfirm={handleConfirmAction}
         />
       ) : null}
+
+      <ImportFolderModal open={showImport} onClose={() => setShowImport(false)} />
     </>
   );
 }

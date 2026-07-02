@@ -31,7 +31,13 @@ from .slash_commands import (
     migrate_legacy_slash_commands,
     resolve_slash_targets,
 )
-from .skills import SkillsMutationService, SkillsQueryService
+from .agents import (
+    AgentsMutationService,
+    AgentsQueryService,
+    AgentsReadModelService,
+    AgentStore,
+)
+from .skills import SkillImportService, SkillsMutationService, SkillsQueryService
 from .skills.marketplace import (
     MarketplaceCatalog,
     MarketplaceDocumentService,
@@ -57,6 +63,11 @@ class BackendContainer:
     skills_read_models: SkillsReadModelService
     skills_queries: SkillsQueryService
     skills_mutations: SkillsMutationService
+    skills_imports: SkillImportService
+    agents_store: AgentStore
+    agents_read_models: AgentsReadModelService
+    agents_queries: AgentsQueryService
+    agents_mutations: AgentsMutationService
     settings_queries: SettingsQueryService
     settings_mutations: SettingsMutationService
     slash_command_store: SlashCommandStore
@@ -104,6 +115,14 @@ def build_backend_container(
     active_source_fetcher = source_fetcher or SourceFetchService()
     skills_queries = SkillsQueryService(skills_read_models, active_source_fetcher)
     skills_mutations = SkillsMutationService(skills_read_models, skills_queries, active_source_fetcher)
+    skills_imports = SkillImportService(skills_read_models, harness_kernel)
+
+    agents_store = AgentStore(paths.agents_store_root, manifest_path=paths.agents_store_manifest)
+    agents_read_models = AgentsReadModelService.from_kernel(store=agents_store, kernel=harness_kernel)
+    invalidation.register(agents_read_models)
+    agents_queries = AgentsQueryService(agents_read_models)
+    agents_mutations = AgentsMutationService(agents_read_models, agents_queries)
+
     settings_queries = SettingsQueryService(harness_kernel, paths)
     slash_targets = resolve_slash_targets(harness_kernel)
     slash_command_store = SlashCommandStore(
@@ -199,6 +218,11 @@ def build_backend_container(
         skills_read_models=skills_read_models,
         skills_queries=skills_queries,
         skills_mutations=skills_mutations,
+        skills_imports=skills_imports,
+        agents_store=agents_store,
+        agents_read_models=agents_read_models,
+        agents_queries=agents_queries,
+        agents_mutations=agents_mutations,
         settings_queries=settings_queries,
         settings_mutations=settings_mutations,
         slash_command_store=slash_command_store,

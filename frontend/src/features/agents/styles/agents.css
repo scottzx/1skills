@@ -1,0 +1,10 @@
+@layer features {
+  /*
+   * The agents feature intentionally reuses the shared card / board / matrix /
+   * detail primitives that the skills feature already defines (`.skill-card`,
+   * `.skill-board`, `.matrix-table__*`, `.skill-detail-shell__*`, etc.). Those
+   * classes are layout- and token-driven, not skill-specific, so agents renders
+   * identically without duplicating rules here. Add agent-only overrides in this
+   * layer if the two families ever need to diverge visually.
+   */
+}

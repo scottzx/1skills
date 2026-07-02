@@ -80,6 +80,10 @@ SUPPORTED_HARNESS_DEFINITIONS: tuple[HarnessDefinition, ...] = (
                 managed_env="SKILL_MANAGER_CLAUDE_ROOT",
                 managed_default=lambda context: context.home / ".claude" / "skills",
             ),
+            "agents": FileTreeBindingProfile(
+                managed_env="SKILL_MANAGER_CLAUDE_AGENTS_ROOT",
+                managed_default=lambda context: context.home / ".claude" / "agents",
+            ),
             "mcp": ConfigSubtreeBindingProfile(
                 config_path_resolver=lambda context: context.home / ".claude.json",
                 file_format="json",

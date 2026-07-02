@@ -8,7 +8,7 @@ from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from skill_manager.application import BackendContainer
 
 from .errors import install_error_handlers
-from .routers import health, manifest, marketplace, mcp, scan, settings, skills, slash_commands
+from .routers import agents, health, imports, manifest, marketplace, mcp, scan, settings, skills, slash_commands
 
 # SPA caching: hashed assets are content-addressed, so they can be cached
 # forever. The HTML entry point must always be revalidated, otherwise a
@@ -45,10 +45,12 @@ def create_app(
     app.include_router(manifest.router)
     app.include_router(settings.router)
     app.include_router(skills.router)
+    app.include_router(agents.router)
     app.include_router(slash_commands.router)
     app.include_router(marketplace.router)
     app.include_router(mcp.router)
     app.include_router(scan.router)
+    app.include_router(imports.router)
 
     @app.get("/{full_path:path}", include_in_schema=False, response_model=None)
     def serve_frontend(full_path: str):

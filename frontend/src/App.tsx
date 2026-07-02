@@ -14,6 +14,7 @@ import SkillsNeedsReviewPage from "./features/skills/screens/SkillsNeedsReviewPa
 import SkillsInUsePage from "./features/skills/screens/SkillsInUsePage";
 import ScanConfigPage from "./features/skills/screens/ScanConfigPage";
 import SkillsWorkspacePage from "./features/skills/screens/SkillsWorkspacePage";
+import { AgentsWorkspaceSessionProvider } from "./features/agents/model/session";
 import { LocaleProvider, useCommonCopy } from "./i18n";
 import { ThemeProvider, useTheme } from "./app/theme";
 import { PortalContainerContext } from "./lib/portal-container";
@@ -25,6 +26,9 @@ const SlashCommandsPage = lazy(() => import("./features/slash-commands/screens/S
 const SlashCommandsReviewPage = lazy(() => import("./features/slash-commands/screens/SlashCommandsReviewPage"));
 const McpNeedsReviewPage = lazy(() => import("./features/mcp/screens/McpNeedsReviewPage"));
 const McpInUsePage = lazy(() => import("./features/mcp/screens/McpInUsePage"));
+const AgentsWorkspacePage = lazy(() => import("./features/agents/screens/AgentsWorkspacePage"));
+const AgentsInUsePage = lazy(() => import("./features/agents/screens/AgentsInUsePage"));
+const AgentsNeedsReviewPage = lazy(() => import("./features/agents/screens/AgentsNeedsReviewPage"));
 
 function AppWrapper({ children }: { children: ReactNode }) {
   const { theme } = useTheme();
@@ -125,6 +129,7 @@ function AppContent() {
 
   return (
     <SkillsWorkspaceSessionProvider>
+      <AgentsWorkspaceSessionProvider>
       <ParentSync />
       <NavReporter />
       <Shell onRefresh={handleRefreshData} refreshPending={refreshPending}>
@@ -146,6 +151,35 @@ function AppContent() {
             <Route path="review" element={<SkillsNeedsReviewPage />} />
             <Route path="managed" element={<Navigate to="/skills/use" replace />} />
             <Route path="unmanaged" element={<Navigate to="/skills/review" replace />} />
+          </Route>
+
+          <Route
+            path="agents"
+            element={
+              <Suspense fallback={<RouteLoadingPanel label={common.loading.agents} />}>
+                <AgentsWorkspacePage />
+              </Suspense>
+            }
+          >
+            <Route index element={<Navigate to="use" replace />} />
+            <Route
+              path="use"
+              element={
+                <Suspense fallback={<RouteLoadingPanel label={common.loading.agents} />}>
+                  <AgentsInUsePage />
+                </Suspense>
+              }
+            />
+            <Route
+              path="review"
+              element={
+                <Suspense fallback={<RouteLoadingPanel label={common.loading.agents} />}>
+                  <AgentsNeedsReviewPage />
+                </Suspense>
+              }
+            />
+            <Route path="managed" element={<Navigate to="/agents/use" replace />} />
+            <Route path="unmanaged" element={<Navigate to="/agents/review" replace />} />
           </Route>
 
           <Route path="mcp" element={<Navigate to="/mcp/use" replace />} />
@@ -217,6 +251,7 @@ function AppContent() {
           <Route path="*" element={<Navigate to="/overview" replace />} />
         </Routes>
       </Shell>
+      </AgentsWorkspaceSessionProvider>
     </SkillsWorkspaceSessionProvider>
   );
 }

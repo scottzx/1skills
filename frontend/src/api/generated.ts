@@ -4,6 +4,176 @@
  */
 
 export interface paths {
+    "/api/agents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Agents */
+        get: operations["list_agents_api_agents_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/agents/{agent_ref}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Agent Detail */
+        get: operations["get_agent_detail_api_agents__agent_ref__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/agents/{agent_ref}/delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Delete Agent */
+        post: operations["delete_agent_api_agents__agent_ref__delete_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/agents/{agent_ref}/disable": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Disable Agent */
+        post: operations["disable_agent_api_agents__agent_ref__disable_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/agents/{agent_ref}/enable": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Enable Agent */
+        post: operations["enable_agent_api_agents__agent_ref__enable_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/agents/{agent_ref}/manage": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Manage Agent */
+        post: operations["manage_agent_api_agents__agent_ref__manage_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/agents/{agent_ref}/push-from-path": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Push Agent From Path */
+        post: operations["push_agent_from_path_api_agents__agent_ref__push_from_path_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/agents/{agent_ref}/source-status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Agent Source Status */
+        get: operations["get_agent_source_status_api_agents__agent_ref__source_status_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/agents/{agent_ref}/status-from-path": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Agent Status From Path */
+        post: operations["agent_status_from_path_api_agents__agent_ref__status_from_path_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/agents/{agent_ref}/unmanage": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Unmanage Agent */
+        post: operations["unmanage_agent_api_agents__agent_ref__unmanage_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/health": {
         parameters: {
             query?: never;
@@ -13,6 +183,60 @@ export interface paths {
         };
         /** Health */
         get: operations["health_api_health_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/import/apply": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Apply Import */
+        post: operations["apply_import_api_import_apply_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/import/scan": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Scan Import Folders */
+        post: operations["scan_import_folders_api_import_scan_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/manifest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Manifest
+         * @description Return the live module manifest with up-to-date counts.
+         */
+        get: operations["get_manifest_api_manifest_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -654,6 +878,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/skills/{skill_ref}/push-from-path": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Push Skill From Path */
+        post: operations["push_skill_from_path_api_skills__skill_ref__push_from_path_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/skills/{skill_ref}/resolve-conflict": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Resolve Skill Conflict */
+        post: operations["resolve_skill_conflict_api_skills__skill_ref__resolve_conflict_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/skills/{skill_ref}/set-harnesses": {
         parameters: {
             query?: never;
@@ -682,6 +940,23 @@ export interface paths {
         get: operations["get_skill_source_status_api_skills__skill_ref__source_status_get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/skills/{skill_ref}/status-from-path": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Skill Status From Path */
+        post: operations["skill_status_from_path_api_skills__skill_ref__status_from_path_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -828,6 +1103,190 @@ export interface components {
             /** Observed harness */
             observedHarness?: string | null;
         };
+        /** AgentDetailActionsResponse */
+        AgentDetailActionsResponse: {
+            /** Candelete */
+            canDelete: boolean;
+            /** Canmanage */
+            canManage: boolean;
+            /** Deleteharnesslabels */
+            deleteHarnessLabels: string[];
+            /** Stopmanagingharnesslabels */
+            stopManagingHarnessLabels: string[];
+            /** Stopmanagingstatus */
+            stopManagingStatus: ("available" | "disabled_no_enabled") | null;
+        };
+        /** AgentDetailResponse */
+        AgentDetailResponse: {
+            actions: components["schemas"]["AgentDetailActionsResponse"];
+            /** Agentref */
+            agentRef: string;
+            /** Attentionmessage */
+            attentionMessage: string | null;
+            /** Description */
+            description: string;
+            /**
+             * Displaystatus
+             * @enum {string}
+             */
+            displayStatus: "Managed" | "Unmanaged";
+            /** Documentmarkdown */
+            documentMarkdown: string | null;
+            /** Harnesscells */
+            harnessCells: components["schemas"]["AgentHarnessCellResponse"][];
+            /** Locations */
+            locations: components["schemas"]["AgentLocationResponse"][];
+            /** Name */
+            name: string;
+            /** Sourcelinks */
+            sourceLinks?: null;
+        };
+        /** AgentHarnessCellResponse */
+        AgentHarnessCellResponse: {
+            /** Harness */
+            harness: string;
+            /** Interactive */
+            interactive: boolean;
+            /** Label */
+            label: string;
+            /** Logokey */
+            logoKey?: string | null;
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "enabled" | "disabled" | "found" | "empty";
+        };
+        /** AgentHarnessColumnResponse */
+        AgentHarnessColumnResponse: {
+            /** Harness */
+            harness: string;
+            /** Installed */
+            installed: boolean;
+            /** Label */
+            label: string;
+            /** Logokey */
+            logoKey?: string | null;
+        };
+        /** AgentLocationResponse */
+        AgentLocationResponse: {
+            /** Detail */
+            detail: string | null;
+            /** Harness */
+            harness: string | null;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "shared" | "harness";
+            /** Label */
+            label: string;
+            /** Path */
+            path: string | null;
+            /** Revision */
+            revision: string | null;
+            /** Scope */
+            scope: string | null;
+            /** Sourcekind */
+            sourceKind: string;
+            /** Sourcelocator */
+            sourceLocator: string;
+        };
+        /** AgentRowActionsResponse */
+        AgentRowActionsResponse: {
+            /** Candelete */
+            canDelete: boolean;
+            /** Canmanage */
+            canManage: boolean;
+            /**
+             * Canresolveconflict
+             * @default false
+             */
+            canResolveConflict: boolean;
+            /** Canstopmanaging */
+            canStopManaging: boolean;
+        };
+        /** AgentSourceStatusResponse */
+        AgentSourceStatusResponse: {
+            /** Updatestatus */
+            updateStatus: ("update_available" | "no_update_available" | "no_source_available" | "local_changes_detected") | null;
+        };
+        /**
+         * AgentStatusFromPathRequest
+         * @description Read-only counterpart to PushAgentFromPathRequest — report a workspace
+         *     copy's status against the store baseline without mutating it.
+         */
+        AgentStatusFromPathRequest: {
+            /**
+             * Sourcepath
+             * @description Absolute path to the workspace's agent .md file
+             */
+            sourcePath: string;
+        };
+        /** AgentStatusResultResponse */
+        AgentStatusResultResponse: {
+            /**
+             * Description
+             * @description Description from the workspace copy's frontmatter
+             * @default
+             */
+            description: string;
+            /**
+             * Differs
+             * @description True when the workspace copy differs from the store baseline
+             */
+            differs: boolean;
+            /**
+             * Exists
+             * @description False when no agent file was found at the given path
+             */
+            exists: boolean;
+            /**
+             * Instore
+             * @description True when the store (母体) already has this agent
+             */
+            inStore: boolean;
+            /**
+             * Name
+             * @description Declared name from the workspace copy's frontmatter
+             * @default
+             */
+            name: string;
+        };
+        /** AgentTableRowResponse */
+        AgentTableRowResponse: {
+            actions: components["schemas"]["AgentRowActionsResponse"];
+            /** Agentref */
+            agentRef: string;
+            /** Cells */
+            cells: components["schemas"]["AgentHarnessCellResponse"][];
+            /** Conflict */
+            conflict?: null;
+            /** Description */
+            description: string;
+            /**
+             * Displaystatus
+             * @enum {string}
+             */
+            displayStatus: "Managed" | "Unmanaged";
+            /** Name */
+            name: string;
+        };
+        /** AgentsPageResponse */
+        AgentsPageResponse: {
+            /** Harnesscolumns */
+            harnessColumns: components["schemas"]["AgentHarnessColumnResponse"][];
+            /** Rows */
+            rows: components["schemas"]["AgentTableRowResponse"][];
+            summary: components["schemas"]["AgentsSummaryResponse"];
+        };
+        /** AgentsSummaryResponse */
+        AgentsSummaryResponse: {
+            /** Managed */
+            managed: number;
+            /** Unmanaged */
+            unmanaged: number;
+        };
         /** BulkManageFailureResponse */
         BulkManageFailureResponse: {
             /** Error */
@@ -948,6 +1407,14 @@ export interface components {
             /** Provider */
             provider: string;
         };
+        /** DisableAgentRequest */
+        DisableAgentRequest: {
+            /**
+             * Harness
+             * @description Harness identifier
+             */
+            harness: string;
+        };
         /** DisableMcpServerRequest */
         DisableMcpServerRequest: {
             /**
@@ -958,6 +1425,14 @@ export interface components {
         };
         /** DisableSkillRequest */
         DisableSkillRequest: {
+            /**
+             * Harness
+             * @description Harness identifier
+             */
+            harness: string;
+        };
+        /** EnableAgentRequest */
+        EnableAgentRequest: {
             /**
              * Harness
              * @description Harness identifier
@@ -1015,6 +1490,70 @@ export interface components {
             label: string;
             /** Logokey */
             logoKey?: string | null;
+        };
+        /** ImportApplyRequest */
+        ImportApplyRequest: {
+            /**
+             * Sourcepaths
+             * @default []
+             */
+            sourcePaths: string[];
+        };
+        /** ImportApplyResponse */
+        ImportApplyResponse: {
+            /** Failures */
+            failures: {
+                [key: string]: string;
+            }[];
+            /** Imported */
+            imported: string[];
+            /** Skipped */
+            skipped: {
+                [key: string]: string;
+            }[];
+        };
+        /** ImportFolderResponse */
+        ImportFolderResponse: {
+            /** Displaypath */
+            displayPath: string;
+            /** Error */
+            error: string | null;
+            /** Exists */
+            exists: boolean;
+            /** Isdefault */
+            isDefault: boolean;
+            /** Linkedcount */
+            linkedCount: number;
+            /** Path */
+            path: string;
+            /** Skills */
+            skills: components["schemas"]["ImportSkillResponse"][];
+        };
+        /** ImportScanRequest */
+        ImportScanRequest: {
+            /**
+             * Folders
+             * @default []
+             */
+            folders: string[];
+        };
+        /** ImportScanResponse */
+        ImportScanResponse: {
+            /** Folders */
+            folders: components["schemas"]["ImportFolderResponse"][];
+        };
+        /** ImportSkillResponse */
+        ImportSkillResponse: {
+            /** Description */
+            description: string;
+            /** Dir */
+            dir: string;
+            /** Instore */
+            inStore: boolean;
+            /** Name */
+            name: string;
+            /** Sourcepath */
+            sourcePath: string;
         };
         /** InstallMarketplaceSkillRequest */
         InstallMarketplaceSkillRequest: {
@@ -1614,6 +2153,70 @@ export interface components {
             /** Ok */
             ok: boolean;
         };
+        /**
+         * PushAgentFromPathRequest
+         * @description Overwrite a managed shared-store agent with a locally-modified copy.
+         *
+         *     The reverse of the create-time weak-copy: a workspace edited its own
+         *     ``<name>.md`` copy at ``sourcePath`` (e.g. ``<workspace>/.claude/agents/<name>.md``)
+         *     and now pushes it back to become the shared store's new baseline.
+         */
+        PushAgentFromPathRequest: {
+            /**
+             * Sourcepath
+             * @description Absolute path to the modified agent .md file
+             */
+            sourcePath: string;
+        };
+        /** PushAgentResultResponse */
+        PushAgentResultResponse: {
+            /**
+             * Changed
+             * @description True when the store baseline was written; False when the copy was identical
+             */
+            changed: boolean;
+            /**
+             * Created
+             * @description True when a custom agent was ingested into the store for the first time
+             * @default false
+             */
+            created: boolean;
+            /** Ok */
+            ok: boolean;
+        };
+        /**
+         * PushSkillFromPathRequest
+         * @description Overwrite a managed shared-store skill with a locally-modified copy.
+         *
+         *     The reverse of the create-time weak-copy: a workspace edited its own copy at
+         *     ``sourcePath`` (e.g. ``<workspace>/.claude/skills/<dir>``) and now pushes it
+         *     back to become the shared store's new baseline. The path is resolved by the
+         *     caller (the Go host, which owns workspace→path mapping); the store fingerprints
+         *     it and only rewrites when the content actually differs.
+         */
+        PushSkillFromPathRequest: {
+            /**
+             * Sourcepath
+             * @description Absolute path to the modified skill package directory
+             */
+            sourcePath: string;
+        };
+        /** PushSkillResultResponse */
+        PushSkillResultResponse: {
+            /**
+             * Changed
+             * @description True when the store baseline was written; False when the copy was identical
+             */
+            changed: boolean;
+            /**
+             * Created
+             * @description True when a custom skill was ingested into the store for the first time
+             * @default false
+             */
+            created: boolean;
+            /** Ok */
+            ok: boolean;
+        };
         /** ReconcileMcpServerRequest */
         ReconcileMcpServerRequest: {
             /** Harnesses */
@@ -1625,6 +2228,14 @@ export interface components {
              * @enum {string}
              */
             sourceKind: "managed" | "harness";
+        };
+        /** ResolveSkillConflictRequest */
+        ResolveSkillConflictRequest: {
+            /**
+             * Chosenref
+             * @description skillRef of the version to keep as the single managed copy
+             */
+            chosenRef: string;
         };
         /** ScanAvailabilityResponse */
         ScanAvailabilityResponse: {
@@ -1952,6 +2563,35 @@ export interface components {
             /** Statedir */
             stateDir: string;
         };
+        /** SkillConflictLocationResponse */
+        SkillConflictLocationResponse: {
+            /** Harness */
+            harness: string | null;
+            /** Label */
+            label: string;
+            /** Path */
+            path: string | null;
+            /** Scope */
+            scope: string | null;
+        };
+        /** SkillConflictResponse */
+        SkillConflictResponse: {
+            /** Versions */
+            versions: components["schemas"]["SkillConflictVersionResponse"][];
+        };
+        /** SkillConflictVersionResponse */
+        SkillConflictVersionResponse: {
+            /** Ismanaged */
+            isManaged: boolean;
+            /** Locations */
+            locations: components["schemas"]["SkillConflictLocationResponse"][];
+            /** Modifiedat */
+            modifiedAt: number | null;
+            /** Revision */
+            revision: string | null;
+            /** Skillref */
+            skillRef: string;
+        };
         /** SkillDetailActionsResponse */
         SkillDetailActionsResponse: {
             /** Candelete */
@@ -2019,6 +2659,11 @@ export interface components {
             canDelete: boolean;
             /** Canmanage */
             canManage: boolean;
+            /**
+             * Canresolveconflict
+             * @default false
+             */
+            canResolveConflict: boolean;
             /** Canstopmanaging */
             canStopManaging: boolean;
         };
@@ -2036,11 +2681,54 @@ export interface components {
             /** Updatestatus */
             updateStatus: ("update_available" | "no_update_available" | "no_source_available" | "local_changes_detected") | null;
         };
+        /**
+         * SkillStatusFromPathRequest
+         * @description Read-only counterpart to PushSkillFromPathRequest — report a workspace
+         *     copy's status against the store baseline without mutating it.
+         */
+        SkillStatusFromPathRequest: {
+            /**
+             * Sourcepath
+             * @description Absolute path to the workspace's skill package directory
+             */
+            sourcePath: string;
+        };
+        /** SkillStatusResultResponse */
+        SkillStatusResultResponse: {
+            /**
+             * Description
+             * @description Description from the workspace copy's SKILL.md frontmatter
+             * @default
+             */
+            description: string;
+            /**
+             * Differs
+             * @description True when the workspace copy differs from the store baseline
+             */
+            differs: boolean;
+            /**
+             * Exists
+             * @description False when no skill package was found at the given path
+             */
+            exists: boolean;
+            /**
+             * Instore
+             * @description True when the store (母体) already has this package
+             */
+            inStore: boolean;
+            /**
+             * Name
+             * @description Declared name from the workspace copy's SKILL.md frontmatter
+             * @default
+             */
+            name: string;
+        };
         /** SkillTableRowResponse */
         SkillTableRowResponse: {
             actions: components["schemas"]["SkillRowActionsResponse"];
             /** Cells */
             cells: components["schemas"]["HarnessCellResponse"][];
+            conflict?: components["schemas"]["SkillConflictResponse"] | null;
             /** Description */
             description: string;
             /**
@@ -2271,7 +2959,410 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    list_agents_api_agents_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AgentsPageResponse"];
+                };
+            };
+        };
+    };
+    get_agent_detail_api_agents__agent_ref__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                agent_ref: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AgentDetailResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_agent_api_agents__agent_ref__delete_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                agent_ref: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OkResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    disable_agent_api_agents__agent_ref__disable_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                agent_ref: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DisableAgentRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OkResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    enable_agent_api_agents__agent_ref__enable_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                agent_ref: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EnableAgentRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OkResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    manage_agent_api_agents__agent_ref__manage_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                agent_ref: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OkResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    push_agent_from_path_api_agents__agent_ref__push_from_path_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                agent_ref: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PushAgentFromPathRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PushAgentResultResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_agent_source_status_api_agents__agent_ref__source_status_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                agent_ref: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AgentSourceStatusResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    agent_status_from_path_api_agents__agent_ref__status_from_path_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                agent_ref: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AgentStatusFromPathRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AgentStatusResultResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    unmanage_agent_api_agents__agent_ref__unmanage_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                agent_ref: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OkResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     health_api_health_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    apply_import_api_import_apply_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ImportApplyRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportApplyResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    scan_import_folders_api_import_scan_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ImportScanRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportScanResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_manifest_api_manifest_get: {
         parameters: {
             query?: never;
             header?: never;
@@ -3545,6 +4636,76 @@ export interface operations {
             };
         };
     };
+    push_skill_from_path_api_skills__skill_ref__push_from_path_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                skill_ref: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PushSkillFromPathRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PushSkillResultResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    resolve_skill_conflict_api_skills__skill_ref__resolve_conflict_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                skill_ref: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResolveSkillConflictRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OkResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     set_skill_harnesses_api_skills__skill_ref__set_harnesses_post: {
         parameters: {
             query?: never;
@@ -3598,6 +4759,41 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SkillSourceStatusResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    skill_status_from_path_api_skills__skill_ref__status_from_path_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                skill_ref: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SkillStatusFromPathRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SkillStatusResultResponse"];
                 };
             };
             /** @description Validation Error */

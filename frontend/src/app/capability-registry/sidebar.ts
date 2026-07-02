@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 
+import { agentsRoutes, useAgentsListQuery } from "../../features/agents/public";
 import { mcpRoutes, useMcpInventoryQuery } from "../../features/mcp/public";
 import { useSkillsCopy } from "../../features/skills/i18n";
 import { skillsRoutes, useSkillsListQuery } from "../../features/skills/public";
@@ -7,7 +8,7 @@ import { slashCommandRoutes, useSlashCommandsQuery } from "../../features/slash-
 import { marketplaceRoutes } from "../../features/marketplace/public";
 import { useCommonCopy } from "../../i18n";
 
-export type SidebarIconKey = "overview" | "skills" | "slash-commands" | "mcp" | "marketplace";
+export type SidebarIconKey = "overview" | "skills" | "agents" | "slash-commands" | "mcp" | "marketplace";
 
 export interface SidebarLinkModel {
   key: string;
@@ -31,6 +32,7 @@ export interface SidebarModel {
 
 export function useSidebarModel(): SidebarModel {
   const skillsQuery = useSkillsListQuery();
+  const agentsQuery = useAgentsListQuery();
   const mcpQuery = useMcpInventoryQuery();
   const slashCommandsQuery = useSlashCommandsQuery();
   const common = useCommonCopy();
@@ -38,6 +40,8 @@ export function useSidebarModel(): SidebarModel {
 
   const inUseSkills = skillsQuery.data?.summary.managed ?? null;
   const needsReviewSkills = skillsQuery.data?.summary.unmanaged ?? null;
+  const inUseAgents = agentsQuery.data?.summary.managed ?? null;
+  const needsReviewAgents = agentsQuery.data?.summary.unmanaged ?? null;
   const slashCommandCount = slashCommandsQuery.data?.commands.length ?? null;
   const slashCommandReviewCount = slashCommandsQuery.data?.reviewCommands.length ?? null;
   const mcpCounts = mcpSidebarCounts(mcpQuery.data);
@@ -66,6 +70,21 @@ export function useSidebarModel(): SidebarModel {
               count: needsReviewSkills,
             },
             { key: "skills-scan-config", to: skillsRoutes.scanConfig, label: skillsCopy.scan.configNav },
+          ],
+        },
+        {
+          key: "agents",
+          label: common.nav.agents,
+          iconKey: "agents",
+          count: sumLoadedCounts(inUseAgents, needsReviewAgents),
+          links: [
+            { key: "agents-use", to: agentsRoutes.inUse, label: common.productLanguage.inUse, count: inUseAgents },
+            {
+              key: "agents-review",
+              to: agentsRoutes.needsReview,
+              label: common.productLanguage.needsReview,
+              count: needsReviewAgents,
+            },
           ],
         },
         {
@@ -117,6 +136,8 @@ export function useSidebarModel(): SidebarModel {
     }),
     [
       inUseSkills,
+      inUseAgents,
+      needsReviewAgents,
       mcpCounts.inUse,
       mcpCounts.needsReview,
       mcpCounts.total,

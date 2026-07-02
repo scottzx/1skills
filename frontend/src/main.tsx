@@ -18,6 +18,8 @@ import "./features/slash-commands/styles/slash-commands.css";
 import "./features/skills/styles/detail.css";
 import "./features/skills/styles/board.css";
 import "./features/skills/styles/scan.css";
+import "./features/skills/styles/import.css";
+import "./features/agents/styles/agents.css";
 import "./components/matrix/matrix.css";
 import "./features/marketplace/styles/panes.css";
 import "./features/marketplace/styles/mcp-detail.css";

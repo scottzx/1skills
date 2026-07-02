@@ -56,6 +56,509 @@
         "title": "AdoptMcpRequest",
         "type": "object"
       },
+      "AgentDetailActionsResponse": {
+        "properties": {
+          "canDelete": {
+            "title": "Candelete",
+            "type": "boolean"
+          },
+          "canManage": {
+            "title": "Canmanage",
+            "type": "boolean"
+          },
+          "deleteHarnessLabels": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Deleteharnesslabels",
+            "type": "array"
+          },
+          "stopManagingHarnessLabels": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Stopmanagingharnesslabels",
+            "type": "array"
+          },
+          "stopManagingStatus": {
+            "anyOf": [
+              {
+                "enum": [
+                  "available",
+                  "disabled_no_enabled"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stopmanagingstatus"
+          }
+        },
+        "required": [
+          "canManage",
+          "stopManagingStatus",
+          "stopManagingHarnessLabels",
+          "canDelete",
+          "deleteHarnessLabels"
+        ],
+        "title": "AgentDetailActionsResponse",
+        "type": "object"
+      },
+      "AgentDetailResponse": {
+        "properties": {
+          "actions": {
+            "$ref": "#/components/schemas/AgentDetailActionsResponse"
+          },
+          "agentRef": {
+            "title": "Agentref",
+            "type": "string"
+          },
+          "attentionMessage": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Attentionmessage"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "displayStatus": {
+            "enum": [
+              "Managed",
+              "Unmanaged"
+            ],
+            "title": "Displaystatus",
+            "type": "string"
+          },
+          "documentMarkdown": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Documentmarkdown"
+          },
+          "harnessCells": {
+            "items": {
+              "$ref": "#/components/schemas/AgentHarnessCellResponse"
+            },
+            "title": "Harnesscells",
+            "type": "array"
+          },
+          "locations": {
+            "items": {
+              "$ref": "#/components/schemas/AgentLocationResponse"
+            },
+            "title": "Locations",
+            "type": "array"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "sourceLinks": {
+            "title": "Sourcelinks",
+            "type": "null"
+          }
+        },
+        "required": [
+          "agentRef",
+          "name",
+          "description",
+          "displayStatus",
+          "attentionMessage",
+          "actions",
+          "harnessCells",
+          "locations",
+          "documentMarkdown"
+        ],
+        "title": "AgentDetailResponse",
+        "type": "object"
+      },
+      "AgentHarnessCellResponse": {
+        "properties": {
+          "harness": {
+            "title": "Harness",
+            "type": "string"
+          },
+          "interactive": {
+            "title": "Interactive",
+            "type": "boolean"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "logoKey": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Logokey"
+          },
+          "state": {
+            "enum": [
+              "enabled",
+              "disabled",
+              "found",
+              "empty"
+            ],
+            "title": "State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "harness",
+          "label",
+          "state",
+          "interactive"
+        ],
+        "title": "AgentHarnessCellResponse",
+        "type": "object"
+      },
+      "AgentHarnessColumnResponse": {
+        "properties": {
+          "harness": {
+            "title": "Harness",
+            "type": "string"
+          },
+          "installed": {
+            "title": "Installed",
+            "type": "boolean"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "logoKey": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Logokey"
+          }
+        },
+        "required": [
+          "harness",
+          "label",
+          "installed"
+        ],
+        "title": "AgentHarnessColumnResponse",
+        "type": "object"
+      },
+      "AgentLocationResponse": {
+        "properties": {
+          "detail": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Detail"
+          },
+          "harness": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Harness"
+          },
+          "kind": {
+            "enum": [
+              "shared",
+              "harness"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Path"
+          },
+          "revision": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Revision"
+          },
+          "scope": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scope"
+          },
+          "sourceKind": {
+            "title": "Sourcekind",
+            "type": "string"
+          },
+          "sourceLocator": {
+            "title": "Sourcelocator",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "harness",
+          "label",
+          "scope",
+          "path",
+          "revision",
+          "sourceKind",
+          "sourceLocator",
+          "detail"
+        ],
+        "title": "AgentLocationResponse",
+        "type": "object"
+      },
+      "AgentRowActionsResponse": {
+        "properties": {
+          "canDelete": {
+            "title": "Candelete",
+            "type": "boolean"
+          },
+          "canManage": {
+            "title": "Canmanage",
+            "type": "boolean"
+          },
+          "canResolveConflict": {
+            "default": false,
+            "title": "Canresolveconflict",
+            "type": "boolean"
+          },
+          "canStopManaging": {
+            "title": "Canstopmanaging",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "canManage",
+          "canStopManaging",
+          "canDelete"
+        ],
+        "title": "AgentRowActionsResponse",
+        "type": "object"
+      },
+      "AgentSourceStatusResponse": {
+        "properties": {
+          "updateStatus": {
+            "anyOf": [
+              {
+                "enum": [
+                  "update_available",
+                  "no_update_available",
+                  "no_source_available",
+                  "local_changes_detected"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updatestatus"
+          }
+        },
+        "required": [
+          "updateStatus"
+        ],
+        "title": "AgentSourceStatusResponse",
+        "type": "object"
+      },
+      "AgentStatusFromPathRequest": {
+        "description": "Read-only counterpart to PushAgentFromPathRequest \u2014 report a workspace\ncopy's status against the store baseline without mutating it.",
+        "properties": {
+          "sourcePath": {
+            "description": "Absolute path to the workspace's agent .md file",
+            "minLength": 1,
+            "title": "Sourcepath",
+            "type": "string"
+          }
+        },
+        "required": [
+          "sourcePath"
+        ],
+        "title": "AgentStatusFromPathRequest",
+        "type": "object"
+      },
+      "AgentStatusResultResponse": {
+        "properties": {
+          "description": {
+            "default": "",
+            "description": "Description from the workspace copy's frontmatter",
+            "title": "Description",
+            "type": "string"
+          },
+          "differs": {
+            "description": "True when the workspace copy differs from the store baseline",
+            "title": "Differs",
+            "type": "boolean"
+          },
+          "exists": {
+            "description": "False when no agent file was found at the given path",
+            "title": "Exists",
+            "type": "boolean"
+          },
+          "inStore": {
+            "description": "True when the store (\u6bcd\u4f53) already has this agent",
+            "title": "Instore",
+            "type": "boolean"
+          },
+          "name": {
+            "default": "",
+            "description": "Declared name from the workspace copy's frontmatter",
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "inStore",
+          "differs",
+          "exists"
+        ],
+        "title": "AgentStatusResultResponse",
+        "type": "object"
+      },
+      "AgentTableRowResponse": {
+        "properties": {
+          "actions": {
+            "$ref": "#/components/schemas/AgentRowActionsResponse"
+          },
+          "agentRef": {
+            "title": "Agentref",
+            "type": "string"
+          },
+          "cells": {
+            "items": {
+              "$ref": "#/components/schemas/AgentHarnessCellResponse"
+            },
+            "title": "Cells",
+            "type": "array"
+          },
+          "conflict": {
+            "title": "Conflict",
+            "type": "null"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "displayStatus": {
+            "enum": [
+              "Managed",
+              "Unmanaged"
+            ],
+            "title": "Displaystatus",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "agentRef",
+          "name",
+          "description",
+          "displayStatus",
+          "actions",
+          "cells"
+        ],
+        "title": "AgentTableRowResponse",
+        "type": "object"
+      },
+      "AgentsPageResponse": {
+        "properties": {
+          "harnessColumns": {
+            "items": {
+              "$ref": "#/components/schemas/AgentHarnessColumnResponse"
+            },
+            "title": "Harnesscolumns",
+            "type": "array"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/AgentTableRowResponse"
+            },
+            "title": "Rows",
+            "type": "array"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/AgentsSummaryResponse"
+          }
+        },
+        "required": [
+          "summary",
+          "harnessColumns",
+          "rows"
+        ],
+        "title": "AgentsPageResponse",
+        "type": "object"
+      },
+      "AgentsSummaryResponse": {
+        "properties": {
+          "managed": {
+            "title": "Managed",
+            "type": "integer"
+          },
+          "unmanaged": {
+            "title": "Unmanaged",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "managed",
+          "unmanaged"
+        ],
+        "title": "AgentsSummaryResponse",
+        "type": "object"
+      },
       "BulkManageFailureResponse": {
         "properties": {
           "error": {
@@ -491,6 +994,21 @@
         "title": "DetectedProviderResponse",
         "type": "object"
       },
+      "DisableAgentRequest": {
+        "properties": {
+          "harness": {
+            "description": "Harness identifier",
+            "minLength": 1,
+            "title": "Harness",
+            "type": "string"
+          }
+        },
+        "required": [
+          "harness"
+        ],
+        "title": "DisableAgentRequest",
+        "type": "object"
+      },
       "DisableMcpServerRequest": {
         "properties": {
           "harness": {
@@ -519,6 +1037,21 @@
           "harness"
         ],
         "title": "DisableSkillRequest",
+        "type": "object"
+      },
+      "EnableAgentRequest": {
+        "properties": {
+          "harness": {
+            "description": "Harness identifier",
+            "minLength": 1,
+            "title": "Harness",
+            "type": "string"
+          }
+        },
+        "required": [
+          "harness"
+        ],
+        "title": "EnableAgentRequest",
         "type": "object"
       },
       "EnableMcpServerRequest": {
@@ -653,6 +1186,174 @@
           "installed"
         ],
         "title": "HarnessColumnResponse",
+        "type": "object"
+      },
+      "ImportApplyRequest": {
+        "properties": {
+          "sourcePaths": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Sourcepaths",
+            "type": "array"
+          }
+        },
+        "title": "ImportApplyRequest",
+        "type": "object"
+      },
+      "ImportApplyResponse": {
+        "properties": {
+          "failures": {
+            "items": {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            "title": "Failures",
+            "type": "array"
+          },
+          "imported": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Imported",
+            "type": "array"
+          },
+          "skipped": {
+            "items": {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            "title": "Skipped",
+            "type": "array"
+          }
+        },
+        "required": [
+          "imported",
+          "skipped",
+          "failures"
+        ],
+        "title": "ImportApplyResponse",
+        "type": "object"
+      },
+      "ImportFolderResponse": {
+        "properties": {
+          "displayPath": {
+            "title": "Displaypath",
+            "type": "string"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "exists": {
+            "title": "Exists",
+            "type": "boolean"
+          },
+          "isDefault": {
+            "title": "Isdefault",
+            "type": "boolean"
+          },
+          "linkedCount": {
+            "title": "Linkedcount",
+            "type": "integer"
+          },
+          "path": {
+            "title": "Path",
+            "type": "string"
+          },
+          "skills": {
+            "items": {
+              "$ref": "#/components/schemas/ImportSkillResponse"
+            },
+            "title": "Skills",
+            "type": "array"
+          }
+        },
+        "required": [
+          "path",
+          "displayPath",
+          "exists",
+          "isDefault",
+          "error",
+          "linkedCount",
+          "skills"
+        ],
+        "title": "ImportFolderResponse",
+        "type": "object"
+      },
+      "ImportScanRequest": {
+        "properties": {
+          "folders": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Folders",
+            "type": "array"
+          }
+        },
+        "title": "ImportScanRequest",
+        "type": "object"
+      },
+      "ImportScanResponse": {
+        "properties": {
+          "folders": {
+            "items": {
+              "$ref": "#/components/schemas/ImportFolderResponse"
+            },
+            "title": "Folders",
+            "type": "array"
+          }
+        },
+        "required": [
+          "folders"
+        ],
+        "title": "ImportScanResponse",
+        "type": "object"
+      },
+      "ImportSkillResponse": {
+        "properties": {
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "dir": {
+            "title": "Dir",
+            "type": "string"
+          },
+          "inStore": {
+            "title": "Instore",
+            "type": "boolean"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "sourcePath": {
+            "title": "Sourcepath",
+            "type": "string"
+          }
+        },
+        "required": [
+          "dir",
+          "name",
+          "description",
+          "sourcePath",
+          "inStore"
+        ],
+        "title": "ImportSkillResponse",
         "type": "object"
       },
       "InstallMarketplaceSkillRequest": {
@@ -2548,6 +3249,88 @@
         "title": "OkResponse",
         "type": "object"
       },
+      "PushAgentFromPathRequest": {
+        "description": "Overwrite a managed shared-store agent with a locally-modified copy.\n\nThe reverse of the create-time weak-copy: a workspace edited its own\n``<name>.md`` copy at ``sourcePath`` (e.g. ``<workspace>/.claude/agents/<name>.md``)\nand now pushes it back to become the shared store's new baseline.",
+        "properties": {
+          "sourcePath": {
+            "description": "Absolute path to the modified agent .md file",
+            "minLength": 1,
+            "title": "Sourcepath",
+            "type": "string"
+          }
+        },
+        "required": [
+          "sourcePath"
+        ],
+        "title": "PushAgentFromPathRequest",
+        "type": "object"
+      },
+      "PushAgentResultResponse": {
+        "properties": {
+          "changed": {
+            "description": "True when the store baseline was written; False when the copy was identical",
+            "title": "Changed",
+            "type": "boolean"
+          },
+          "created": {
+            "default": false,
+            "description": "True when a custom agent was ingested into the store for the first time",
+            "title": "Created",
+            "type": "boolean"
+          },
+          "ok": {
+            "title": "Ok",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "ok",
+          "changed"
+        ],
+        "title": "PushAgentResultResponse",
+        "type": "object"
+      },
+      "PushSkillFromPathRequest": {
+        "description": "Overwrite a managed shared-store skill with a locally-modified copy.\n\nThe reverse of the create-time weak-copy: a workspace edited its own copy at\n``sourcePath`` (e.g. ``<workspace>/.claude/skills/<dir>``) and now pushes it\nback to become the shared store's new baseline. The path is resolved by the\ncaller (the Go host, which owns workspace\u2192path mapping); the store fingerprints\nit and only rewrites when the content actually differs.",
+        "properties": {
+          "sourcePath": {
+            "description": "Absolute path to the modified skill package directory",
+            "minLength": 1,
+            "title": "Sourcepath",
+            "type": "string"
+          }
+        },
+        "required": [
+          "sourcePath"
+        ],
+        "title": "PushSkillFromPathRequest",
+        "type": "object"
+      },
+      "PushSkillResultResponse": {
+        "properties": {
+          "changed": {
+            "description": "True when the store baseline was written; False when the copy was identical",
+            "title": "Changed",
+            "type": "boolean"
+          },
+          "created": {
+            "default": false,
+            "description": "True when a custom skill was ingested into the store for the first time",
+            "title": "Created",
+            "type": "boolean"
+          },
+          "ok": {
+            "title": "Ok",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "ok",
+          "changed"
+        ],
+        "title": "PushSkillResultResponse",
+        "type": "object"
+      },
       "ReconcileMcpServerRequest": {
         "additionalProperties": false,
         "properties": {
@@ -2589,6 +3372,21 @@
           "sourceKind"
         ],
         "title": "ReconcileMcpServerRequest",
+        "type": "object"
+      },
+      "ResolveSkillConflictRequest": {
+        "properties": {
+          "chosenRef": {
+            "description": "skillRef of the version to keep as the single managed copy",
+            "minLength": 1,
+            "title": "Chosenref",
+            "type": "string"
+          }
+        },
+        "required": [
+          "chosenRef"
+        ],
+        "title": "ResolveSkillConflictRequest",
         "type": "object"
       },
       "ScanAvailabilityResponse": {
@@ -3410,6 +4208,121 @@
         "title": "SettingsStorageResponse",
         "type": "object"
       },
+      "SkillConflictLocationResponse": {
+        "properties": {
+          "harness": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Harness"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Path"
+          },
+          "scope": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scope"
+          }
+        },
+        "required": [
+          "harness",
+          "label",
+          "scope",
+          "path"
+        ],
+        "title": "SkillConflictLocationResponse",
+        "type": "object"
+      },
+      "SkillConflictResponse": {
+        "properties": {
+          "versions": {
+            "items": {
+              "$ref": "#/components/schemas/SkillConflictVersionResponse"
+            },
+            "title": "Versions",
+            "type": "array"
+          }
+        },
+        "required": [
+          "versions"
+        ],
+        "title": "SkillConflictResponse",
+        "type": "object"
+      },
+      "SkillConflictVersionResponse": {
+        "properties": {
+          "isManaged": {
+            "title": "Ismanaged",
+            "type": "boolean"
+          },
+          "locations": {
+            "items": {
+              "$ref": "#/components/schemas/SkillConflictLocationResponse"
+            },
+            "title": "Locations",
+            "type": "array"
+          },
+          "modifiedAt": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Modifiedat"
+          },
+          "revision": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Revision"
+          },
+          "skillRef": {
+            "title": "Skillref",
+            "type": "string"
+          }
+        },
+        "required": [
+          "skillRef",
+          "isManaged",
+          "revision",
+          "modifiedAt",
+          "locations"
+        ],
+        "title": "SkillConflictVersionResponse",
+        "type": "object"
+      },
       "SkillDetailActionsResponse": {
         "properties": {
           "canDelete": {
@@ -3649,6 +4562,11 @@
             "title": "Canmanage",
             "type": "boolean"
           },
+          "canResolveConflict": {
+            "default": false,
+            "title": "Canresolveconflict",
+            "type": "boolean"
+          },
           "canStopManaging": {
             "title": "Canstopmanaging",
             "type": "boolean"
@@ -3718,6 +4636,60 @@
         "title": "SkillSourceStatusResponse",
         "type": "object"
       },
+      "SkillStatusFromPathRequest": {
+        "description": "Read-only counterpart to PushSkillFromPathRequest \u2014 report a workspace\ncopy's status against the store baseline without mutating it.",
+        "properties": {
+          "sourcePath": {
+            "description": "Absolute path to the workspace's skill package directory",
+            "minLength": 1,
+            "title": "Sourcepath",
+            "type": "string"
+          }
+        },
+        "required": [
+          "sourcePath"
+        ],
+        "title": "SkillStatusFromPathRequest",
+        "type": "object"
+      },
+      "SkillStatusResultResponse": {
+        "properties": {
+          "description": {
+            "default": "",
+            "description": "Description from the workspace copy's SKILL.md frontmatter",
+            "title": "Description",
+            "type": "string"
+          },
+          "differs": {
+            "description": "True when the workspace copy differs from the store baseline",
+            "title": "Differs",
+            "type": "boolean"
+          },
+          "exists": {
+            "description": "False when no skill package was found at the given path",
+            "title": "Exists",
+            "type": "boolean"
+          },
+          "inStore": {
+            "description": "True when the store (\u6bcd\u4f53) already has this package",
+            "title": "Instore",
+            "type": "boolean"
+          },
+          "name": {
+            "default": "",
+            "description": "Declared name from the workspace copy's SKILL.md frontmatter",
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "inStore",
+          "differs",
+          "exists"
+        ],
+        "title": "SkillStatusResultResponse",
+        "type": "object"
+      },
       "SkillTableRowResponse": {
         "properties": {
           "actions": {
@@ -3729,6 +4701,16 @@
             },
             "title": "Cells",
             "type": "array"
+          },
+          "conflict": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SkillConflictResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "description": {
             "title": "Description",
@@ -4410,6 +5392,415 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/agents": {
+      "get": {
+        "operationId": "list_agents_api_agents_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentsPageResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "List Agents"
+      }
+    },
+    "/api/agents/{agent_ref}": {
+      "get": {
+        "operationId": "get_agent_detail_api_agents__agent_ref__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "agent_ref",
+            "required": true,
+            "schema": {
+              "title": "Agent Ref",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentDetailResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Agent Detail"
+      }
+    },
+    "/api/agents/{agent_ref}/delete": {
+      "post": {
+        "operationId": "delete_agent_api_agents__agent_ref__delete_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "agent_ref",
+            "required": true,
+            "schema": {
+              "title": "Agent Ref",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Delete Agent"
+      }
+    },
+    "/api/agents/{agent_ref}/disable": {
+      "post": {
+        "operationId": "disable_agent_api_agents__agent_ref__disable_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "agent_ref",
+            "required": true,
+            "schema": {
+              "title": "Agent Ref",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DisableAgentRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Disable Agent"
+      }
+    },
+    "/api/agents/{agent_ref}/enable": {
+      "post": {
+        "operationId": "enable_agent_api_agents__agent_ref__enable_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "agent_ref",
+            "required": true,
+            "schema": {
+              "title": "Agent Ref",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EnableAgentRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Enable Agent"
+      }
+    },
+    "/api/agents/{agent_ref}/manage": {
+      "post": {
+        "operationId": "manage_agent_api_agents__agent_ref__manage_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "agent_ref",
+            "required": true,
+            "schema": {
+              "title": "Agent Ref",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Manage Agent"
+      }
+    },
+    "/api/agents/{agent_ref}/push-from-path": {
+      "post": {
+        "operationId": "push_agent_from_path_api_agents__agent_ref__push_from_path_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "agent_ref",
+            "required": true,
+            "schema": {
+              "title": "Agent Ref",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PushAgentFromPathRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PushAgentResultResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Push Agent From Path"
+      }
+    },
+    "/api/agents/{agent_ref}/source-status": {
+      "get": {
+        "operationId": "get_agent_source_status_api_agents__agent_ref__source_status_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "agent_ref",
+            "required": true,
+            "schema": {
+              "title": "Agent Ref",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentSourceStatusResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Agent Source Status"
+      }
+    },
+    "/api/agents/{agent_ref}/status-from-path": {
+      "post": {
+        "operationId": "agent_status_from_path_api_agents__agent_ref__status_from_path_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "agent_ref",
+            "required": true,
+            "schema": {
+              "title": "Agent Ref",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgentStatusFromPathRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentStatusResultResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Agent Status From Path"
+      }
+    },
+    "/api/agents/{agent_ref}/unmanage": {
+      "post": {
+        "operationId": "unmanage_agent_api_agents__agent_ref__unmanage_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "agent_ref",
+            "required": true,
+            "schema": {
+              "title": "Agent Ref",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Unmanage Agent"
+      }
+    },
     "/api/health": {
       "get": {
         "operationId": "health_api_health_get",
@@ -4428,6 +5819,103 @@
           }
         },
         "summary": "Health"
+      }
+    },
+    "/api/import/apply": {
+      "post": {
+        "operationId": "apply_import_api_import_apply_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImportApplyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportApplyResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Apply Import"
+      }
+    },
+    "/api/import/scan": {
+      "post": {
+        "operationId": "scan_import_folders_api_import_scan_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImportScanRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportScanResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Scan Import Folders"
+      }
+    },
+    "/api/manifest": {
+      "get": {
+        "description": "Return the live module manifest with up-to-date counts.",
+        "operationId": "get_manifest_api_manifest_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Get Manifest Api Manifest Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get Manifest"
       }
     },
     "/api/marketplace/clis/items/{slug}": {
@@ -6118,6 +7606,104 @@
         "summary": "Manage Skill"
       }
     },
+    "/api/skills/{skill_ref}/push-from-path": {
+      "post": {
+        "operationId": "push_skill_from_path_api_skills__skill_ref__push_from_path_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "skill_ref",
+            "required": true,
+            "schema": {
+              "title": "Skill Ref",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PushSkillFromPathRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PushSkillResultResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Push Skill From Path"
+      }
+    },
+    "/api/skills/{skill_ref}/resolve-conflict": {
+      "post": {
+        "operationId": "resolve_skill_conflict_api_skills__skill_ref__resolve_conflict_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "skill_ref",
+            "required": true,
+            "schema": {
+              "title": "Skill Ref",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResolveSkillConflictRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Resolve Skill Conflict"
+      }
+    },
     "/api/skills/{skill_ref}/set-harnesses": {
       "post": {
         "operationId": "set_skill_harnesses_api_skills__skill_ref__set_harnesses_post",
@@ -6204,6 +7790,55 @@
           }
         },
         "summary": "Get Skill Source Status"
+      }
+    },
+    "/api/skills/{skill_ref}/status-from-path": {
+      "post": {
+        "operationId": "skill_status_from_path_api_skills__skill_ref__status_from_path_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "skill_ref",
+            "required": true,
+            "schema": {
+              "title": "Skill Ref",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SkillStatusFromPathRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SkillStatusResultResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Skill Status From Path"
       }
     },
     "/api/skills/{skill_ref}/unmanage": {

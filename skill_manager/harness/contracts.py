@@ -7,7 +7,7 @@ from typing import Callable, Literal, Mapping, TypeAlias
 from .resolution import ResolutionContext
 
 
-FamilyKey = Literal["skills", "mcp", "slash_commands"]
+FamilyKey = Literal["skills", "mcp", "slash_commands", "agents"]
 CommandFileRenderFormat = Literal["frontmatter_markdown", "cursor_plaintext"]
 CommandFileScope = Literal["global", "project"]
 FileTreeAvailability = Literal["cli", "cli_or_app"]

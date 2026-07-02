@@ -21,6 +21,7 @@ const englishCommonCopy = {
     primary: "Primary navigation",
     overview: "Overview",
     skills: "Skills",
+    agents: "Agents",
     slashCommands: "Slash Commands",
     mcpServers: "MCP Servers",
     marketplace: "Marketplace",
@@ -45,6 +46,7 @@ const englishCommonCopy = {
   loading: {
     overview: "Loading overview",
     mcp: "Loading MCP",
+    agents: "Loading agents",
     marketplace: "Loading marketplace",
     slashCommands: "Loading slash commands",
     settings: "Loading settings",
@@ -91,6 +93,7 @@ export const commonCopy = {
       primary: "主导航",
       overview: "总览",
       skills: "Skill",
+      agents: "Agent",
       slashCommands: "Slash command",
       mcpServers: "MCP 服务器",
       marketplace: "商城",
@@ -115,6 +118,7 @@ export const commonCopy = {
     loading: {
       overview: "正在加载总览",
       mcp: "正在加载 MCP",
+      agents: "正在加载 Agent",
       marketplace: "正在加载商城",
       slashCommands: "正在加载 Slash command",
       settings: "正在加载设置",
