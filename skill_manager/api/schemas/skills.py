@@ -69,6 +69,10 @@ class PushSkillResultResponse(BaseModel):
         False,
         description="True when a custom skill was ingested into the store for the first time",
     )
+    version: int | None = Field(
+        None,
+        description="The store package's version counter after the push (bumped when changed)",
+    )
 
 
 class SkillStatusFromPathRequest(BaseModel):
@@ -91,6 +95,9 @@ class SkillStatusResultResponse(BaseModel):
     exists: bool = Field(..., description="False when no skill package was found at the given path")
     name: str = Field("", description="Declared name from the workspace copy's SKILL.md frontmatter")
     description: str = Field("", description="Description from the workspace copy's SKILL.md frontmatter")
+    storeVersion: int | None = Field(
+        None, description="The store package's current version counter, or null when not in store"
+    )
 
 
 SkillStatus = Literal["Managed", "Unmanaged"]

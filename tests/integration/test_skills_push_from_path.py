@@ -43,13 +43,26 @@ class SkillsPushFromPathTests(unittest.TestCase):
                     {"sourcePath": str(edited)},
                 )
 
-            self.assertEqual(result, {"ok": True, "changed": True, "created": False})
+            self.assertEqual(result, {"ok": True, "changed": True, "created": False, "version": 2})
             store_pkg = harness.spec.skills_store_root / "shared-audit"
             self.assertIn("edited in the workspace", (store_pkg / "SKILL.md").read_text(encoding="utf-8"))
             self.assertTrue((store_pkg / "assets" / "new.txt").is_file())
             after = _manifest_revision(harness, "shared-audit")
             self.assertNotEqual(before, after)
             self.assertEqual(after, fingerprint_package(store_pkg)[0])
+
+    def test_repeated_content_changes_bump_version_monotonically(self) -> None:
+        with AppTestHarness(fixture_factory=seed_shared_only_fixture) as harness:
+            ref = self._shared_ref(harness)
+            for expected_version, body in ((2, "first edit"), (3, "second edit")):
+                with TemporaryDirectory() as work_dir:
+                    edited = seed_skill_package(
+                        Path(work_dir), "shared-audit", "Shared Audit", body=body
+                    )
+                    result = harness.post_json(
+                        f"/api/skills/{ref}/push-from-path", {"sourcePath": str(edited)}
+                    )
+                self.assertEqual(result, {"ok": True, "changed": True, "created": False, "version": expected_version})
 
     def test_push_identical_copy_is_noop(self) -> None:
         with AppTestHarness(fixture_factory=seed_shared_only_fixture) as harness:
@@ -61,7 +74,7 @@ class SkillsPushFromPathTests(unittest.TestCase):
                 {"sourcePath": str(harness.spec.skills_store_root / "shared-audit")},
             )
 
-            self.assertEqual(result, {"ok": True, "changed": False, "created": False})
+            self.assertEqual(result, {"ok": True, "changed": False, "created": False, "version": 1})
             self.assertEqual(before, _manifest_revision(harness, "shared-audit"))
 
     def test_push_rejects_source_without_skill_md(self) -> None:
@@ -88,7 +101,7 @@ class SkillsPushFromPathTests(unittest.TestCase):
                 result = harness.post_json(
                     "/api/skills/shared:custom-kit/push-from-path", {"sourcePath": str(custom)}
                 )
-            self.assertEqual(result, {"ok": True, "changed": True, "created": True})
+            self.assertEqual(result, {"ok": True, "changed": True, "created": True, "version": 1})
             store_pkg = harness.spec.skills_store_root / "custom-kit"
             self.assertTrue((store_pkg / "SKILL.md").is_file())
             # Now it is managed in the store inventory.
@@ -110,6 +123,7 @@ class SkillStatusFromPathTests(unittest.TestCase):
             self.assertEqual(same["inStore"], True)
             self.assertEqual(same["differs"], False)
             self.assertEqual(same["name"], "Shared Audit")
+            self.assertEqual(same["storeVersion"], 1)
 
             with TemporaryDirectory() as work_dir:
                 edited = seed_skill_package(

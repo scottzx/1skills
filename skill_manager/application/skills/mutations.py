@@ -199,7 +199,12 @@ class SkillsMutationService:
             raise MutationError(str(error), status=409) from error
         if changed:
             self.read_models.invalidate()
-        return {"ok": True, "changed": changed, "created": created}
+        return {
+            "ok": True,
+            "changed": changed,
+            "created": created,
+            "version": store.version_of(package_dir),
+        }
 
     def unmanage_skill(self, skill_ref: str) -> dict[str, bool]:
         entry = self.queries.require_entry(skill_ref)

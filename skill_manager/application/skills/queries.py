@@ -97,6 +97,7 @@ class SkillsQueryService:
             "exists": src_exists,
             "name": name,
             "description": description,
+            "storeVersion": store.version_of(package_dir) if in_store else None,
         }
 
     def inventory(self) -> SkillInventory:

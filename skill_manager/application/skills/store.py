@@ -110,6 +110,7 @@ class SkillStore:
                     new_fp,
                     e.source_ref if source_ref is None else source_ref,
                     e.source_path if source_path_hint is None else source_path_hint,
+                    version=e.version + 1,
                 )
                 if e.package_dir == package_dir
                 else e
@@ -131,6 +132,15 @@ class SkillStore:
         new_fp, _ = fingerprint_package(source_path)
         old_fp, _ = fingerprint_package(dest)
         return new_fp != old_fp
+
+    def version_of(self, package_dir: str) -> int | None:
+        """The stored package's current version counter (bumped on every
+        content-changing push), or None when the package isn't in the store."""
+        manifest = load_skill_store_manifest(self.manifest_path)
+        for entry in manifest.entries:
+            if entry.package_dir == package_dir:
+                return entry.version
+        return None
 
     def delete(self, package_dir: str) -> None:
         with file_lock(self.lock_path):

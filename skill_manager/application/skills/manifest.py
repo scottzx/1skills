@@ -16,14 +16,16 @@ class SkillStoreEntry:
     revision: str
     source_ref: str | None = None
     source_path: str | None = None
+    version: int = 1
 
-    def to_dict(self) -> dict[str, str]:
-        payload = {
+    def to_dict(self) -> dict[str, object]:
+        payload: dict[str, object] = {
             "packageDir": self.package_dir,
             "declaredName": self.declared_name,
             "sourceKind": self.source_kind,
             "sourceLocator": self.source_locator,
             "revision": self.revision,
+            "version": self.version,
         }
         if self.source_ref is not None:
             payload["sourceRef"] = self.source_ref
@@ -53,6 +55,7 @@ def load_skill_store_manifest(path: Path) -> SkillStoreManifest:
             revision=item["revision"],
             source_ref=item.get("sourceRef") if isinstance(item.get("sourceRef"), str) else None,
             source_path=item.get("sourcePath") if isinstance(item.get("sourcePath"), str) else None,
+            version=item["version"] if isinstance(item.get("version"), int) else 1,
         )
         for item in payload.get("entries", [])
     )

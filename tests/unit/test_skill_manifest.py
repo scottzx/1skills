@@ -38,6 +38,19 @@ class SkillStoreManifestTests(unittest.TestCase):
             loaded = load_manifest(Path(temp_dir) / "missing.json")
             self.assertEqual(loaded.entries, ())
 
+    def test_legacy_entry_without_version_defaults_to_one(self) -> None:
+        # Manifests written before version tracking have no "version" key.
+        with TemporaryDirectory() as temp_dir:
+            manifest_path = Path(temp_dir) / "manifest.json"
+            manifest_path.write_text(
+                '{"entries": [{"packageDir": "legacy", "declaredName": "Legacy", '
+                '"sourceKind": "centralized", "sourceLocator": "centralized:legacy", '
+                '"revision": "deadbeef"}]}',
+                encoding="utf-8",
+            )
+            loaded = load_manifest(manifest_path)
+            self.assertEqual(loaded.entries[0].version, 1)
+
 
 if __name__ == "__main__":
     unittest.main()
