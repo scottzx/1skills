@@ -1,63 +1,14 @@
+/* Body-content styles for the Import-folder dialog. The modal shell, positioning,
+   sizing, z-index and theming come from the shared <Modal> (.dialog-content /
+   .modal), so this file only styles what goes inside .modal__body. */
 @layer features {
 
-.import-modal {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  /* Above .dialog-overlay (z-index 70); mirrors .dialog-content (80). */
-  z-index: 80;
-  width: var(--modal-width-md);
-  max-height: min(80vh, 720px);
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 20px;
-  background: var(--color-surface-raised);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  box-shadow: 0 28px 60px rgba(0, 0, 0, 0.48);
-}
-
-.import-modal__title {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0;
-  font-size: 1.05rem;
-  font-weight: 600;
-  color: var(--color-text);
-}
-
-.import-modal__desc {
-  margin: 0;
-  font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
-}
-
-.import-modal__close {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  display: inline-flex;
-  padding: 4px;
-  border: none;
-  background: transparent;
-  color: var(--color-text-muted);
-  cursor: pointer;
-  border-radius: var(--radius-sm);
-}
-
-.import-modal__close:hover {
-  background: var(--color-surface-sunken);
-}
-
-.import-modal__addrow {
+.import-addrow {
   display: flex;
   gap: 8px;
 }
 
-.import-modal__input {
+.import-input {
   flex: 1;
   min-width: 0;
   padding: 8px 10px;
@@ -68,7 +19,7 @@
   color: var(--color-text);
 }
 
-.import-modal__addbtn,
+.import-addbtn,
 .import-folder__selectall {
   display: inline-flex;
   align-items: center;
@@ -84,29 +35,28 @@
   white-space: nowrap;
 }
 
-.import-modal__addbtn:hover,
+.import-addbtn:hover,
 .import-folder__selectall:hover {
   background: var(--color-border);
 }
 
-.import-modal__body {
-  flex: 1;
-  min-height: 80px;
-  overflow-y: auto;
-  overscroll-behavior: contain;
+.import-list {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  max-height: min(52vh, 460px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
-.import-modal__hint {
+.import-hint {
   margin: 12px 0;
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
   text-align: center;
 }
 
-.import-modal__hint--error {
+.import-hint--error {
   color: var(--color-danger);
 }
 
@@ -229,40 +179,6 @@
   font-size: 0.72rem;
   color: var(--color-success);
   flex-shrink: 0;
-}
-
-.import-modal__footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  padding-top: 4px;
-  border-top: 1px solid var(--color-border);
-}
-
-.import-modal__cancel {
-  padding: 8px 14px;
-  font-size: var(--font-size-sm);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  background: transparent;
-  color: var(--color-text);
-  cursor: pointer;
-}
-
-.import-modal__import {
-  padding: 8px 16px;
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-  border: none;
-  border-radius: var(--radius-sm);
-  background: var(--color-accent);
-  color: var(--color-text-inverted);
-  cursor: pointer;
-}
-
-.import-modal__import:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
 }
 
 }
