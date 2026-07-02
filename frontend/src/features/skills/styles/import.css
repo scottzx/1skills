@@ -1,19 +1,22 @@
+@layer features {
+
 .import-modal {
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: min(560px, calc(100vw - 32px));
+  /* Above .dialog-overlay (z-index 70); mirrors .dialog-content (80). */
+  z-index: 80;
+  width: var(--modal-width-md);
   max-height: min(80vh, 720px);
   display: flex;
   flex-direction: column;
   gap: 12px;
   padding: 20px;
-  background: var(--surface-1, #fff);
-  border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.1));
-  border-radius: 14px;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.24);
-  z-index: 60;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 28px 60px rgba(0, 0, 0, 0.48);
 }
 
 .import-modal__title {
@@ -21,14 +24,15 @@
   align-items: center;
   gap: 8px;
   margin: 0;
-  font-size: 16px;
+  font-size: 1.05rem;
   font-weight: 600;
+  color: var(--color-text);
 }
 
 .import-modal__desc {
   margin: 0;
-  font-size: 13px;
-  color: var(--text-muted, #6b7280);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
 }
 
 .import-modal__close {
@@ -39,13 +43,13 @@
   padding: 4px;
   border: none;
   background: transparent;
-  color: var(--text-muted, #6b7280);
+  color: var(--color-text-muted);
   cursor: pointer;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
 }
 
 .import-modal__close:hover {
-  background: var(--surface-2, rgba(0, 0, 0, 0.05));
+  background: var(--color-surface-sunken);
 }
 
 .import-modal__addrow {
@@ -57,11 +61,11 @@
   flex: 1;
   min-width: 0;
   padding: 8px 10px;
-  font-size: 13px;
-  border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.15));
-  border-radius: 8px;
-  background: var(--surface-2, #f9fafb);
-  color: inherit;
+  font-size: var(--font-size-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-sunken);
+  color: var(--color-text);
 }
 
 .import-modal__addbtn,
@@ -70,25 +74,26 @@
   align-items: center;
   gap: 4px;
   padding: 6px 10px;
-  font-size: 12px;
+  font-size: 0.78rem;
   font-weight: 500;
-  border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.15));
-  border-radius: 8px;
-  background: var(--surface-2, #f9fafb);
-  color: inherit;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-sunken);
+  color: var(--color-text);
   cursor: pointer;
   white-space: nowrap;
 }
 
 .import-modal__addbtn:hover,
 .import-folder__selectall:hover {
-  background: var(--surface-3, rgba(0, 0, 0, 0.06));
+  background: var(--color-border);
 }
 
 .import-modal__body {
   flex: 1;
   min-height: 80px;
   overflow-y: auto;
+  overscroll-behavior: contain;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -96,18 +101,18 @@
 
 .import-modal__hint {
   margin: 12px 0;
-  font-size: 13px;
-  color: var(--text-muted, #6b7280);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
   text-align: center;
 }
 
 .import-modal__hint--error {
-  color: var(--danger-fg, #dc2626);
+  color: var(--color-danger);
 }
 
 .import-folder {
-  border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.1));
-  border-radius: 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
   overflow: hidden;
 }
 
@@ -117,13 +122,14 @@
   justify-content: space-between;
   gap: 8px;
   padding: 8px 10px;
-  background: var(--surface-2, #f9fafb);
-  border-bottom: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.08));
+  background: var(--color-surface-sunken);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .import-folder__path {
-  font-family: var(--font-mono, monospace);
-  font-size: 12px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--color-text);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -137,8 +143,8 @@
 }
 
 .import-folder__note {
-  font-size: 11px;
-  color: var(--text-muted, #6b7280);
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
 }
 
 .import-folder__remove {
@@ -146,20 +152,20 @@
   padding: 4px;
   border: none;
   background: transparent;
-  color: var(--text-muted, #6b7280);
+  color: var(--color-text-muted);
   cursor: pointer;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
 }
 
 .import-folder__remove:hover {
-  background: var(--surface-3, rgba(0, 0, 0, 0.06));
+  background: var(--color-border);
 }
 
 .import-folder__empty {
   margin: 0;
   padding: 12px 10px;
-  font-size: 12px;
-  color: var(--text-muted, #6b7280);
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
 }
 
 .import-folder__list {
@@ -174,7 +180,7 @@
   justify-content: space-between;
   gap: 8px;
   padding: 8px 10px;
-  border-bottom: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.05));
+  border-bottom: 1px solid var(--color-border);
 }
 
 .import-skill:last-child {
@@ -182,7 +188,7 @@
 }
 
 .import-skill--selected {
-  background: var(--accent-bg, rgba(59, 130, 246, 0.08));
+  background: var(--color-accent-soft);
 }
 
 .import-skill--disabled {
@@ -202,14 +208,15 @@
 }
 
 .import-skill__name {
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   font-weight: 500;
+  color: var(--color-text);
   flex-shrink: 0;
 }
 
 .import-skill__desc {
-  font-size: 12px;
-  color: var(--text-muted, #6b7280);
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -219,8 +226,8 @@
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  font-size: 11px;
-  color: var(--success-fg, #16a34a);
+  font-size: 0.72rem;
+  color: var(--color-success);
   flex-shrink: 0;
 }
 
@@ -229,31 +236,33 @@
   justify-content: flex-end;
   gap: 8px;
   padding-top: 4px;
-  border-top: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.08));
+  border-top: 1px solid var(--color-border);
 }
 
 .import-modal__cancel {
   padding: 8px 14px;
-  font-size: 13px;
-  border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.15));
-  border-radius: 8px;
+  font-size: var(--font-size-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
   background: transparent;
-  color: inherit;
+  color: var(--color-text);
   cursor: pointer;
 }
 
 .import-modal__import {
   padding: 8px 16px;
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   font-weight: 600;
   border: none;
-  border-radius: 8px;
-  background: var(--accent-emphasis, #2563eb);
-  color: var(--on-accent, #fff);
+  border-radius: var(--radius-sm);
+  background: var(--color-accent);
+  color: var(--color-text-inverted);
   cursor: pointer;
 }
 
 .import-modal__import:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
 }
