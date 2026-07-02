@@ -8,8 +8,9 @@ from skill_manager.errors import MutationError
 from skill_manager.sources import github_folder_url, github_repo_from_locator, github_repo_url
 
 from .document_utils import read_skill_document_markdown
+from .identity import SourceDescriptor
 from .inventory import InventoryEntry, SkillInventory
-from .package import fingerprint_package
+from .package import SkillParseError, fingerprint_package, parse_skill_package
 from .policy import can_stop_managing, can_update, has_local_changes
 from .presenters import skill_detail_payload, skills_page_payload, source_status_payload
 from .read_models import SkillsReadModelService
@@ -55,6 +56,48 @@ class SkillsQueryService:
         if entry is None:
             return None
         return source_status_payload(self.resolve_update_status(entry))
+
+    def skill_status_from_path(self, skill_ref: str, source_path: str) -> dict[str, object]:
+        """Read-only status of a workspace's own skill copy at source_path, keyed
+        by its package dir (from skill_ref). Powers the assistant detail page:
+
+        - inStore=False → a custom / local-only skill the user dropped into the
+          workspace; it isn't in the shared store (母体) yet, so a push would
+          *create* it (differs=True by convention — there's something to push).
+        - inStore=True, differs=True/False → a store-backed skill, modified or
+          in-sync with its baseline.
+
+        name/description are parsed from the workspace copy's SKILL.md frontmatter
+        so the card can show structured data, not just the folder name. Reported
+        without require_entry so custom skills (absent from the inventory) are
+        handled instead of 404'ing."""
+        package_dir = Path(skill_ref.rsplit(":", 1)[-1]).name
+        src = Path(source_path)
+        src_exists = src.is_dir() and (src / "SKILL.md").is_file()
+        name, description = package_dir, ""
+        if src_exists:
+            try:
+                pkg = parse_skill_package(
+                    src,
+                    default_source=SourceDescriptor(kind="workspace", locator=f"workspace:{package_dir}"),
+                )
+                name = pkg.declared_name or package_dir
+                description = pkg.description
+            except SkillParseError:
+                pass
+        store = self.read_models.store
+        store_dir = store.root / package_dir
+        in_store = store_dir.is_dir() and (store_dir / "SKILL.md").is_file()
+        differs = True
+        if in_store and src_exists:
+            differs = store.differs_from(package_dir, src)
+        return {
+            "inStore": in_store,
+            "differs": differs,
+            "exists": src_exists,
+            "name": name,
+            "description": description,
+        }
 
     def inventory(self) -> SkillInventory:
         snapshot = self.read_models.snapshot()

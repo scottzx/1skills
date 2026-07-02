@@ -121,6 +121,17 @@ class SkillStore:
             )
             return dest, True
 
+    def differs_from(self, package_dir: str, source_path: Path) -> bool:
+        """Read-only counterpart to update: True when source_path's content
+        differs from the stored package. Used to light up a "push available"
+        affordance without mutating the store."""
+        dest = self.root / package_dir
+        if not dest.is_dir():
+            raise ValueError(f"package not in store: {package_dir}")
+        new_fp, _ = fingerprint_package(source_path)
+        old_fp, _ = fingerprint_package(dest)
+        return new_fp != old_fp
+
     def delete(self, package_dir: str) -> None:
         with file_lock(self.lock_path):
             self.ensure_deletable(package_dir)

@@ -9,6 +9,10 @@ from skill_manager.api.schemas import (
     DisableSkillRequest,
     EnableSkillRequest,
     OkResponse,
+    PushSkillFromPathRequest,
+    PushSkillResultResponse,
+    SkillStatusFromPathRequest,
+    SkillStatusResultResponse,
     ResolveSkillConflictRequest,
     SetSkillHarnessesRequest,
     SetSkillHarnessesResultResponse,
@@ -90,6 +94,24 @@ def resolve_skill_conflict(
 @router.post("/{skill_ref:path}/update", response_model=OkResponse)
 def update_skill(skill_ref: str, container: BackendContainer = Depends(get_container)) -> dict[str, bool]:
     return container.skills_mutations.update_skill(skill_ref)
+
+
+@router.post("/{skill_ref:path}/status-from-path", response_model=SkillStatusResultResponse)
+def skill_status_from_path(
+    skill_ref: str,
+    body: SkillStatusFromPathRequest,
+    container: BackendContainer = Depends(get_container),
+) -> dict[str, object]:
+    return container.skills_queries.skill_status_from_path(skill_ref, body.source_path)
+
+
+@router.post("/{skill_ref:path}/push-from-path", response_model=PushSkillResultResponse)
+def push_skill_from_path(
+    skill_ref: str,
+    body: PushSkillFromPathRequest,
+    container: BackendContainer = Depends(get_container),
+) -> dict[str, object]:
+    return container.skills_mutations.push_skill_from_path(skill_ref, body.source_path)
 
 
 @router.post("/{skill_ref:path}/unmanage", response_model=OkResponse)

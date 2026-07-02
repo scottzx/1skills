@@ -160,6 +160,47 @@ class SkillsMutationService:
         self.read_models.invalidate()
         return {"ok": True}
 
+    def push_skill_from_path(self, skill_ref: str, source_path: str) -> dict[str, object]:
+        """Push a workspace's own skill copy to the shared store (母体), keyed by
+        its package dir (from skill_ref):
+
+        - store already has the package → overwrite it (``store.update``); no-ops
+          (``changed=False``) when identical.
+        - store doesn't have it → the user dropped a custom skill into the
+          workspace; ingest it as a new ``centralized:`` package (``created=True``).
+
+        Either way ``source_path`` is <workspace>/.claude/skills/<dir>. This is the
+        reverse of the create-time weak-copy.
+        """
+        src = Path(source_path)
+        if not src.is_dir() or not (src / "SKILL.md").is_file():
+            raise MutationError(f"no skill package (missing SKILL.md) at {source_path}", status=400)
+        package_dir = Path(skill_ref.rsplit(":", 1)[-1]).name
+        if not package_dir:
+            raise MutationError(f"invalid skill ref: {skill_ref}", status=400)
+        store = self.read_models.store
+        created = False
+        try:
+            if (store.root / package_dir).is_dir():
+                _dest, changed = store.update(package_dir, source_path=src)
+            else:
+                package = parse_skill_package(
+                    src,
+                    default_source=SourceDescriptor(kind="centralized", locator=f"centralized:{package_dir}"),
+                )
+                store.ingest(
+                    source_path=src,
+                    declared_name=package.declared_name,
+                    source_kind="centralized",
+                    source_locator=f"centralized:{package_dir}",
+                )
+                changed, created = True, True
+        except ValueError as error:
+            raise MutationError(str(error), status=409) from error
+        if changed:
+            self.read_models.invalidate()
+        return {"ok": True, "changed": changed, "created": created}
+
     def unmanage_skill(self, skill_ref: str) -> dict[str, bool]:
         entry = self.queries.require_entry(skill_ref)
         if not can_stop_managing(entry):

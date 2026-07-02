@@ -39,6 +39,60 @@ class ResolveSkillConflictRequest(BaseModel):
     )
 
 
+class PushSkillFromPathRequest(BaseModel):
+    """Overwrite a managed shared-store skill with a locally-modified copy.
+
+    The reverse of the create-time weak-copy: a workspace edited its own copy at
+    ``sourcePath`` (e.g. ``<workspace>/.claude/skills/<dir>``) and now pushes it
+    back to become the shared store's new baseline. The path is resolved by the
+    caller (the Go host, which owns workspace→path mapping); the store fingerprints
+    it and only rewrites when the content actually differs.
+    """
+
+    model_config = ConfigDict(populate_by_name=True)
+
+    source_path: str = Field(
+        ...,
+        alias="sourcePath",
+        min_length=1,
+        description="Absolute path to the modified skill package directory",
+    )
+
+
+class PushSkillResultResponse(BaseModel):
+    ok: bool
+    changed: bool = Field(
+        ...,
+        description="True when the store baseline was written; False when the copy was identical",
+    )
+    created: bool = Field(
+        False,
+        description="True when a custom skill was ingested into the store for the first time",
+    )
+
+
+class SkillStatusFromPathRequest(BaseModel):
+    """Read-only counterpart to PushSkillFromPathRequest — report a workspace
+    copy's status against the store baseline without mutating it."""
+
+    model_config = ConfigDict(populate_by_name=True)
+
+    source_path: str = Field(
+        ...,
+        alias="sourcePath",
+        min_length=1,
+        description="Absolute path to the workspace's skill package directory",
+    )
+
+
+class SkillStatusResultResponse(BaseModel):
+    inStore: bool = Field(..., description="True when the store (母体) already has this package")
+    differs: bool = Field(..., description="True when the workspace copy differs from the store baseline")
+    exists: bool = Field(..., description="False when no skill package was found at the given path")
+    name: str = Field("", description="Declared name from the workspace copy's SKILL.md frontmatter")
+    description: str = Field("", description="Description from the workspace copy's SKILL.md frontmatter")
+
+
 SkillStatus = Literal["Managed", "Unmanaged"]
 HarnessCellState = Literal["enabled", "disabled", "found", "empty"]
 SkillUpdateStatus = Literal[
