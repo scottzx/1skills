@@ -50,6 +50,19 @@ def get_skill_lineage(skill_id: str, container: BackendContainer = Depends(get_c
     return payload
 
 
+@router.get("/id/{skill_id}/diff")
+def diff_skill_versions(
+    skill_id: str,
+    from_version: int,
+    to_version: int | None = None,
+    container: BackendContainer = Depends(get_container),
+) -> dict[str, object]:
+    payload = container.skills_queries.diff_skill_versions(skill_id, from_version, to_version)
+    if payload is None:
+        raise HTTPException(status_code=404, detail=f"unknown skill id or version: {skill_id}")
+    return payload
+
+
 @router.post("/id/{skill_id}/restore/{version}")
 def restore_skill_version(
     skill_id: str,
@@ -151,6 +164,15 @@ def skill_status_from_path(
     container: BackendContainer = Depends(get_container),
 ) -> dict[str, object]:
     return container.skills_queries.skill_status_from_path(skill_ref, body.source_path)
+
+
+@router.post("/{skill_ref:path}/preview-push")
+def preview_push_from_path(
+    skill_ref: str,
+    body: SkillStatusFromPathRequest,
+    container: BackendContainer = Depends(get_container),
+) -> dict[str, object]:
+    return container.skills_queries.preview_push_from_path(skill_ref, body.source_path)
 
 
 @router.post("/{skill_ref:path}/push-from-path", response_model=PushSkillResultResponse)

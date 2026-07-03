@@ -87,7 +87,7 @@ export function SkillDetailContent({
                         {copy.versioning.forkBadge(lineage.forkedFromVersion ?? 1)}
                       </span>
                     ) : null}
-                    {!lineage.isPrimary ? (
+                    {/* {!lineage.isPrimary ? (
                       <button
                         type="button"
                         className="action-pill"
@@ -99,7 +99,8 @@ export function SkillDetailContent({
                         ) : null}
                         {promoteMutation.isPending ? copy.versioning.makingMain : copy.versioning.makeMain}
                       </button>
-                    ) : lineage.forkedFrom ? (
+                    ) : null} */}
+                    {lineage.isPrimary && lineage.forkedFrom ? (
                       <span className="card-status-pill card-status-pill--success">{copy.versioning.mainBadge}</span>
                     ) : null}
                     <button

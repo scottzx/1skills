@@ -73,3 +73,19 @@ export interface PromoteSkillResult {
   ok: boolean;
   id: string;
 }
+
+export type SkillDiffFileStatus = "added" | "removed" | "modified";
+
+export interface SkillDiffFile {
+  path: string;
+  status: SkillDiffFileStatus;
+  diff: string;
+}
+
+export interface SkillVersionDiffDto {
+  id: string;
+  from: number;
+  to: number;
+  toIsCurrent: boolean;
+  files: SkillDiffFile[];
+}

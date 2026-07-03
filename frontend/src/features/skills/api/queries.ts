@@ -11,6 +11,7 @@ import {
   fetchSkillLineage,
   fetchSkillSourceStatus,
   fetchSkillsPage,
+  fetchSkillVersionDiff,
   fetchSkillVersions,
   manageAllSkills,
   manageSkill,
@@ -78,6 +79,15 @@ export function useSkillLineageQuery(id: string | null) {
     queryKey: skillsKeys.lineage(id ?? "__none__"),
     queryFn: () => fetchSkillLineage(id!),
     enabled: Boolean(id),
+    ...queryPolicy(SKILLS_STALE_TIME_MS, SKILLS_GC_TIME_MS),
+  });
+}
+
+export function useSkillVersionDiffQuery(id: string | null, from: number | null, to: number | null) {
+  return useQuery({
+    queryKey: skillsKeys.versionDiff(id ?? "__none__", from ?? -1, to),
+    queryFn: () => fetchSkillVersionDiff(id!, from!, to ?? undefined),
+    enabled: Boolean(id) && from != null,
     ...queryPolicy(SKILLS_STALE_TIME_MS, SKILLS_GC_TIME_MS),
   });
 }

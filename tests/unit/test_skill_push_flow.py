@@ -89,6 +89,41 @@ class PushFlowTests(unittest.TestCase):
         self.assertTrue(store.entry_for_id(fork_id).is_primary)
         self.assertFalse(store.entry_for_id(skill_id).is_primary)
 
+    def test_resolve_main_updates_base_in_place(self) -> None:
+        # Concurrent conflict, then resolve as main → base package updated in
+        # place (one package, version bumped), prior versions kept in history.
+        a = self._seed("gadget", "one")
+        skill_id = self.mut.push_skill_from_path("shared:gadget", str(a))["id"]
+        b = self.root / "ws2" / ".claude" / "skills" / "gadget"
+        b.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copytree(a, b)
+        (b / "SKILL.md").write_text((b / "SKILL.md").read_text() + "\nB", encoding="utf-8")
+        self.mut.push_skill_from_path("shared:gadget", str(b))  # store → v2
+        (a / "SKILL.md").write_text((a / "SKILL.md").read_text() + "\nA", encoding="utf-8")
+        self.assertEqual(self.mut.push_skill_from_path("shared:gadget", str(a))["status"], "conflict")
+
+        res = self.mut.resolve_push_conflict(source_path=str(a), base_id=skill_id, resolution="main")
+        store = self.container.skills_store
+        self.assertEqual(res["resolution"], "main")
+        self.assertEqual(res["id"], skill_id)            # same package, not a fork
+        self.assertEqual(len(store.entries()), 1)         # in place — no new package
+        self.assertEqual(store.entry_for_id(skill_id).version, 3)
+        versions = self.container.skills_queries.list_skill_versions(skill_id)["versions"]
+        self.assertEqual({v["version"] for v in versions}, {1, 2, 3})  # nothing lost
+
+    def test_legacy_divergent_push_conflicts(self) -> None:
+        # A package exists in the store; a same-named copy with DIFFERENT content
+        # and no sidecar (legacy) must surface a conflict, not spawn a duplicate.
+        a = self._seed("widget", "original")
+        skill_id = self.mut.push_skill_from_path("shared:widget", str(a))["id"]
+        legacy = self.root / "legacy" / "widget"
+        legacy.parent.mkdir(parents=True, exist_ok=True)
+        seed_skill_package(legacy.parent, "widget", "Widget", body="divergent, no sidecar")
+        r = self.mut.push_skill_from_path("shared:widget", str(legacy))
+        self.assertEqual(r["status"], "conflict")
+        self.assertEqual(r["conflict"]["id"], skill_id)
+        self.assertEqual(len(self.container.skills_store.entries()), 1)  # nothing created yet
+
     def test_dedup_identical_content_reports_exists(self) -> None:
         a = self._seed("dedupe", "same")
         r1 = self.mut.push_skill_from_path("shared:dedupe", str(a))
@@ -115,6 +150,25 @@ class PushFlowTests(unittest.TestCase):
         self.assertEqual(r["status"], "updated")
         self.assertEqual(r["id"], skill_id)
         self.assertEqual(len(self.container.skills_store.entries()), 1)
+
+    def test_preview_and_version_diff(self) -> None:
+        a = self._seed("diffy", "alpha")
+        skill_id = self.mut.push_skill_from_path("shared:diffy", str(a))["id"]
+        (a / "SKILL.md").write_text((a / "SKILL.md").read_text().replace("alpha", "beta"), encoding="utf-8")
+        self.mut.push_skill_from_path("shared:diffy", str(a))  # v2
+        # pending edit not yet pushed → preview shows it against 母体
+        (a / "SKILL.md").write_text((a / "SKILL.md").read_text() + "\npending", encoding="utf-8")
+        prev = self.container.skills_queries.preview_push_from_path("shared:diffy", str(a))
+        self.assertFalse(prev["isNew"])
+        self.assertEqual(prev["target"]["id"], skill_id)
+        self.assertIn("pending", prev["files"][0]["diff"])
+        # version diff v1 -> v2 shows alpha→beta
+        vd = self.container.skills_queries.diff_skill_versions(skill_id, 1, 2)
+        self.assertEqual(vd["from"], 1)
+        self.assertEqual(vd["to"], 2)
+        joined = vd["files"][0]["diff"]
+        self.assertIn("-", joined)
+        self.assertTrue(any("beta" in line for line in joined.splitlines()))
 
     def test_restore_via_service(self) -> None:
         a = self._seed("hist", "one")

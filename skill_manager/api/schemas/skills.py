@@ -119,6 +119,10 @@ class SkillStatusResultResponse(BaseModel):
     storeVersion: int | None = Field(
         None, description="The store package's current version counter, or null when not in store"
     )
+    skillId: str | None = Field(None, description="Stable skill id resolved from the copy's sidecar (#379)")
+    baseVersion: int | None = Field(
+        None, description="Store version this workspace copy was taken from (sidecar), or null when untracked"
+    )
 
 
 SkillStatus = Literal["Managed", "Unmanaged"]

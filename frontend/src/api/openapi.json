@@ -4798,6 +4798,18 @@
       },
       "SkillStatusResultResponse": {
         "properties": {
+          "baseVersion": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Store version this workspace copy was taken from (sidecar), or null when untracked",
+            "title": "Baseversion"
+          },
           "description": {
             "default": "",
             "description": "Description from the workspace copy's SKILL.md frontmatter",
@@ -4824,6 +4836,18 @@
             "description": "Declared name from the workspace copy's SKILL.md frontmatter",
             "title": "Name",
             "type": "string"
+          },
+          "skillId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Stable skill id resolved from the copy's sidecar (#379)",
+            "title": "Skillid"
           },
           "storeVersion": {
             "anyOf": [
@@ -7529,6 +7553,72 @@
         "summary": "List Skills"
       }
     },
+    "/api/skills/id/{skill_id}/diff": {
+      "get": {
+        "operationId": "diff_skill_versions_api_skills_id__skill_id__diff_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "skill_id",
+            "required": true,
+            "schema": {
+              "title": "Skill Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "from_version",
+            "required": true,
+            "schema": {
+              "title": "From Version",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "to_version",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "To Version"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Diff Skill Versions Api Skills Id  Skill Id  Diff Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Diff Skill Versions"
+      }
+    },
     "/api/skills/id/{skill_id}/lineage": {
       "get": {
         "operationId": "get_skill_lineage_api_skills_id__skill_id__lineage_get",
@@ -7973,6 +8063,57 @@
           }
         },
         "summary": "Manage Skill"
+      }
+    },
+    "/api/skills/{skill_ref}/preview-push": {
+      "post": {
+        "operationId": "preview_push_from_path_api_skills__skill_ref__preview_push_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "skill_ref",
+            "required": true,
+            "schema": {
+              "title": "Skill Ref",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SkillStatusFromPathRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Preview Push From Path Api Skills  Skill Ref  Preview Push Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Preview Push From Path"
       }
     },
     "/api/skills/{skill_ref}/push-from-path": {

@@ -776,6 +776,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/skills/id/{skill_id}/diff": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Diff Skill Versions */
+        get: operations["diff_skill_versions_api_skills_id__skill_id__diff_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/skills/id/{skill_id}/lineage": {
         parameters: {
             query?: never;
@@ -957,6 +974,23 @@ export interface paths {
         put?: never;
         /** Manage Skill */
         post: operations["manage_skill_api_skills__skill_ref__manage_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/skills/{skill_ref}/preview-push": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Preview Push From Path */
+        post: operations["preview_push_from_path_api_skills__skill_ref__preview_push_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2845,6 +2879,11 @@ export interface components {
         /** SkillStatusResultResponse */
         SkillStatusResultResponse: {
             /**
+             * Baseversion
+             * @description Store version this workspace copy was taken from (sidecar), or null when untracked
+             */
+            baseVersion?: number | null;
+            /**
              * Description
              * @description Description from the workspace copy's SKILL.md frontmatter
              * @default
@@ -2871,6 +2910,11 @@ export interface components {
              * @default
              */
             name: string;
+            /**
+             * Skillid
+             * @description Stable skill id resolved from the copy's sidecar (#379)
+             */
+            skillId?: string | null;
             /**
              * Storeversion
              * @description The store package's current version counter, or null when not in store
@@ -4607,6 +4651,42 @@ export interface operations {
             };
         };
     };
+    diff_skill_versions_api_skills_id__skill_id__diff_get: {
+        parameters: {
+            query: {
+                from_version: number;
+                to_version?: number | null;
+            };
+            header?: never;
+            path: {
+                skill_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_skill_lineage_api_skills_id__skill_id__lineage_get: {
         parameters: {
             query?: never;
@@ -4945,6 +5025,43 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["OkResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    preview_push_from_path_api_skills__skill_ref__preview_push_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                skill_ref: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SkillStatusFromPathRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
                 };
             };
             /** @description Validation Error */

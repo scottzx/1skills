@@ -173,8 +173,11 @@ class SkillsMutationService:
           ``conflict`` (creates nothing); the caller must POST /resolve to land
           it as main or fork.
         - no id (or id gone from store) → content-hash dedup: an exact match
-          returns ``exists`` (links the workspace to that id); otherwise a new
-          package is created (``created``), allowing duplicate names.
+          returns ``exists`` (links the workspace to that id). Else, if the
+          package dir name matches an existing store package (a legacy copy of a
+          known skill, pre-sidecar) and the content differs, we can't prove a
+          clean linear lineage → ``conflict`` (dialog: update-as-main or fork).
+          Otherwise it's genuinely new → ``created``.
 
         On any non-conflict outcome the workspace sidecar is stamped with the
         resolved id + version so the next push is correctly linear.
@@ -236,6 +239,28 @@ class SkillsMutationService:
                     "id": duplicate.id,
                     "version": duplicate.version,
                 }
+            # Divergent legacy push: dir name matches a known store package but
+            # content differs and there's no sidecar to prove linear lineage.
+            # Surface the conflict dialog (update-as-main or fork) rather than
+            # silently spawning a duplicate. baseVersion=0 marks "untracked".
+            legacy_dir = Path(skill_ref.rsplit(":", 1)[-1]).name if skill_ref else ""
+            legacy = store.entry_for_dir(legacy_dir) if legacy_dir else None
+            if legacy is not None:
+                return {
+                    "ok": True,
+                    "status": "conflict",
+                    "changed": False,
+                    "created": False,
+                    "id": legacy.id,
+                    "version": legacy.version,
+                    "conflict": {
+                        "id": legacy.id,
+                        "name": legacy.declared_name,
+                        "storeVersion": legacy.version,
+                        "baseVersion": 0,
+                        "sourcePath": str(src),
+                    },
+                }
             dest = store.ingest(
                 source_path=src,
                 declared_name=package.declared_name,
@@ -268,14 +293,16 @@ class SkillsMutationService:
         resolution: str,
         name: str | None = None,
     ) -> dict[str, object]:
-        """Land a concurrent-edit push as a new fork (#379). The pushed content
-        always becomes a new package C forked from ``base_id`` @ baseVersion — no
-        data is ever overwritten. ``resolution`` only decides who is primary:
+        """Resolve a divergent / concurrent-edit push (#379). Non-destructive
+        either way — the base package's prior versions always stay in history:
 
-        - ``main`` → C becomes primary, the original branch is demoted;
-        - ``fork`` → the original stays primary, C is a side branch.
+        - ``main`` → update the base package in place (content → pushed, version
+          bumped; old versions kept in history). One package.
+        - ``fork`` → land the pushed content as a new fork package of ``base_id``;
+          the base stays as-is. Two packages.
 
-        An optional ``name`` renames the fork (its SKILL.md + folder)."""
+        An optional ``name`` renames the skill (SKILL.md); on ``fork`` it also
+        names the new folder."""
         if resolution not in ("main", "fork"):
             raise MutationError("resolution must be 'main' or 'fork'", status=400)
         src = Path(source_path)
@@ -285,30 +312,48 @@ class SkillsMutationService:
         base = store.entry_for_id(base_id)
         if base is None:
             raise MutationError(f"unknown skill id: {base_id}", status=404)
-        meta = read_skill_meta(src)
-        forked_from_version = meta.base_version if meta is not None else base.version
+        new_name = name.strip() if name and name.strip() else None
 
-        fork_name = name.strip() if name and name.strip() else None
         try:
-            if fork_name is not None:
+            if resolution == "main":
+                # In-place update of the base package: replace content, bump
+                # version, keep prior versions in history. Stays one package.
+                if new_name is not None:
+                    set_skill_name(src, new_name)
+                _dest, _changed = store.update(base.package_dir, source_path=src)
+                landed = store.entry_for_dir(base.package_dir)
+                assert landed is not None
+                self._stamp_workspace_meta(src, landed)
+                self.read_models.invalidate()
+                return {
+                    "ok": True,
+                    "id": landed.id,
+                    "resolution": "main",
+                    "version": landed.version,
+                    "packageDir": base.package_dir,
+                }
+
+            # fork → land as a new package forked from base.
+            meta = read_skill_meta(src)
+            forked_from_version = meta.base_version if meta is not None and meta.base_version else base.version
+            if new_name is not None:
                 with TemporaryDirectory(prefix="skill-fork-") as work_dir:
                     staged = Path(work_dir) / src.name
                     shutil.copytree(src, staged)
-                    set_skill_name(staged, fork_name)
+                    set_skill_name(staged, new_name)
                     dest = store.ingest(
                         source_path=staged,
-                        declared_name=fork_name,
+                        declared_name=new_name,
                         source_kind="centralized",
                         source_locator="centralized:fork",
                         allow_duplicate_name=True,
-                        desired_dir=slugify_dir(fork_name),
+                        desired_dir=slugify_dir(new_name),
                         forked_from=base_id,
                         forked_from_version=forked_from_version,
                         is_primary=False,
                         history_source="fork",
                     )
-                # keep the workspace copy's name in sync with its new central fork
-                set_skill_name(src, fork_name)
+                set_skill_name(src, new_name)  # keep workspace copy in sync
             else:
                 package = parse_skill_package(
                     src, default_source=SourceDescriptor(kind="centralized", locator="centralized:fork")
@@ -324,18 +369,16 @@ class SkillsMutationService:
                     is_primary=False,
                     history_source="fork",
                 )
-            fork = store.entry_for_dir(dest.name)
-            assert fork is not None
-            if resolution == "main":
-                store.set_primary(fork.id)
         except ValueError as error:
             raise MutationError(str(error), status=409) from error
-        self._stamp_workspace_meta(src, store.entry_for_dir(dest.name))  # type: ignore[arg-type]
+        fork = store.entry_for_dir(dest.name)
+        assert fork is not None
+        self._stamp_workspace_meta(src, fork)
         self.read_models.invalidate()
         return {
             "ok": True,
             "id": fork.id,
-            "resolution": resolution,
+            "resolution": "fork",
             "version": fork.version,
             "packageDir": dest.name,
         }

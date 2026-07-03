@@ -11,6 +11,7 @@ import type {
   SkillLineageDto,
   SkillsPageDto,
   SkillSourceStatusDto,
+  SkillVersionDiffDto,
   SkillVersionsDto,
 } from "./types";
 import { fetchJson, postJson } from "../../../api/http";
@@ -70,6 +71,15 @@ export async function fetchSkillVersions(id: string): Promise<SkillVersionsDto> 
 
 export async function fetchSkillLineage(id: string): Promise<SkillLineageDto> {
   return fetchJson<SkillLineageDto>(`/skills/id/${encodeURIComponent(id)}/lineage`);
+}
+
+export async function fetchSkillVersionDiff(
+  id: string,
+  fromVersion: number,
+  toVersion?: number,
+): Promise<SkillVersionDiffDto> {
+  const query = `from_version=${fromVersion}${toVersion != null ? `&to_version=${toVersion}` : ""}`;
+  return fetchJson<SkillVersionDiffDto>(`/skills/id/${encodeURIComponent(id)}/diff?${query}`);
 }
 
 export async function restoreSkillVersion(id: string, version: number): Promise<RestoreSkillVersionResult> {

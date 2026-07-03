@@ -1,10 +1,16 @@
+import { useState } from "react";
+
 import { Modal } from "../../../../components/ui/Modal";
 import { ErrorBanner } from "../../../../components/ErrorBanner";
 import { LoadingSpinner } from "../../../../components/LoadingSpinner";
 import { useLocale } from "../../../../i18n";
 import { useSkillsCopy } from "../../i18n";
-import { useRestoreSkillVersionMutation, useSkillVersionsQuery } from "../../api/queries";
-import type { SkillVersionEntry, SkillVersionSource } from "../../api/types";
+import {
+  useRestoreSkillVersionMutation,
+  useSkillVersionDiffQuery,
+  useSkillVersionsQuery,
+} from "../../api/queries";
+import type { SkillDiffFile, SkillDiffFileStatus, SkillVersionEntry, SkillVersionSource } from "../../api/types";
 
 interface SkillVersionHistoryModalProps {
   open: boolean;
@@ -12,11 +18,15 @@ interface SkillVersionHistoryModalProps {
   onClose: () => void;
 }
 
+const CURRENT_OPTION_VALUE = "current";
+
 export function SkillVersionHistoryModal({ open, skillId, onClose }: SkillVersionHistoryModalProps) {
   const copy = useSkillsCopy().versioning;
   const { locale } = useLocale();
   const versionsQuery = useSkillVersionsQuery(open ? skillId : null);
   const restoreMutation = useRestoreSkillVersionMutation();
+  const [diffFromVersion, setDiffFromVersion] = useState<number | null>(null);
+  const [diffToVersion, setDiffToVersion] = useState<number | null>(null);
 
   const data = versionsQuery.data;
   const versions = data ? sortVersionsDescending(data.versions) : [];
@@ -26,11 +36,24 @@ export function SkillVersionHistoryModal({ open, skillId, onClose }: SkillVersio
       ? restoreMutation.error.message
       : "";
 
+  const diffQuery = useSkillVersionDiffQuery(open ? skillId : null, diffFromVersion, diffToVersion);
+
+  function handleClose() {
+    setDiffFromVersion(null);
+    setDiffToVersion(null);
+    onClose();
+  }
+
+  function handleViewChanges(version: number) {
+    setDiffFromVersion(version);
+    setDiffToVersion(null);
+  }
+
   return (
     <Modal
       open={open}
       onOpenChange={(next) => {
-        if (!next) onClose();
+        if (!next) handleClose();
       }}
       title={copy.historyDialogTitle}
       description={copy.historyDialogDescription}
@@ -51,6 +74,7 @@ export function SkillVersionHistoryModal({ open, skillId, onClose }: SkillVersio
               const isRestoring = restoreMutation.isPending
                 && restoreMutation.variables?.id === skillId
                 && restoreMutation.variables?.version === entry.version;
+              const isViewingChanges = diffFromVersion === entry.version;
               return (
                 <li key={entry.version} className="skill-versions__row">
                   <div className="skill-versions__row-main">
@@ -66,6 +90,14 @@ export function SkillVersionHistoryModal({ open, skillId, onClose }: SkillVersio
                     <button
                       type="button"
                       className="action-pill"
+                      aria-pressed={isViewingChanges}
+                      onClick={() => handleViewChanges(entry.version)}
+                    >
+                      {copy.viewChanges}
+                    </button>
+                    <button
+                      type="button"
+                      className="action-pill"
                       disabled={isCurrent || !skillId || restoreMutation.isPending}
                       onClick={() => skillId && restoreMutation.mutate({ id: skillId, version: entry.version })}
                     >
@@ -73,6 +105,16 @@ export function SkillVersionHistoryModal({ open, skillId, onClose }: SkillVersio
                       {isRestoring ? copy.restoring : copy.restore}
                     </button>
                   </div>
+                  {isViewingChanges ? (
+                    <SkillVersionDiffPanel
+                      versions={versions}
+                      fromVersion={entry.version}
+                      toVersion={diffToVersion}
+                      onToVersionChange={setDiffToVersion}
+                      diffQuery={diffQuery}
+                      copy={copy}
+                    />
+                  ) : null}
                 </li>
               );
             })}
@@ -81,6 +123,114 @@ export function SkillVersionHistoryModal({ open, skillId, onClose }: SkillVersio
       </div>
     </Modal>
   );
+}
+
+interface SkillVersionDiffPanelProps {
+  versions: SkillVersionEntry[];
+  fromVersion: number;
+  toVersion: number | null;
+  onToVersionChange: (version: number | null) => void;
+  diffQuery: ReturnType<typeof useSkillVersionDiffQuery>;
+  copy: ReturnType<typeof useSkillsCopy>["versioning"];
+}
+
+function SkillVersionDiffPanel({
+  versions,
+  fromVersion,
+  toVersion,
+  onToVersionChange,
+  diffQuery,
+  copy,
+}: SkillVersionDiffPanelProps) {
+  const compareOptions = versions.filter((entry) => entry.version !== fromVersion);
+  const errorMessage = diffQuery.error instanceof Error ? diffQuery.error.message : copy.diffLoadError;
+
+  return (
+    <div className="skill-versions__diff">
+      <label className="skill-versions__diff-selector">
+        <span>{copy.compareAgainst}</span>
+        <select
+          value={toVersion == null ? CURRENT_OPTION_VALUE : String(toVersion)}
+          onChange={(event) => {
+            const { value } = event.target;
+            onToVersionChange(value === CURRENT_OPTION_VALUE ? null : Number(value));
+          }}
+        >
+          <option value={CURRENT_OPTION_VALUE}>{copy.currentVersionOption}</option>
+          {compareOptions.map((entry) => (
+            <option key={entry.version} value={entry.version}>
+              v{entry.version}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      {diffQuery.isLoading ? (
+        <LoadingSpinner size="sm" label={copy.viewChanges} />
+      ) : diffQuery.isError ? (
+        <p className="skill-versions__empty">{errorMessage}</p>
+      ) : !diffQuery.data || diffQuery.data.files.length === 0 ? (
+        <p className="skill-versions__empty">{copy.noChanges}</p>
+      ) : (
+        <div className="skill-versions__diff-files">
+          {diffQuery.data.files.map((file) => (
+            <SkillDiffFileBlock key={file.path} file={file} copy={copy} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SkillDiffFileBlock({
+  file,
+  copy,
+}: {
+  file: SkillDiffFile;
+  copy: ReturnType<typeof useSkillsCopy>["versioning"];
+}) {
+  return (
+    <div className="skill-diff-file">
+      <div className="skill-diff-file__header">
+        <span className="skill-diff-file__path">{file.path}</span>
+        <span className={`skill-diff-file__status skill-diff-file__status--${file.status}`}>
+          {diffStatusLabel(file.status, copy)}
+        </span>
+      </div>
+      {file.diff ? (
+        <pre className="skill-diff-file__body">
+          {file.diff.split("\n").map((line, index) => (
+            <div key={index} className={`skill-diff-line ${diffLineClassName(line)}`}>
+              {line}
+            </div>
+          ))}
+        </pre>
+      ) : (
+        <p className="skill-versions__empty">{copy.noChanges}</p>
+      )}
+    </div>
+  );
+}
+
+function diffLineClassName(line: string): string {
+  if (line.startsWith("@@")) return "skill-diff-line--hunk";
+  if (line.startsWith("+++") || line.startsWith("---")) return "skill-diff-line--meta";
+  if (line.startsWith("+")) return "skill-diff-line--add";
+  if (line.startsWith("-")) return "skill-diff-line--del";
+  return "skill-diff-line--ctx";
+}
+
+function diffStatusLabel(status: SkillDiffFileStatus, copy: ReturnType<typeof useSkillsCopy>["versioning"]): string {
+  switch (status) {
+    case "added":
+      return copy.statusAdded;
+    case "removed":
+      return copy.statusRemoved;
+    case "modified":
+      return copy.statusModified;
+    default:
+      return status;
+  }
 }
 
 function sortVersionsDescending(versions: SkillVersionEntry[]): SkillVersionEntry[] {

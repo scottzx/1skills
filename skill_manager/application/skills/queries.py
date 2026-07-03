@@ -7,6 +7,7 @@ from typing import Literal
 from skill_manager.errors import MutationError
 from skill_manager.sources import github_folder_url, github_repo_from_locator, github_repo_url
 
+from .diffs import diff_packages
 from .document_utils import read_skill_document_markdown
 from .identity import SourceDescriptor
 from .inventory import InventoryEntry, SkillInventory
@@ -123,6 +124,71 @@ class SkillsQueryService:
 
     def get_skill_lineage(self, skill_id: str) -> dict[str, object] | None:
         return self.read_models.store.lineage(skill_id)
+
+    def preview_push_from_path(self, skill_ref: str, source_path: str) -> dict[str, object]:
+        """What a push would change: the diff between a workspace copy and the
+        current 母体, plus which package it targets and whether it diverged
+        (#379). Read-only — powers the push preview dialog so the user sees the
+        change and picks update-vs-fork with eyes open."""
+        src = Path(source_path)
+        if not (src.is_dir() and (src / "SKILL.md").is_file()):
+            return {"exists": False, "target": None, "isNew": True, "files": []}
+        store = self.read_models.store
+        meta = read_skill_meta(src)
+        entry = store.entry_for_id(meta.id) if meta is not None else None
+        if entry is None:
+            legacy_dir = Path(skill_ref.rsplit(":", 1)[-1]).name if skill_ref else ""
+            entry = store.entry_for_dir(legacy_dir) if legacy_dir else None
+        if entry is None:
+            return {"exists": True, "target": None, "isNew": True, "files": []}
+        files = diff_packages(
+            store.root / entry.package_dir, src, old_label="母体", new_label="工作区"
+        )
+        diverged = (
+            entry.version > meta.base_version if meta is not None and meta.base_version else bool(files)
+        )
+        return {
+            "exists": True,
+            "isNew": False,
+            "sourcePath": str(src),
+            "target": {
+                "id": entry.id,
+                "name": entry.declared_name,
+                "storeVersion": entry.version,
+                "baseVersion": meta.base_version if meta is not None else None,
+            },
+            "diverged": diverged,
+            "files": files,
+        }
+
+    def diff_skill_versions(
+        self, skill_id: str, from_version: int, to_version: int | None = None
+    ) -> dict[str, object] | None:
+        """Unified diff between two versions of a skill (``to_version`` defaults
+        to the current live content) for the version-history compare view."""
+        store = self.read_models.store
+        entry = store.entry_for_id(skill_id)
+        if entry is None:
+            return None
+        from_dir = store.history.version_path(skill_id, from_version)
+        if not from_dir.is_dir():
+            return None
+        if to_version is None:
+            to_dir = store.root / entry.package_dir
+            to_label = "current"
+        else:
+            to_dir = store.history.version_path(skill_id, to_version)
+            if not to_dir.is_dir():
+                return None
+            to_label = f"v{to_version}"
+        files = diff_packages(from_dir, to_dir, old_label=f"v{from_version}", new_label=to_label)
+        return {
+            "id": skill_id,
+            "from": from_version,
+            "to": to_version if to_version is not None else entry.version,
+            "toIsCurrent": to_version is None,
+            "files": files,
+        }
 
     def inventory(self) -> SkillInventory:
         snapshot = self.read_models.snapshot()

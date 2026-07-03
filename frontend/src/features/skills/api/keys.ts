@@ -12,4 +12,7 @@ export const skillsKeys = {
   versions: (id: string) => ["skills", "versions", id] as const,
   lineagePrefix: () => ["skills", "lineage"] as const,
   lineage: (id: string) => ["skills", "lineage", id] as const,
+  versionDiffPrefix: () => ["skills", "version-diff"] as const,
+  versionDiff: (id: string, from: number, to: number | null) =>
+    ["skills", "version-diff", id, from, to ?? "current"] as const,
 };
