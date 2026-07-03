@@ -44,6 +44,11 @@ class InventoryEntry:
     source_path: str | None = None
     package_dir: str | None = None
     package_path: Path | None = None
+    skill_id: str | None = None
+    version: int = 1
+    forked_from: str | None = None
+    forked_from_version: int | None = None
+    is_primary: bool = True
     sightings: list[InventorySighting] = field(default_factory=list)
 
     def add_sighting(self, sighting: InventorySighting) -> None:
@@ -121,6 +126,11 @@ class SkillInventory:
                 source_path=store_package.recorded_source_path,
                 package_dir=package.root_path.name,
                 package_path=package.root_path,
+                skill_id=store_package.recorded_id,
+                version=store_package.recorded_version,
+                forked_from=store_package.recorded_forked_from,
+                forked_from_version=store_package.recorded_forked_from_version,
+                is_primary=store_package.recorded_is_primary,
             )
             entry.add_sighting(
                 InventorySighting(
@@ -204,7 +214,18 @@ class SkillInventory:
         by_name: dict[str, list[InventoryEntry]] = {}
         for entry in self.entries:
             by_name.setdefault(entry.name, []).append(entry)
-        return {name: tuple(group) for name, group in by_name.items() if len(group) > 1}
+        groups: dict[str, tuple[InventoryEntry, ...]] = {}
+        for name, group in by_name.items():
+            if len(group) < 2:
+                continue
+            # #379: managed store packages with distinct stable ids are
+            # intentional coexisting copies (e.g. forks in one lineage) — they
+            # coexist silently, not a conflict. Only flag when a divergent
+            # unmanaged copy is in the mix (the original consolidation case).
+            if all(entry.kind == "managed" and entry.skill_id for entry in group):
+                continue
+            groups[name] = tuple(group)
+        return groups
 
 
 def _unmanaged_entry_key(declared_name: str, source: SourceDescriptor, revision: str) -> str:

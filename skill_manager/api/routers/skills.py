@@ -11,6 +11,7 @@ from skill_manager.api.schemas import (
     OkResponse,
     PushSkillFromPathRequest,
     PushSkillResultResponse,
+    ResolvePushConflictRequest,
     SkillStatusFromPathRequest,
     SkillStatusResultResponse,
     ResolveSkillConflictRequest,
@@ -27,6 +28,53 @@ router = APIRouter(prefix="/api/skills")
 @router.get("", response_model=SkillsPageResponse)
 def list_skills(container: BackendContainer = Depends(get_container)) -> dict[str, object]:
     return container.skills_queries.list_skills()
+
+
+# --- Stable-id versioning & lineage (#379). Registered before the
+# {skill_ref:path} catch-all so `id/...` isn't swallowed by it. ---
+
+
+@router.get("/id/{skill_id}/versions")
+def list_skill_versions(skill_id: str, container: BackendContainer = Depends(get_container)) -> dict[str, object]:
+    payload = container.skills_queries.list_skill_versions(skill_id)
+    if payload is None:
+        raise HTTPException(status_code=404, detail=f"unknown skill id: {skill_id}")
+    return payload
+
+
+@router.get("/id/{skill_id}/lineage")
+def get_skill_lineage(skill_id: str, container: BackendContainer = Depends(get_container)) -> dict[str, object]:
+    payload = container.skills_queries.get_skill_lineage(skill_id)
+    if payload is None:
+        raise HTTPException(status_code=404, detail=f"unknown skill id: {skill_id}")
+    return payload
+
+
+@router.post("/id/{skill_id}/restore/{version}")
+def restore_skill_version(
+    skill_id: str,
+    version: int,
+    container: BackendContainer = Depends(get_container),
+) -> dict[str, object]:
+    return container.skills_mutations.restore_skill_version(skill_id, version)
+
+
+@router.post("/id/{skill_id}/promote")
+def promote_skill(skill_id: str, container: BackendContainer = Depends(get_container)) -> dict[str, object]:
+    return container.skills_mutations.promote_skill(skill_id)
+
+
+@router.post("/resolve-push")
+def resolve_push_conflict(
+    body: ResolvePushConflictRequest,
+    container: BackendContainer = Depends(get_container),
+) -> dict[str, object]:
+    return container.skills_mutations.resolve_push_conflict(
+        source_path=body.source_path,
+        base_id=body.base_id,
+        resolution=body.resolution,
+        name=body.name,
+    )
 
 
 @router.get("/{skill_ref:path}/source-status", response_model=SkillSourceStatusResponse)

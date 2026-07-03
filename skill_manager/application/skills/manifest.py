@@ -17,6 +17,13 @@ class SkillStoreEntry:
     source_ref: str | None = None
     source_path: str | None = None
     version: int = 1
+    # Stable identity + fork lineage (#379). id is None only for legacy entries
+    # before the one-time migration assigns one. is_primary marks the main branch
+    # within a fork lineage (exactly one True per connected component).
+    id: str | None = None
+    forked_from: str | None = None
+    forked_from_version: int | None = None
+    is_primary: bool = True
 
     def to_dict(self) -> dict[str, object]:
         payload: dict[str, object] = {
@@ -31,6 +38,13 @@ class SkillStoreEntry:
             payload["sourceRef"] = self.source_ref
         if self.source_path is not None:
             payload["sourcePath"] = self.source_path
+        if self.id is not None:
+            payload["id"] = self.id
+        if self.forked_from is not None:
+            payload["forkedFrom"] = self.forked_from
+        if self.forked_from_version is not None:
+            payload["forkedFromVersion"] = self.forked_from_version
+        payload["isPrimary"] = self.is_primary
         return payload
 
 
@@ -56,6 +70,12 @@ def load_skill_store_manifest(path: Path) -> SkillStoreManifest:
             source_ref=item.get("sourceRef") if isinstance(item.get("sourceRef"), str) else None,
             source_path=item.get("sourcePath") if isinstance(item.get("sourcePath"), str) else None,
             version=item["version"] if isinstance(item.get("version"), int) else 1,
+            id=item.get("id") if isinstance(item.get("id"), str) else None,
+            forked_from=item.get("forkedFrom") if isinstance(item.get("forkedFrom"), str) else None,
+            forked_from_version=(
+                item["forkedFromVersion"] if isinstance(item.get("forkedFromVersion"), int) else None
+            ),
+            is_primary=item["isPrimary"] if isinstance(item.get("isPrimary"), bool) else True,
         )
         for item in payload.get("entries", [])
     )

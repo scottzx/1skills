@@ -46,7 +46,10 @@ def fingerprint_package(root: Path) -> tuple[str, tuple[str, ...]]:
     digest = hashlib.sha256()
     relative_files: list[str] = []
     for path in sorted(candidate for candidate in root.rglob("*") if candidate.is_file()):
-        if path.name == ".DS_Store":
+        # .skillmeta.json (stable-id sidecar, #379) is excluded like .DS_Store:
+        # id/baseVersion/fork lineage are identity, not content — including them
+        # would make every copy read as "modified".
+        if path.name in (".DS_Store", ".skillmeta.json"):
             continue
         relative_path = path.relative_to(root).as_posix()
         relative_files.append(relative_path)
@@ -82,6 +85,29 @@ def parse_skill_package(root: Path, *, default_source: SourceDescriptor) -> Skil
         revision=fingerprint,
         source=source,
     )
+
+
+def set_skill_name(package_dir: Path, name: str) -> None:
+    """Rewrite the ``name:`` frontmatter of a package's SKILL.md in place.
+
+    Used when a fork is given a new display name (#379): the name lives in
+    SKILL.md (the canonical place Claude Code reads), so a real rename edits it
+    there rather than shadowing it in a manifest field the UI never reads."""
+    skill_path = package_dir / "SKILL.md"
+    document = skill_path.read_text(encoding="utf-8")
+    lines = document.splitlines()
+    if lines[:1] != ["---"]:
+        skill_path.write_text(f"---\nname: {name}\n---\n\n{document}", encoding="utf-8")
+        return
+    for index in range(1, len(lines)):
+        stripped = lines[index].strip()
+        if stripped == "---":
+            lines.insert(index, f"name: {name}")
+            break
+        if stripped.split(":", 1)[0].strip() == "name":
+            lines[index] = f"name: {name}"
+            break
+    skill_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 def parse_skill_manifest_text(document: str) -> SkillManifest:

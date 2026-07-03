@@ -9,6 +9,7 @@ import type {
   SkillStatus as SkillStatusDto,
   SkillsSummary as SkillsSummaryDto,
   SkillDetailActionsDto,
+  SkillLineageInfo as SkillLineageInfoDto,
   SkillRemoveStatus as SkillRemoveStatusDto,
   SkillSourceStatusDto,
   SkillUpdateStatus as SkillUpdateStatusDto,
@@ -25,6 +26,7 @@ export type SkillRowActions = SkillRowActionsDto;
 export type SkillLocation = SkillLocationDto;
 export type SkillSourceLinks = SkillSourceLinksDto;
 export type BulkManageResult = BulkManageResultDto;
+export type SkillLineageInfo = SkillLineageInfoDto;
 
 export interface SkillListRow {
   skillRef: string;
@@ -56,4 +58,5 @@ export interface SkillDetail {
   locations: SkillLocation[];
   sourceLinks: SkillSourceLinks | null;
   documentMarkdown: string | null;
+  lineage: SkillLineageInfo | null;
 }

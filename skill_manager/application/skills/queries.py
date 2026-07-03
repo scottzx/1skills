@@ -14,6 +14,7 @@ from .package import SkillParseError, fingerprint_package, parse_skill_package
 from .policy import can_stop_managing, can_update, has_local_changes
 from .presenters import skill_detail_payload, skills_page_payload, source_status_payload
 from .read_models import SkillsReadModelService
+from .skillmeta import read_skill_meta
 from .source_fetch import SourceFetchService
 
 
@@ -86,6 +87,12 @@ class SkillsQueryService:
             except SkillParseError:
                 pass
         store = self.read_models.store
+        meta = read_skill_meta(src) if src_exists else None
+        # Prefer the stable-id sidecar (#379); a renamed copy still resolves to
+        # its store package. Fall back to the dir-name key for legacy copies.
+        entry = store.entry_for_id(meta.id) if meta is not None else None
+        if entry is not None:
+            package_dir = entry.package_dir
         store_dir = store.root / package_dir
         in_store = store_dir.is_dir() and (store_dir / "SKILL.md").is_file()
         differs = True
@@ -98,7 +105,24 @@ class SkillsQueryService:
             "name": name,
             "description": description,
             "storeVersion": store.version_of(package_dir) if in_store else None,
+            "skillId": (entry.id if entry is not None else (meta.id if meta is not None else None)),
+            "baseVersion": meta.base_version if meta is not None else None,
         }
+
+    def list_skill_versions(self, skill_id: str) -> dict[str, object] | None:
+        store = self.read_models.store
+        entry = store.entry_for_id(skill_id)
+        if entry is None:
+            return None
+        return {
+            "id": skill_id,
+            "name": entry.declared_name,
+            "currentVersion": entry.version,
+            "versions": store.history.versions(skill_id),
+        }
+
+    def get_skill_lineage(self, skill_id: str) -> dict[str, object] | None:
+        return self.read_models.store.lineage(skill_id)
 
     def inventory(self) -> SkillInventory:
         snapshot = self.read_models.snapshot()

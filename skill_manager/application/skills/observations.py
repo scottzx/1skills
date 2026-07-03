@@ -20,6 +20,11 @@ class StorePackageObservation:
     recorded_revision: str | None = None
     recorded_source_ref: str | None = None
     recorded_source_path: str | None = None
+    recorded_id: str | None = None
+    recorded_version: int = 1
+    recorded_forked_from: str | None = None
+    recorded_forked_from_version: int | None = None
+    recorded_is_primary: bool = True
 
 
 @dataclass(frozen=True)

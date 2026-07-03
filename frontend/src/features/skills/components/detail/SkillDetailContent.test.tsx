@@ -1,8 +1,18 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen } from "@testing-library/react";
+import type { ReactElement } from "react";
 import { describe, expect, it, vi } from "vitest";
 
 import type { SkillDetail } from "../../model/types";
 import { SkillDetailContent } from "./SkillDetailContent";
+
+function renderWithQueryClient(ui: ReactElement) {
+  return render(
+    <QueryClientProvider client={new QueryClient()}>
+      {ui}
+    </QueryClientProvider>,
+  );
+}
 
 const unmanagedDetail: SkillDetail = {
   skillRef: "unmanaged:trace-lens",
@@ -32,11 +42,12 @@ const unmanagedDetail: SkillDetail = {
     folderUrl: "https://github.com/mode-io/trace-lens/tree/main/trace-lens",
   },
   documentMarkdown: "## Usage\n\nInspect traces.",
+  lineage: null,
 };
 
 describe("SkillDetailContent", () => {
   it("renders source links, keeps SKILL.md folded by default, omits status pills, and places review actions in the footer rail", async () => {
-    render(
+    renderWithQueryClient(
       <SkillDetailContent
         detail={unmanagedDetail}
         actionErrorMessage=""
@@ -80,7 +91,7 @@ describe("SkillDetailContent", () => {
   });
 
   it("shows the shared-store note only for managed entries with a shared location and keeps passive source status in the footer", () => {
-    render(
+    renderWithQueryClient(
       <SkillDetailContent
         detail={{
           ...unmanagedDetail,
@@ -129,7 +140,7 @@ describe("SkillDetailContent", () => {
   });
 
   it("shows the local-changes warning in the body and hides local_changes_detected from the footer rail", () => {
-    render(
+    renderWithQueryClient(
       <SkillDetailContent
         detail={{
           ...unmanagedDetail,

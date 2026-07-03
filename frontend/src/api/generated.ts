@@ -776,6 +776,74 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/skills/id/{skill_id}/lineage": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Skill Lineage */
+        get: operations["get_skill_lineage_api_skills_id__skill_id__lineage_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/skills/id/{skill_id}/promote": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Promote Skill */
+        post: operations["promote_skill_api_skills_id__skill_id__promote_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/skills/id/{skill_id}/restore/{version}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Restore Skill Version */
+        post: operations["restore_skill_version_api_skills_id__skill_id__restore__version__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/skills/id/{skill_id}/versions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Skill Versions */
+        get: operations["list_skill_versions_api_skills_id__skill_id__versions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/skills/manage-all": {
         parameters: {
             query?: never;
@@ -787,6 +855,23 @@ export interface paths {
         put?: never;
         /** Manage All Skills */
         post: operations["manage_all_skills_api_skills_manage_all_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/skills/resolve-push": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Resolve Push Conflict */
+        post: operations["resolve_push_conflict_api_skills_resolve_push_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2209,13 +2294,36 @@ export interface components {
              */
             changed: boolean;
             /**
+             * Conflict
+             * @description Present when status=conflict: {id, name, storeVersion, baseVersion, sourcePath}
+             */
+            conflict?: {
+                [key: string]: unknown;
+            } | null;
+            /**
              * Created
              * @description True when a custom skill was ingested into the store for the first time
              * @default false
              */
             created: boolean;
+            /**
+             * Id
+             * @description Stable skill id the push resolved to
+             */
+            id?: string | null;
             /** Ok */
             ok: boolean;
+            /**
+             * Status
+             * @description One of updated | exists | created | conflict (#379 decision tree)
+             * @default updated
+             */
+            status: string;
+            /**
+             * Version
+             * @description The store package's version counter after the push (bumped when changed)
+             */
+            version?: number | null;
         };
         /** ReconcileMcpServerRequest */
         ReconcileMcpServerRequest: {
@@ -2228,6 +2336,27 @@ export interface components {
              * @enum {string}
              */
             sourceKind: "managed" | "harness";
+        };
+        /**
+         * ResolvePushConflictRequest
+         * @description Resolve a concurrent-edit push (#379): the pushed content always lands as
+         *     a new fork; ``resolution`` only chooses who is primary (main/fork).
+         */
+        ResolvePushConflictRequest: {
+            /** Baseid */
+            baseId: string;
+            /**
+             * Name
+             * @description Optional new display name for the fork
+             */
+            name?: string | null;
+            /**
+             * Resolution
+             * @enum {string}
+             */
+            resolution: "main" | "fork";
+            /** Sourcepath */
+            sourcePath: string;
         };
         /** ResolveSkillConflictRequest */
         ResolveSkillConflictRequest: {
@@ -2621,6 +2750,7 @@ export interface components {
             documentMarkdown: string | null;
             /** Harnesscells */
             harnessCells: components["schemas"]["HarnessCellResponse"][];
+            lineage?: components["schemas"]["SkillLineageInfoResponse"] | null;
             /** Locations */
             locations: components["schemas"]["SkillLocationResponse"][];
             /** Name */
@@ -2628,6 +2758,25 @@ export interface components {
             /** Skillref */
             skillRef: string;
             sourceLinks: components["schemas"]["SkillSourceLinksResponse"] | null;
+        };
+        /** SkillLineageInfoResponse */
+        SkillLineageInfoResponse: {
+            /** Forkedfrom */
+            forkedFrom?: string | null;
+            /** Forkedfromversion */
+            forkedFromVersion?: number | null;
+            /** Id */
+            id?: string | null;
+            /**
+             * Isprimary
+             * @default true
+             */
+            isPrimary: boolean;
+            /**
+             * Version
+             * @default 1
+             */
+            version: number;
         };
         /** SkillLocationResponse */
         SkillLocationResponse: {
@@ -2722,6 +2871,11 @@ export interface components {
              * @default
              */
             name: string;
+            /**
+             * Storeversion
+             * @description The store package's current version counter, or null when not in store
+             */
+            storeVersion?: number | null;
         };
         /** SkillTableRowResponse */
         SkillTableRowResponse: {
@@ -4453,6 +4607,139 @@ export interface operations {
             };
         };
     };
+    get_skill_lineage_api_skills_id__skill_id__lineage_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                skill_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    promote_skill_api_skills_id__skill_id__promote_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                skill_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    restore_skill_version_api_skills_id__skill_id__restore__version__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                skill_id: string;
+                version: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_skill_versions_api_skills_id__skill_id__versions_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                skill_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     manage_all_skills_api_skills_manage_all_post: {
         parameters: {
             query?: never;
@@ -4469,6 +4756,41 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["BulkManageResultResponse"];
+                };
+            };
+        };
+    };
+    resolve_push_conflict_api_skills_resolve_push_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResolvePushConflictRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

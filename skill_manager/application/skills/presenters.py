@@ -42,6 +42,13 @@ def skill_detail_payload(
         "description": entry.description,
         "displayStatus": display_status(entry),
         "attentionMessage": attention_message(entry),
+        "lineage": {
+            "id": entry.skill_id,
+            "version": entry.version,
+            "forkedFrom": entry.forked_from,
+            "forkedFromVersion": entry.forked_from_version,
+            "isPrimary": entry.is_primary,
+        } if entry.skill_id else None,
         "actions": {
             "canManage": can_manage(entry),
             "stopManagingStatus": stop_managing_status_payload(entry),

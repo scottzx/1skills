@@ -8,4 +8,8 @@ export const skillsKeys = {
   detail: (skillRef: string) => ["skills", "detail", skillRef] as const,
   sourceStatusPrefix: () => ["skills", "source-status"] as const,
   sourceStatus: (skillRef: string) => ["skills", "source-status", skillRef] as const,
+  versionsPrefix: () => ["skills", "versions"] as const,
+  versions: (id: string) => ["skills", "versions", id] as const,
+  lineagePrefix: () => ["skills", "lineage"] as const,
+  lineage: (id: string) => ["skills", "lineage", id] as const,
 };

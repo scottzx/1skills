@@ -3313,15 +3313,58 @@
             "title": "Changed",
             "type": "boolean"
           },
+          "conflict": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Present when status=conflict: {id, name, storeVersion, baseVersion, sourcePath}",
+            "title": "Conflict"
+          },
           "created": {
             "default": false,
             "description": "True when a custom skill was ingested into the store for the first time",
             "title": "Created",
             "type": "boolean"
           },
+          "id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Stable skill id the push resolved to",
+            "title": "Id"
+          },
           "ok": {
             "title": "Ok",
             "type": "boolean"
+          },
+          "status": {
+            "default": "updated",
+            "description": "One of updated | exists | created | conflict (#379 decision tree)",
+            "title": "Status",
+            "type": "string"
+          },
+          "version": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The store package's version counter after the push (bumped when changed)",
+            "title": "Version"
           }
         },
         "required": [
@@ -3372,6 +3415,48 @@
           "sourceKind"
         ],
         "title": "ReconcileMcpServerRequest",
+        "type": "object"
+      },
+      "ResolvePushConflictRequest": {
+        "description": "Resolve a concurrent-edit push (#379): the pushed content always lands as\na new fork; ``resolution`` only chooses who is primary (main/fork).",
+        "properties": {
+          "baseId": {
+            "minLength": 1,
+            "title": "Baseid",
+            "type": "string"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Optional new display name for the fork",
+            "title": "Name"
+          },
+          "resolution": {
+            "enum": [
+              "main",
+              "fork"
+            ],
+            "title": "Resolution",
+            "type": "string"
+          },
+          "sourcePath": {
+            "minLength": 1,
+            "title": "Sourcepath",
+            "type": "string"
+          }
+        },
+        "required": [
+          "sourcePath",
+          "baseId",
+          "resolution"
+        ],
+        "title": "ResolvePushConflictRequest",
         "type": "object"
       },
       "ResolveSkillConflictRequest": {
@@ -4419,6 +4504,16 @@
             "title": "Harnesscells",
             "type": "array"
           },
+          "lineage": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SkillLineageInfoResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "locations": {
             "items": {
               "$ref": "#/components/schemas/SkillLocationResponse"
@@ -4458,6 +4553,55 @@
           "documentMarkdown"
         ],
         "title": "SkillDetailResponse",
+        "type": "object"
+      },
+      "SkillLineageInfoResponse": {
+        "properties": {
+          "forkedFrom": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Forkedfrom"
+          },
+          "forkedFromVersion": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Forkedfromversion"
+          },
+          "id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id"
+          },
+          "isPrimary": {
+            "default": true,
+            "title": "Isprimary",
+            "type": "boolean"
+          },
+          "version": {
+            "default": 1,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "title": "SkillLineageInfoResponse",
         "type": "object"
       },
       "SkillLocationResponse": {
@@ -4680,6 +4824,18 @@
             "description": "Declared name from the workspace copy's SKILL.md frontmatter",
             "title": "Name",
             "type": "string"
+          },
+          "storeVersion": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The store package's current version counter, or null when not in store",
+            "title": "Storeversion"
           }
         },
         "required": [
@@ -7373,6 +7529,179 @@
         "summary": "List Skills"
       }
     },
+    "/api/skills/id/{skill_id}/lineage": {
+      "get": {
+        "operationId": "get_skill_lineage_api_skills_id__skill_id__lineage_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "skill_id",
+            "required": true,
+            "schema": {
+              "title": "Skill Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Get Skill Lineage Api Skills Id  Skill Id  Lineage Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Skill Lineage"
+      }
+    },
+    "/api/skills/id/{skill_id}/promote": {
+      "post": {
+        "operationId": "promote_skill_api_skills_id__skill_id__promote_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "skill_id",
+            "required": true,
+            "schema": {
+              "title": "Skill Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Promote Skill Api Skills Id  Skill Id  Promote Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Promote Skill"
+      }
+    },
+    "/api/skills/id/{skill_id}/restore/{version}": {
+      "post": {
+        "operationId": "restore_skill_version_api_skills_id__skill_id__restore__version__post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "skill_id",
+            "required": true,
+            "schema": {
+              "title": "Skill Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "version",
+            "required": true,
+            "schema": {
+              "title": "Version",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Restore Skill Version Api Skills Id  Skill Id  Restore  Version  Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Restore Skill Version"
+      }
+    },
+    "/api/skills/id/{skill_id}/versions": {
+      "get": {
+        "operationId": "list_skill_versions_api_skills_id__skill_id__versions_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "skill_id",
+            "required": true,
+            "schema": {
+              "title": "Skill Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response List Skill Versions Api Skills Id  Skill Id  Versions Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Skill Versions"
+      }
+    },
     "/api/skills/manage-all": {
       "post": {
         "operationId": "manage_all_skills_api_skills_manage_all_post",
@@ -7389,6 +7718,46 @@
           }
         },
         "summary": "Manage All Skills"
+      }
+    },
+    "/api/skills/resolve-push": {
+      "post": {
+        "operationId": "resolve_push_conflict_api_skills_resolve_push_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResolvePushConflictRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Resolve Push Conflict Api Skills Resolve Push Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Resolve Push Conflict"
       }
     },
     "/api/skills/{skill_ref}": {

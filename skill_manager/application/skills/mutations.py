@@ -9,11 +9,13 @@ from skill_manager.errors import MutationError
 from .contracts import SkillsHarnessAdapter
 from .identity import SourceDescriptor
 from .inventory import InventoryEntry
-from .package import parse_skill_package
+from .package import parse_skill_package, set_skill_name
 from .policy import can_delete, can_manage, can_stop_managing, can_update, display_status, has_local_changes
 from .queries import SkillsQueryService
 from .read_models import SkillsReadModelService
+from .skillmeta import SkillMeta, read_skill_meta, write_skill_meta
 from .source_fetch import SourceFetchService
+from .store import slugify_dir
 
 
 class SkillsMutationService:
@@ -161,50 +163,217 @@ class SkillsMutationService:
         return {"ok": True}
 
     def push_skill_from_path(self, skill_ref: str, source_path: str) -> dict[str, object]:
-        """Push a workspace's own skill copy to the shared store (母体), keyed by
-        its package dir (from skill_ref):
+        """Push a workspace's own skill copy to the shared store (母体) using the
+        stable-id decision tree (#379). Reads the workspace sidecar (id +
+        baseVersion) and routes:
 
-        - store already has the package → overwrite it (``store.update``); no-ops
-          (``changed=False``) when identical.
-        - store doesn't have it → the user dropped a custom skill into the
-          workspace; ingest it as a new ``centralized:`` package (``created=True``).
+        - id in store, store.version <= baseVersion → linear update (``updated``,
+          or ``exists`` when identical). Silent.
+        - id in store, store.version >  baseVersion → concurrent edit: return
+          ``conflict`` (creates nothing); the caller must POST /resolve to land
+          it as main or fork.
+        - no id (or id gone from store) → content-hash dedup: an exact match
+          returns ``exists`` (links the workspace to that id); otherwise a new
+          package is created (``created``), allowing duplicate names.
 
-        Either way ``source_path`` is <workspace>/.claude/skills/<dir>. This is the
-        reverse of the create-time weak-copy.
+        On any non-conflict outcome the workspace sidecar is stamped with the
+        resolved id + version so the next push is correctly linear.
         """
         src = Path(source_path)
         if not src.is_dir() or not (src / "SKILL.md").is_file():
             raise MutationError(f"no skill package (missing SKILL.md) at {source_path}", status=400)
-        package_dir = Path(skill_ref.rsplit(":", 1)[-1]).name
-        if not package_dir:
-            raise MutationError(f"invalid skill ref: {skill_ref}", status=400)
         store = self.read_models.store
-        created = False
+        meta = read_skill_meta(src)
+
         try:
-            if (store.root / package_dir).is_dir():
-                _dest, changed = store.update(package_dir, source_path=src)
+            # Branch 1 — known id still in the store.
+            if meta is not None and store.entry_for_id(meta.id) is not None:
+                entry = store.entry_for_id(meta.id)
+                assert entry is not None
+                if store.version_of(entry.package_dir) is not None and entry.version > meta.base_version:
+                    return {
+                        "ok": True,
+                        "status": "conflict",
+                        "changed": False,
+                        "created": False,
+                        "id": entry.id,
+                        "version": entry.version,
+                        "conflict": {
+                            "id": entry.id,
+                            "name": entry.declared_name,
+                            "storeVersion": entry.version,
+                            "baseVersion": meta.base_version,
+                            "sourcePath": str(src),
+                        },
+                    }
+                _dest, changed = store.update(entry.package_dir, source_path=src)
+                fresh = store.entry_for_dir(entry.package_dir)
+                assert fresh is not None
+                self._stamp_workspace_meta(src, fresh)
+                if changed:
+                    self.read_models.invalidate()
+                return {
+                    "ok": True,
+                    "status": "updated" if changed else "exists",
+                    "changed": changed,
+                    "created": False,
+                    "id": fresh.id,
+                    "version": fresh.version,
+                }
+
+            # Branch 2 — no usable id: content-hash dedup, else create.
+            package = parse_skill_package(
+                src, default_source=SourceDescriptor(kind="centralized", locator="centralized:push")
+            )
+            duplicate = store.find_by_revision(package.revision)
+            if duplicate is not None:
+                self._stamp_workspace_meta(src, duplicate)
+                return {
+                    "ok": True,
+                    "status": "exists",
+                    "changed": False,
+                    "created": False,
+                    "id": duplicate.id,
+                    "version": duplicate.version,
+                }
+            dest = store.ingest(
+                source_path=src,
+                declared_name=package.declared_name,
+                source_kind="centralized",
+                source_locator=f"centralized:{src.name}",
+                allow_duplicate_name=True,
+                skill_id=meta.id if meta is not None else None,
+                history_source="push",
+            )
+        except ValueError as error:
+            raise MutationError(str(error), status=409) from error
+        created_entry = store.entry_for_dir(dest.name)
+        assert created_entry is not None
+        self._stamp_workspace_meta(src, created_entry)
+        self.read_models.invalidate()
+        return {
+            "ok": True,
+            "status": "created",
+            "changed": True,
+            "created": True,
+            "id": created_entry.id,
+            "version": created_entry.version,
+        }
+
+    def resolve_push_conflict(
+        self,
+        *,
+        source_path: str,
+        base_id: str,
+        resolution: str,
+        name: str | None = None,
+    ) -> dict[str, object]:
+        """Land a concurrent-edit push as a new fork (#379). The pushed content
+        always becomes a new package C forked from ``base_id`` @ baseVersion — no
+        data is ever overwritten. ``resolution`` only decides who is primary:
+
+        - ``main`` → C becomes primary, the original branch is demoted;
+        - ``fork`` → the original stays primary, C is a side branch.
+
+        An optional ``name`` renames the fork (its SKILL.md + folder)."""
+        if resolution not in ("main", "fork"):
+            raise MutationError("resolution must be 'main' or 'fork'", status=400)
+        src = Path(source_path)
+        if not src.is_dir() or not (src / "SKILL.md").is_file():
+            raise MutationError(f"no skill package (missing SKILL.md) at {source_path}", status=400)
+        store = self.read_models.store
+        base = store.entry_for_id(base_id)
+        if base is None:
+            raise MutationError(f"unknown skill id: {base_id}", status=404)
+        meta = read_skill_meta(src)
+        forked_from_version = meta.base_version if meta is not None else base.version
+
+        fork_name = name.strip() if name and name.strip() else None
+        try:
+            if fork_name is not None:
+                with TemporaryDirectory(prefix="skill-fork-") as work_dir:
+                    staged = Path(work_dir) / src.name
+                    shutil.copytree(src, staged)
+                    set_skill_name(staged, fork_name)
+                    dest = store.ingest(
+                        source_path=staged,
+                        declared_name=fork_name,
+                        source_kind="centralized",
+                        source_locator="centralized:fork",
+                        allow_duplicate_name=True,
+                        desired_dir=slugify_dir(fork_name),
+                        forked_from=base_id,
+                        forked_from_version=forked_from_version,
+                        is_primary=False,
+                        history_source="fork",
+                    )
+                # keep the workspace copy's name in sync with its new central fork
+                set_skill_name(src, fork_name)
             else:
                 package = parse_skill_package(
-                    src,
-                    default_source=SourceDescriptor(kind="centralized", locator=f"centralized:{package_dir}"),
+                    src, default_source=SourceDescriptor(kind="centralized", locator="centralized:fork")
                 )
-                store.ingest(
+                dest = store.ingest(
                     source_path=src,
                     declared_name=package.declared_name,
                     source_kind="centralized",
-                    source_locator=f"centralized:{package_dir}",
+                    source_locator="centralized:fork",
+                    allow_duplicate_name=True,
+                    forked_from=base_id,
+                    forked_from_version=forked_from_version,
+                    is_primary=False,
+                    history_source="fork",
                 )
-                changed, created = True, True
+            fork = store.entry_for_dir(dest.name)
+            assert fork is not None
+            if resolution == "main":
+                store.set_primary(fork.id)
         except ValueError as error:
             raise MutationError(str(error), status=409) from error
-        if changed:
-            self.read_models.invalidate()
+        self._stamp_workspace_meta(src, store.entry_for_dir(dest.name))  # type: ignore[arg-type]
+        self.read_models.invalidate()
         return {
             "ok": True,
-            "changed": changed,
-            "created": created,
-            "version": store.version_of(package_dir),
+            "id": fork.id,
+            "resolution": resolution,
+            "version": fork.version,
+            "packageDir": dest.name,
         }
+
+    def restore_skill_version(self, skill_id: str, version: int) -> dict[str, object]:
+        try:
+            new_version = self.read_models.store.restore(skill_id, version)
+        except ValueError as error:
+            raise MutationError(str(error), status=404) from error
+        self.read_models.invalidate()
+        return {"ok": True, "id": skill_id, "version": new_version}
+
+    def promote_skill(self, skill_id: str) -> dict[str, object]:
+        try:
+            self.read_models.store.set_primary(skill_id)
+        except ValueError as error:
+            raise MutationError(str(error), status=404) from error
+        self.read_models.invalidate()
+        return {"ok": True, "id": skill_id}
+
+    def _stamp_workspace_meta(self, src: Path, entry) -> None:
+        """Write the store's authoritative id + version back into the workspace
+        copy's sidecar so a repeat push from the same copy is linear, not a false
+        concurrent edit. The sidecar is fingerprint-excluded, so this never marks
+        the skill modified."""
+        if entry is None:
+            return
+        existing = read_skill_meta(src)
+        write_skill_meta(
+            src,
+            SkillMeta(
+                id=entry.id,
+                base_version=entry.version,
+                forked_from=entry.forked_from,
+                forked_from_version=entry.forked_from_version,
+                created_at=existing.created_at if existing else None,
+            ),
+        )
 
     def unmanage_skill(self, skill_ref: str) -> dict[str, bool]:
         entry = self.queries.require_entry(skill_ref)

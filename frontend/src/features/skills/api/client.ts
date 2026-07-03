@@ -3,11 +3,15 @@ import type {
   DisableSkillRequest,
   EnableSkillRequest,
   OkResponse,
+  PromoteSkillResult,
+  RestoreSkillVersionResult,
   SetSkillHarnessesRequest,
   SetSkillHarnessesResultDto,
   SkillDetailDto,
+  SkillLineageDto,
   SkillsPageDto,
   SkillSourceStatusDto,
+  SkillVersionsDto,
 } from "./types";
 import { fetchJson, postJson } from "../../../api/http";
 
@@ -58,6 +62,24 @@ export async function unmanageSkill(skillRef: string): Promise<OkResponse> {
 
 export async function deleteSkill(skillRef: string): Promise<OkResponse> {
   return postJson<OkResponse>(`/skills/${encodeURIComponent(skillRef)}/delete`);
+}
+
+export async function fetchSkillVersions(id: string): Promise<SkillVersionsDto> {
+  return fetchJson<SkillVersionsDto>(`/skills/id/${encodeURIComponent(id)}/versions`);
+}
+
+export async function fetchSkillLineage(id: string): Promise<SkillLineageDto> {
+  return fetchJson<SkillLineageDto>(`/skills/id/${encodeURIComponent(id)}/lineage`);
+}
+
+export async function restoreSkillVersion(id: string, version: number): Promise<RestoreSkillVersionResult> {
+  return postJson<RestoreSkillVersionResult>(
+    `/skills/id/${encodeURIComponent(id)}/restore/${encodeURIComponent(String(version))}`,
+  );
+}
+
+export async function promoteSkill(id: string): Promise<PromoteSkillResult> {
+  return postJson<PromoteSkillResult>(`/skills/id/${encodeURIComponent(id)}/promote`);
 }
 
 export async function manageAllSkills(): Promise<BulkManageResult> {

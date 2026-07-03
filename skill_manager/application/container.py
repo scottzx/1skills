@@ -44,6 +44,7 @@ from .skills.marketplace import (
     MarketplaceInstallService,
     MarketplaceQueryService,
 )
+from .skills.history import SkillHistoryStore
 from .skills.read_models import SkillsReadModelService
 from .skills.source_fetch import SourceFetchService
 from .skills.store import SkillStore
@@ -108,7 +109,15 @@ def build_backend_container(
     harness_kernel = HarnessKernelService.from_environment(active_env, support_store=support_store)
     invalidation = InvalidationFanout()
 
-    skills_store = SkillStore(paths.skills_store_root, manifest_path=paths.skills_store_manifest)
+    skills_history = SkillHistoryStore(paths.skills_history_root)
+    skills_store = SkillStore(
+        paths.skills_store_root,
+        manifest_path=paths.skills_store_manifest,
+        history=skills_history,
+    )
+    # One-time, idempotent: backfill stable ids + version-1 history for legacy
+    # store packages so the versioning/lineage features have a baseline (#379).
+    skills_store.migrate_ids_and_history()
     skills_read_models = SkillsReadModelService.from_kernel(store=skills_store, kernel=harness_kernel)
     invalidation.register(skills_read_models)
 

@@ -8,10 +8,14 @@ import {
   disableSkill,
   enableSkill,
   fetchSkillDetail,
+  fetchSkillLineage,
   fetchSkillSourceStatus,
   fetchSkillsPage,
+  fetchSkillVersions,
   manageAllSkills,
   manageSkill,
+  promoteSkill,
+  restoreSkillVersion,
   setSkillHarnesses,
   unmanageSkill,
   updateSkill,
@@ -57,6 +61,52 @@ export function useSkillSourceStatusQuery(skillRef: string | null) {
     queryFn: () => fetchSkillSourceStatus(skillRef!),
     enabled: Boolean(skillRef),
     ...queryPolicy(SKILLS_STALE_TIME_MS, SKILLS_GC_TIME_MS),
+  });
+}
+
+export function useSkillVersionsQuery(id: string | null) {
+  return useQuery({
+    queryKey: skillsKeys.versions(id ?? "__none__"),
+    queryFn: () => fetchSkillVersions(id!),
+    enabled: Boolean(id),
+    ...queryPolicy(SKILLS_STALE_TIME_MS, SKILLS_GC_TIME_MS),
+  });
+}
+
+export function useSkillLineageQuery(id: string | null) {
+  return useQuery({
+    queryKey: skillsKeys.lineage(id ?? "__none__"),
+    queryFn: () => fetchSkillLineage(id!),
+    enabled: Boolean(id),
+    ...queryPolicy(SKILLS_STALE_TIME_MS, SKILLS_GC_TIME_MS),
+  });
+}
+
+export function useRestoreSkillVersionMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, version }: { id: string; version: number }) => restoreSkillVersion(id, version),
+    onSuccess: async (_data, variables) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: skillsKeys.detail(variables.id) }),
+        queryClient.invalidateQueries({ queryKey: skillsKeys.versions(variables.id) }),
+        queryClient.invalidateQueries({ queryKey: skillsKeys.list() }),
+      ]);
+    },
+  });
+}
+
+export function usePromoteSkillMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id }: { id: string }) => promoteSkill(id),
+    onSuccess: async (_data, variables) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: skillsKeys.detail(variables.id) }),
+        queryClient.invalidateQueries({ queryKey: skillsKeys.lineage(variables.id) }),
+        queryClient.invalidateQueries({ queryKey: skillsKeys.list() }),
+      ]);
+    },
   });
 }
 

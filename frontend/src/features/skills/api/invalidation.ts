@@ -7,5 +7,7 @@ export async function invalidateSkillsQueries(queryClient: QueryClient): Promise
     queryClient.invalidateQueries({ queryKey: skillsKeys.list() }),
     queryClient.invalidateQueries({ queryKey: skillsKeys.detailPrefix() }),
     queryClient.invalidateQueries({ queryKey: skillsKeys.sourceStatusPrefix() }),
+    queryClient.invalidateQueries({ queryKey: skillsKeys.versionsPrefix() }),
+    queryClient.invalidateQueries({ queryKey: skillsKeys.lineagePrefix() }),
   ]);
 }

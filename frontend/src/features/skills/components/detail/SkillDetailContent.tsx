@@ -1,4 +1,4 @@
-import { lazy, Suspense, useId } from "react";
+import { lazy, Suspense, useId, useState } from "react";
 
 import { DetailDisclosure } from "../../../../components/detail/DetailDisclosure";
 import { DetailHeader } from "../../../../components/detail/DetailHeader";
@@ -9,12 +9,14 @@ import { ErrorBanner } from "../../../../components/ErrorBanner";
 import { LoadingSpinner } from "../../../../components/LoadingSpinner";
 import { skillStatusConcept } from "../../../../lib/product-language";
 import { useSkillsCopy, type SkillsCopy } from "../../i18n";
+import { usePromoteSkillMutation, useSkillVersionsQuery } from "../../api/queries";
 import type { StructuralSkillAction } from "../../model/pending";
 import type { HarnessCell, SkillDetail, SkillSourceLinks } from "../../model/types";
 import { SkillDetailHarnessMatrix } from "./SkillDetailHarnessMatrix";
 import { SkillDetailRemoveAction } from "./SkillDetailRemoveAction";
 import { SkillDetailUpdateControl } from "./SkillDetailUpdateControl";
 import { SkillDetailShell } from "./SkillDetailShell";
+import { SkillVersionHistoryModal } from "./SkillVersionHistoryModal";
 
 const MarkdownDocument = lazy(() => import("../../../../components/MarkdownDocument"));
 
@@ -49,6 +51,11 @@ export function SkillDetailContent({
 }: SkillDetailContentProps) {
   const headingId = useId();
   const copy = useSkillsCopy();
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const versionsQuery = useSkillVersionsQuery(detail.lineage?.id ?? null);
+  const promoteMutation = usePromoteSkillMutation();
+  const versionCount = versionsQuery.data?.versions.length ?? 0;
+  const lineage = detail.lineage;
   const showSkillManagerStoreNote =
     skillStatusConcept(detail.displayStatus) === "inUse" &&
     detail.locations.some((location) => location.kind === "shared");
@@ -64,19 +71,54 @@ export function SkillDetailContent({
   const showHarnessSection = detail.harnessCells.length > 0;
 
   return (
+    <>
     <SkillDetailShell
       chrome={(
         <div className="skill-detail__chrome">
           <DetailHeader
             title={<h2 id={headingId}>{detail.name}</h2>}
-            meta={detail.sourceLinks ? (
+            meta={(
               <div className="detail-sheet__meta">
-                <DetailSourceLinks
-                  ariaLabel={copy.detail.sourceLinksAria(detail.sourceLinks.repoLabel)}
-                  links={skillSourceLinks(detail.sourceLinks, copy)}
-                />
+                {lineage ? (
+                  <div className="skill-detail__version-row">
+                    <span className="card-status-pill">{copy.versioning.versionBadge(lineage.version)}</span>
+                    {lineage.forkedFrom ? (
+                      <span className="card-status-pill card-status-pill--accent">
+                        {copy.versioning.forkBadge(lineage.forkedFromVersion ?? 1)}
+                      </span>
+                    ) : null}
+                    {!lineage.isPrimary ? (
+                      <button
+                        type="button"
+                        className="action-pill"
+                        disabled={promoteMutation.isPending}
+                        onClick={() => lineage.id && promoteMutation.mutate({ id: lineage.id })}
+                      >
+                        {promoteMutation.isPending ? (
+                          <LoadingSpinner size="sm" label={copy.versioning.makingMain} />
+                        ) : null}
+                        {promoteMutation.isPending ? copy.versioning.makingMain : copy.versioning.makeMain}
+                      </button>
+                    ) : lineage.forkedFrom ? (
+                      <span className="card-status-pill card-status-pill--success">{copy.versioning.mainBadge}</span>
+                    ) : null}
+                    <button
+                      type="button"
+                      className="action-pill"
+                      onClick={() => setHistoryOpen(true)}
+                    >
+                      {copy.versioning.historyButton(versionCount)}
+                    </button>
+                  </div>
+                ) : null}
+                {detail.sourceLinks ? (
+                  <DetailSourceLinks
+                    ariaLabel={copy.detail.sourceLinksAria(detail.sourceLinks.repoLabel)}
+                    links={skillSourceLinks(detail.sourceLinks, copy)}
+                  />
+                ) : null}
               </div>
-            ) : undefined}
+            )}
             closeLabel={copy.detail.close}
             onClose={onClose}
           />
@@ -205,6 +247,12 @@ export function SkillDetailContent({
       ) : undefined}
       bodyAriaLabelledBy={headingId}
     />
+    <SkillVersionHistoryModal
+      open={historyOpen}
+      skillId={detail.lineage?.id ?? null}
+      onClose={() => setHistoryOpen(false)}
+    />
+    </>
   );
 }
 

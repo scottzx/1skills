@@ -61,6 +61,10 @@ class PushSkillFromPathRequest(BaseModel):
 
 class PushSkillResultResponse(BaseModel):
     ok: bool
+    status: str = Field(
+        "updated",
+        description="One of updated | exists | created | conflict (#379 decision tree)",
+    )
     changed: bool = Field(
         ...,
         description="True when the store baseline was written; False when the copy was identical",
@@ -73,6 +77,23 @@ class PushSkillResultResponse(BaseModel):
         None,
         description="The store package's version counter after the push (bumped when changed)",
     )
+    id: str | None = Field(None, description="Stable skill id the push resolved to")
+    conflict: dict | None = Field(
+        None,
+        description="Present when status=conflict: {id, name, storeVersion, baseVersion, sourcePath}",
+    )
+
+
+class ResolvePushConflictRequest(BaseModel):
+    """Resolve a concurrent-edit push (#379): the pushed content always lands as
+    a new fork; ``resolution`` only chooses who is primary (main/fork)."""
+
+    model_config = ConfigDict(populate_by_name=True)
+
+    source_path: str = Field(..., alias="sourcePath", min_length=1)
+    base_id: str = Field(..., alias="baseId", min_length=1)
+    resolution: Literal["main", "fork"] = Field(...)
+    name: str | None = Field(None, description="Optional new display name for the fork")
 
 
 class SkillStatusFromPathRequest(BaseModel):
@@ -223,12 +244,21 @@ class SkillSourceLinksResponse(BaseModel):
     folderUrl: str | None
 
 
+class SkillLineageInfoResponse(BaseModel):
+    id: str | None = None
+    version: int = 1
+    forkedFrom: str | None = None
+    forkedFromVersion: int | None = None
+    isPrimary: bool = True
+
+
 class SkillDetailResponse(BaseModel):
     skillRef: str
     name: str
     description: str
     displayStatus: SkillStatus
     attentionMessage: str | None
+    lineage: SkillLineageInfoResponse | None = None
     actions: SkillDetailActionsResponse
     harnessCells: list[HarnessCellResponse]
     locations: list[SkillLocationResponse]
