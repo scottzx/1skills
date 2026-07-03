@@ -25,3 +25,13 @@ export interface ImportApplyResultDto {
   skipped: { path: string; reason: string }[];
   failures: { path: string; error: string }[];
 }
+
+export interface DirEntryDto {
+  name: string;
+  path: string;
+}
+
+export interface ListDirectoriesResponse {
+  currentPath: string;
+  directories: DirEntryDto[];
+}

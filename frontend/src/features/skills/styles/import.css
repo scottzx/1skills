@@ -181,4 +181,71 @@
   flex-shrink: 0;
 }
 
+/* Directory-tree picker */
+.dirpick-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dirpick-iconbtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-sunken);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.dirpick-iconbtn:hover {
+  background: var(--color-border);
+}
+
+.dirpick-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: min(48vh, 420px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 4px;
+}
+
+.dirpick-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 8px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  text-align: left;
+  cursor: pointer;
+}
+
+.dirpick-item:hover {
+  background: var(--color-surface-sunken);
+}
+
+.dirpick-item > svg {
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+.dirpick-item__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 }

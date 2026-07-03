@@ -1,8 +1,9 @@
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Check, Plus, X } from "lucide-react";
+import { Check, FolderSearch, Plus, X } from "lucide-react";
 
 import { Modal } from "../../../../components/ui/Modal";
+import { DirectoryPickerModal } from "./DirectoryPickerModal";
 import { applyImport, scanImportFolders } from "../../api/import-client";
 import type { ImportFolderDto } from "../../api/import-types";
 import { invalidateSkillsQueries } from "../../api/invalidation";
@@ -22,6 +23,7 @@ export function ImportFolderModal({ open, onClose }: ImportFolderModalProps) {
   const [customFolders, setCustomFolders] = useState<string[]>([]);
   const [newFolder, setNewFolder] = useState("");
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   const scan = useQuery({
     queryKey: ["skills", "import-scan", customFolders],
@@ -58,13 +60,14 @@ export function ImportFolderModal({ open, onClose }: ImportFolderModalProps) {
     });
   };
 
+  const addPath = (raw: string) => {
+    const trimmed = raw.trim();
+    if (!trimmed) return;
+    setCustomFolders((prev) => (prev.includes(trimmed) ? prev : [...prev, trimmed]));
+  };
+
   const addFolder = () => {
-    const trimmed = newFolder.trim();
-    if (!trimmed || customFolders.includes(trimmed)) {
-      setNewFolder("");
-      return;
-    }
-    setCustomFolders((prev) => [...prev, trimmed]);
+    addPath(newFolder);
     setNewFolder("");
   };
 
@@ -142,7 +145,17 @@ export function ImportFolderModal({ open, onClose }: ImportFolderModalProps) {
           <Plus size={14} />
           {copy.add}
         </button>
+        <button type="button" className="import-addbtn" onClick={() => setPickerOpen(true)}>
+          <FolderSearch size={14} />
+          {copy.browse}
+        </button>
       </div>
+
+      <DirectoryPickerModal
+        open={pickerOpen}
+        onClose={() => setPickerOpen(false)}
+        onSelect={(path) => addPath(path)}
+      />
 
       <div className="import-list">
         {scan.isLoading ? (
