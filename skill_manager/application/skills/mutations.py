@@ -312,8 +312,15 @@ class SkillsMutationService:
             # Not tracked in the store — nothing to pull.
             return {"ok": True, "status": "uptodate", "version": 0}
 
-        # Already identical to the store's current content → nothing to do.
+        # Already identical to the store's current content. If the sidecar is
+        # missing or its base_version lags the store (e.g. a copy dropped in
+        # without a sidecar, or a content-identical version bump), fast-forward
+        # the pointer so the copy reads as synced instead of forever advertising
+        # an "update" that has nothing to apply. Content is untouched.
         if not store.differs_from(entry.package_dir, tgt):
+            if meta is None or meta.base_version < entry.version:
+                self._stamp_workspace_meta(tgt, entry)
+                return {"ok": True, "status": "pulled", "version": entry.version}
             return {"ok": True, "status": "uptodate", "version": entry.version}
 
         # The workspace differs from the *current* store content. Fast-forward is

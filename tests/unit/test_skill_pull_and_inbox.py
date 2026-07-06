@@ -87,6 +87,23 @@ class PullAndInboxTests(unittest.TestCase):
         self.assertEqual(res["status"], "uptodate")
         self.assertEqual(res["version"], 0)
 
+    def test_pull_tracks_untracked_identical_copy(self) -> None:
+        # Regression: a copy whose content matches the store but has no sidecar
+        # reads baseVersion 0 and would forever show "update available" that a
+        # pull can't clear. Pull must stamp the sidecar so it reads as synced.
+        a = self._seed("uikit", "one")
+        self.mut.push_skill_from_path("shared:uikit", str(a))  # store v1
+        c = self.root / "ws3" / ".claude" / "skills" / "uikit"
+        c.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copytree(a, c)
+        (c / ".skillmeta.json").unlink(missing_ok=True)  # untracked drop-in
+        self.assertIsNone(read_skill_meta(c))
+        res = self.mut.pull_skill_to_path("shared:uikit", str(c))
+        self.assertEqual(res["status"], "pulled")
+        self.assertEqual(read_skill_meta(c).base_version, 1)  # pointer now tracks v1
+        # Fully synced now → a repeat pull is a genuine no-op.
+        self.assertEqual(self.mut.pull_skill_to_path("shared:uikit", str(c))["status"], "uptodate")
+
     # ---- inbox -----------------------------------------------------------
 
     def _make_conflict(self, name: str) -> tuple[Path, str]:
