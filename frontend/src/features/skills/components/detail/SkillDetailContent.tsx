@@ -79,6 +79,20 @@ export function SkillDetailContent({
             title={<h2 id={headingId}>{detail.name}</h2>}
             meta={(
               <div className="detail-sheet__meta">
+                {detail.primaryTag || detail.secondaryTag ? (
+                  <div className="skill-detail__tags" style={{ display: "flex", gap: "6px", marginBottom: "8px", flexWrap: "wrap" }}>
+                    {detail.primaryTag ? (
+                      <span className="tag-badge primary" style={{ background: "rgba(0, 200, 255, 0.15)", color: "#00c8ff", fontSize: "11px", padding: "3px 8px", borderRadius: "3px", fontWeight: "bold" }}>
+                        {detail.primaryTag}
+                      </span>
+                    ) : null}
+                    {detail.secondaryTag ? (
+                      <span className="tag-badge secondary" style={{ background: "rgba(255, 200, 0, 0.15)", color: "#ffc800", fontSize: "11px", padding: "3px 8px", borderRadius: "3px", fontWeight: "bold" }}>
+                        {detail.secondaryTag}
+                      </span>
+                    ) : null}
+                  </div>
+                ) : null}
                 {lineage ? (
                   <div className="skill-detail__version-row">
                     <span className="card-status-pill">{copy.versioning.versionBadge(lineage.version)}</span>
@@ -87,7 +101,7 @@ export function SkillDetailContent({
                         {copy.versioning.forkBadge(lineage.forkedFromVersion ?? 1)}
                       </span>
                     ) : null}
-                    {/* {!lineage.isPrimary ? (
+                    {!lineage.isPrimary ? (
                       <button
                         type="button"
                         className="action-pill"
@@ -99,7 +113,7 @@ export function SkillDetailContent({
                         ) : null}
                         {promoteMutation.isPending ? copy.versioning.makingMain : copy.versioning.makeMain}
                       </button>
-                    ) : null} */}
+                    ) : null}
                     {lineage.isPrimary && lineage.forkedFrom ? (
                       <span className="card-status-pill card-status-pill--success">{copy.versioning.mainBadge}</span>
                     ) : null}

@@ -3,7 +3,7 @@ import { useMemo } from "react";
 import { agentsRoutes, useAgentsListQuery } from "../../features/agents/public";
 import { mcpRoutes, useMcpInventoryQuery } from "../../features/mcp/public";
 import { useSkillsCopy } from "../../features/skills/i18n";
-import { skillsRoutes, useSkillsListQuery } from "../../features/skills/public";
+import { skillsRoutes, usePendingConflictsQuery, useSkillsListQuery } from "../../features/skills/public";
 import { slashCommandRoutes, useSlashCommandsQuery } from "../../features/slash-commands/public";
 import { marketplaceRoutes } from "../../features/marketplace/public";
 import { useCommonCopy } from "../../i18n";
@@ -35,11 +35,16 @@ export function useSidebarModel(): SidebarModel {
   const agentsQuery = useAgentsListQuery();
   const mcpQuery = useMcpInventoryQuery();
   const slashCommandsQuery = useSlashCommandsQuery();
+  const pendingConflictsQuery = usePendingConflictsQuery();
   const common = useCommonCopy();
   const skillsCopy = useSkillsCopy();
 
   const inUseSkills = skillsQuery.data?.summary.managed ?? null;
   const needsReviewSkills = skillsQuery.data?.summary.unmanaged ?? null;
+  const pendingConflictsCount = pendingConflictsQuery.data?.conflicts?.length ?? null;
+  const pendingConflictsBadge = pendingConflictsCount != null && pendingConflictsCount > 0
+    ? pendingConflictsCount
+    : null;
   const inUseAgents = agentsQuery.data?.summary.managed ?? null;
   const needsReviewAgents = agentsQuery.data?.summary.unmanaged ?? null;
   const slashCommandCount = slashCommandsQuery.data?.commands.length ?? null;
@@ -68,6 +73,12 @@ export function useSidebarModel(): SidebarModel {
               to: skillsRoutes.needsReview,
               label: common.productLanguage.needsReview,
               count: needsReviewSkills,
+            },
+            {
+              key: "skills-conflicts",
+              to: skillsRoutes.conflicts,
+              label: skillsCopy.conflicts.title,
+              count: pendingConflictsBadge,
             },
             { key: "skills-scan-config", to: skillsRoutes.scanConfig, label: skillsCopy.scan.configNav },
           ],
@@ -142,6 +153,7 @@ export function useSidebarModel(): SidebarModel {
       mcpCounts.needsReview,
       mcpCounts.total,
       needsReviewSkills,
+      pendingConflictsBadge,
       slashCommandCount,
       slashCommandReviewCount,
       common,

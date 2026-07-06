@@ -7,6 +7,7 @@ import {
   deleteSkill,
   disableSkill,
   enableSkill,
+  fetchPendingConflicts,
   fetchSkillDetail,
   fetchSkillLineage,
   fetchSkillSourceStatus,
@@ -16,6 +17,7 @@ import {
   manageAllSkills,
   manageSkill,
   promoteSkill,
+  resolvePendingConflict,
   restoreSkillVersion,
   setSkillHarnesses,
   unmanageSkill,
@@ -32,7 +34,12 @@ import { invalidateSkillsQueries } from "./invalidation";
 import { SKILLS_GC_TIME_MS, SKILLS_STALE_TIME_MS, skillsKeys } from "./keys";
 import { mapSkillDetail, mapSkillsPage } from "./mappers";
 import type { HarnessCellState } from "../model/types";
-import type { SetSkillHarnessesResultDto, SkillDetailDto, SkillsPageDto } from "./types";
+import type {
+  ResolvePendingConflictRequest,
+  SetSkillHarnessesResultDto,
+  SkillDetailDto,
+  SkillsPageDto,
+} from "./types";
 
 export { invalidateSkillsQueries } from "./invalidation";
 export { skillsKeys } from "./keys";
@@ -116,6 +123,34 @@ export function usePromoteSkillMutation() {
         queryClient.invalidateQueries({ queryKey: skillsKeys.lineage(variables.id) }),
         queryClient.invalidateQueries({ queryKey: skillsKeys.list() }),
       ]);
+    },
+  });
+}
+
+export function usePendingConflictsQuery() {
+  return useQuery({
+    queryKey: skillsKeys.pendingConflicts(),
+    queryFn: fetchPendingConflicts,
+    ...queryPolicy(SKILLS_STALE_TIME_MS, SKILLS_GC_TIME_MS),
+  });
+}
+
+export function useResolvePendingConflictMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (body: ResolvePendingConflictRequest & { baseId?: string }) => resolvePendingConflict(body),
+    onSuccess: async (data, variables) => {
+      const invalidations = [
+        queryClient.invalidateQueries({ queryKey: skillsKeys.pendingConflicts() }),
+        queryClient.invalidateQueries({ queryKey: skillsKeys.list() }),
+      ];
+      if (data.resolution !== "dismiss" && variables.baseId) {
+        invalidations.push(
+          queryClient.invalidateQueries({ queryKey: skillsKeys.lineage(variables.baseId) }),
+          queryClient.invalidateQueries({ queryKey: skillsKeys.versions(variables.baseId) }),
+        );
+      }
+      await Promise.all(invalidations);
     },
   });
 }

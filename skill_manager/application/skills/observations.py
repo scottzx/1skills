@@ -25,6 +25,8 @@ class StorePackageObservation:
     recorded_forked_from: str | None = None
     recorded_forked_from_version: int | None = None
     recorded_is_primary: bool = True
+    recorded_primary_tag: str | None = None
+    recorded_secondary_tag: str | None = None
 
 
 @dataclass(frozen=True)

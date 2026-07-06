@@ -15,4 +15,5 @@ export const skillsKeys = {
   versionDiffPrefix: () => ["skills", "version-diff"] as const,
   versionDiff: (id: string, from: number, to: number | null) =>
     ["skills", "version-diff", id, from, to ?? "current"] as const,
+  pendingConflicts: () => ["skills", "pending-conflicts"] as const,
 };

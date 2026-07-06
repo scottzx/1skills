@@ -26,6 +26,9 @@ export type SkillDetailDto = components["schemas"]["SkillDetailResponse"];
 export type BulkManageFailure = components["schemas"]["BulkManageFailureResponse"];
 export type BulkManageResult = components["schemas"]["BulkManageResultResponse"];
 export type SkillLineageInfo = components["schemas"]["SkillLineageInfoResponse"];
+export type PendingConflictsDto = components["schemas"]["PendingConflictsResponse"];
+export type PendingConflictItemDto = components["schemas"]["PendingConflictItemResponse"];
+export type ResolvePendingConflictRequest = components["schemas"]["ResolvePendingConflictRequest"];
 
 // The versions/lineage/restore/promote endpoints return untyped JSON in the
 // generated OpenAPI schema (FastAPI declares them as `dict`), so the response
@@ -88,4 +91,15 @@ export interface SkillVersionDiffDto {
   to: number;
   toIsCurrent: boolean;
   files: SkillDiffFile[];
+}
+
+// Same as PromoteSkillResult/RestoreSkillVersionResult above: the resolve
+// endpoint returns untyped JSON in the generated OpenAPI schema, so the shape
+// is hand-written here to match the documented backend contract.
+export interface ResolvePendingConflictResult {
+  ok: boolean;
+  resolution: "main" | "fork" | "dismiss";
+  id?: string;
+  version?: number;
+  packageDir?: string;
 }

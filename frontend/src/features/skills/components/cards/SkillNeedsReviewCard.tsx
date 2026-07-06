@@ -39,6 +39,21 @@ export function SkillNeedsReviewCard({
   const found = row.cells.filter((cell) => cell.state === "found");
   const managing = pendingStructuralAction === "manage";
   const metaText = `Found in ${found.length} harness${found.length === 1 ? "" : "es"}`;
+  
+  const tagsChip = (row.primaryTag || row.secondaryTag) ? (
+    <div className="skill-card__tags" style={{ display: "flex", gap: "6px", flexWrap: "wrap", alignItems: "center", marginRight: "12px" }}>
+      {row.primaryTag ? (
+        <span className="tag-badge primary" style={{ background: "rgba(0, 200, 255, 0.15)", color: "#00c8ff", fontSize: "10px", padding: "2px 6px", borderRadius: "3px", fontWeight: "bold" }}>
+          {row.primaryTag}
+        </span>
+      ) : null}
+      {row.secondaryTag ? (
+        <span className="tag-badge secondary" style={{ background: "rgba(255, 200, 0, 0.15)", color: "#ffc800", fontSize: "10px", padding: "2px 6px", borderRadius: "3px", fontWeight: "bold" }}>
+          {row.secondaryTag}
+        </span>
+      ) : null}
+    </div>
+  ) : undefined;
 
   return (
     <NeedsReviewRow
@@ -51,6 +66,7 @@ export function SkillNeedsReviewCard({
         </span>
       }
       metaText={metaText}
+      statusChip={tagsChip}
       description={row.description}
       actionLabel="Adopt"
       actionTitle={

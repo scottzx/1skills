@@ -25,6 +25,8 @@ export function mapSkillDetail(dto: SkillDetailDto): SkillDetail {
     sourceLinks: dto.sourceLinks,
     documentMarkdown: dto.documentMarkdown,
     lineage: dto.lineage ?? null,
+    primaryTag: dto.primaryTag ?? null,
+    secondaryTag: dto.secondaryTag ?? null,
   };
 }
 
@@ -36,5 +38,7 @@ function mapSkillRow(dto: SkillTableRowDto): SkillListRow {
     displayStatus: dto.displayStatus,
     actions: dto.actions,
     cells: dto.cells,
+    primaryTag: dto.primaryTag ?? null,
+    secondaryTag: dto.secondaryTag ?? null,
   };
 }

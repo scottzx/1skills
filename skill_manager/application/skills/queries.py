@@ -12,6 +12,7 @@ from .document_utils import read_skill_document_markdown
 from .identity import SourceDescriptor
 from .inventory import InventoryEntry, SkillInventory
 from .package import SkillParseError, fingerprint_package, parse_skill_package
+from .pending_conflicts import PendingConflictStore
 from .policy import can_stop_managing, can_update, has_local_changes
 from .presenters import skill_detail_payload, skills_page_payload, source_status_payload
 from .read_models import SkillsReadModelService
@@ -24,9 +25,11 @@ class SkillsQueryService:
         self,
         read_models: SkillsReadModelService,
         source_fetcher: SourceFetchService,
+        pending_conflicts: PendingConflictStore,
     ) -> None:
         self.read_models = read_models
         self.source_fetcher = source_fetcher
+        self.pending_conflicts = pending_conflicts
 
     def health(self) -> dict[str, object]:
         snapshot = self.read_models.snapshot()
@@ -99,6 +102,15 @@ class SkillsQueryService:
         differs = True
         if in_store and src_exists:
             differs = store.differs_from(package_dir, src)
+        # baseMatches: is the workspace copy unchanged from the version it was taken
+        # from (its base_version snapshot)? Distinguishes "clean but behind" (a
+        # fast-forward pull is safe → update-available) from "locally edited". A
+        # copy differs from the *current* store whenever the store advanced, so
+        # `differs` alone can't tell those apart — this can.
+        base_matches = False
+        if entry is not None and meta is not None and store.history.has_version(entry.id, meta.base_version):
+            snapshot = store.history.version_path(entry.id, meta.base_version)
+            base_matches = fingerprint_package(src)[0] == fingerprint_package(snapshot)[0]
         return {
             "inStore": in_store,
             "differs": differs,
@@ -108,6 +120,9 @@ class SkillsQueryService:
             "storeVersion": store.version_of(package_dir) if in_store else None,
             "skillId": (entry.id if entry is not None else (meta.id if meta is not None else None)),
             "baseVersion": meta.base_version if meta is not None else None,
+            "baseMatches": base_matches,
+            "primaryTag": meta.primary_tag if meta is not None else None,
+            "secondaryTag": meta.secondary_tag if meta is not None else None,
         }
 
     def list_skill_versions(self, skill_id: str) -> dict[str, object] | None:
@@ -124,6 +139,39 @@ class SkillsQueryService:
 
     def get_skill_lineage(self, skill_id: str) -> dict[str, object] | None:
         return self.read_models.store.lineage(skill_id)
+
+    def list_pending_conflicts(self) -> dict[str, object]:
+        """The central inbox of project→母体 push conflicts awaiting resolution.
+        Each record carries a per-file diff of the current store base vs the
+        staged pushed content, plus the base's live store version (to flag when
+        the base has advanced again since detection)."""
+        store = self.read_models.store
+        conflicts: list[dict[str, object]] = []
+        for record in self.pending_conflicts.list():
+            base = store.entry_for_id(record.base_id)
+            staged = self.pending_conflicts.root / record.staged_dir
+            diff: list[dict[str, object]] = []
+            if base is not None and staged.is_dir():
+                diff = diff_packages(
+                    store.root / base.package_dir, staged, old_label="母体", new_label="推送"
+                )
+            conflicts.append(
+                {
+                    "conflictId": record.conflict_id,
+                    "baseId": record.base_id,
+                    "baseName": record.base_name,
+                    "storeVersion": record.store_version,
+                    "baseVersion": record.base_version,
+                    "currentStoreVersion": base.version if base is not None else None,
+                    "sourcePath": record.source_path,
+                    "workspaceId": record.workspace_id,
+                    "pushedRevision": record.pushed_revision,
+                    "detectedAt": record.detected_at,
+                    "diff": diff,
+                }
+            )
+        conflicts.sort(key=lambda item: item["detectedAt"], reverse=True)
+        return {"conflicts": conflicts}
 
     def preview_push_from_path(self, skill_ref: str, source_path: str) -> dict[str, object]:
         """What a push would change: the diff between a workspace copy and the

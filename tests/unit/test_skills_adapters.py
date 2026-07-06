@@ -87,7 +87,7 @@ class SkillsAdapterTests(unittest.TestCase):
             self.assertTrue(cursor_status.installed)
             self.assertEqual(cursor_status.managed_location, spec.cursor_root)
 
-    def test_enable_creates_symlink(self) -> None:
+    def test_enable_copies_directory(self) -> None:
         with TemporaryDirectory() as temp_dir:
             spec = create_fake_home_spec(Path(temp_dir))
             package = seed_skill_package(spec.skills_store_root, "audit", "Audit")
@@ -96,8 +96,9 @@ class SkillsAdapterTests(unittest.TestCase):
             codex.enable_shared_package(package)
 
             link = spec.codex_root / "audit"
-            self.assertTrue(link.is_symlink())
-            self.assertEqual(link.resolve(), package.resolve())
+            self.assertTrue(link.is_dir())
+            self.assertFalse(link.is_symlink())
+            self.assertEqual((link / "SKILL.md").read_text(), (package / "SKILL.md").read_text())
 
     def test_enable_refuses_real_directory(self) -> None:
         with TemporaryDirectory() as temp_dir:
@@ -109,21 +110,22 @@ class SkillsAdapterTests(unittest.TestCase):
             with self.assertRaises(MutationError) as ctx:
                 codex.enable_shared_package(package)
 
-            self.assertIn("real directory", str(ctx.exception))
+            self.assertIn("already exists", str(ctx.exception))
 
-    def test_adopt_local_copy_replaces_dir_with_symlink(self) -> None:
+    def test_adopt_local_copy_copies_directory(self) -> None:
         with TemporaryDirectory() as temp_dir:
             spec = create_fake_home_spec(Path(temp_dir))
-            store_pkg = seed_skill_package(spec.skills_store_root, "audit", "Audit")
-            harness_pkg = seed_skill_package(spec.codex_root, "audit", "Audit")
+            store_pkg = seed_skill_package(spec.skills_store_root, "audit", "Audit", body="store body")
+            harness_pkg = seed_skill_package(spec.codex_root, "audit", "Audit", body="local body")
             codex = _adapter("codex", spec)
 
             codex.adopt_local_copy(harness_pkg, store_pkg)
 
-            self.assertTrue(harness_pkg.is_symlink())
-            self.assertEqual(harness_pkg.resolve(), store_pkg.resolve())
+            self.assertTrue(harness_pkg.is_dir())
+            self.assertFalse(harness_pkg.is_symlink())
+            self.assertIn("store body", (harness_pkg / "SKILL.md").read_text())
 
-    def test_materialize_binding_restores_real_directory(self) -> None:
+    def test_materialize_binding_is_noop(self) -> None:
         with TemporaryDirectory() as temp_dir:
             spec = create_fake_home_spec(Path(temp_dir))
             store_pkg = seed_skill_package(
@@ -132,15 +134,14 @@ class SkillsAdapterTests(unittest.TestCase):
                 "Audit",
                 body="shared version",
             )
-            link = spec.codex_root / "audit"
-            link.symlink_to(store_pkg.resolve())
+            link = seed_skill_package(spec.codex_root, "audit", "Audit", body="harness version")
             codex = _adapter("codex", spec)
 
             codex.materialize_binding("audit", store_pkg)
 
             self.assertTrue(link.is_dir())
             self.assertFalse(link.is_symlink())
-            self.assertIn("shared version", (link / "SKILL.md").read_text(encoding="utf-8"))
+            self.assertIn("harness version", (link / "SKILL.md").read_text(encoding="utf-8"))
 
 
 if __name__ == "__main__":

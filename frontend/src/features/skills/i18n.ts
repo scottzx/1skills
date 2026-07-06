@@ -265,6 +265,28 @@ const englishSkillsCopy = {
       migrate: "Migrated",
     },
   },
+  conflicts: {
+    title: "Pending conflicts",
+    subtitle: (count: number) =>
+      count > 0
+        ? `${count} push${count === 1 ? "" : "es"} waiting for a resolution decision.`
+        : "No pushes from a workspace are waiting on a resolution decision.",
+    loading: "Loading pending conflicts",
+    unableToLoad: "Unable to load pending conflicts.",
+    emptyTitle: "No pending conflicts",
+    emptyBody: "Every pushed skill has been resolved. New conflicts will show up here.",
+    workspaceLabel: (workspace: string) => `From ${workspace}`,
+    detectedAt: (date: string) => `Detected ${date}`,
+    baseAdvanced: "The base skill has advanced since this push was detected.",
+    makeMain: "Make main",
+    makingMain: "Making main",
+    saveAsFork: "Save as fork",
+    savingAsFork: "Saving as fork",
+    forkNamePlaceholder: "Optional new name",
+    dismiss: "Dismiss",
+    dismissing: "Dismissing",
+    noDifferences: "No differences.",
+  },
 } as const;
 
 export type SkillsCopy = CopyShape<typeof englishSkillsCopy>;
@@ -531,6 +553,26 @@ export const skillsCopy = {
         restore: "恢复",
         migrate: "迁移",
       },
+    },
+    conflicts: {
+      title: "待处理冲突",
+      subtitle: (count: number) =>
+        count > 0 ? `有 ${count} 个推送等待处理决定。` : "没有来自工作区的推送在等待处理决定。",
+      loading: "正在加载待处理冲突",
+      unableToLoad: "无法加载待处理冲突。",
+      emptyTitle: "没有待处理冲突",
+      emptyBody: "所有推送的 Skill 都已处理。新的冲突会显示在这里。",
+      workspaceLabel: (workspace: string) => `来自 ${workspace}`,
+      detectedAt: (date: string) => `检测于 ${date}`,
+      baseAdvanced: "自检测到此次推送以来，主版本已发生变化。",
+      makeMain: "设为主线",
+      makingMain: "正在设为主线",
+      saveAsFork: "存为分支",
+      savingAsFork: "正在存为分支",
+      forkNamePlaceholder: "可选的新名称",
+      dismiss: "忽略",
+      dismissing: "正在忽略",
+      noDifferences: "没有差异。",
     },
   },
 } satisfies LocalizedCopy<SkillsCopy>;

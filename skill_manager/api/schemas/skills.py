@@ -96,6 +96,30 @@ class ResolvePushConflictRequest(BaseModel):
     name: str | None = Field(None, description="Optional new display name for the fork")
 
 
+class PullSkillToPathRequest(BaseModel):
+    """Fast-forward a workspace's skill copy to the store's current version
+    (母体 → 项目). The reverse of push: the store overwrites the workspace copy
+    at ``targetPath`` only when that copy is clean (no local edits)."""
+
+    model_config = ConfigDict(populate_by_name=True)
+
+    target_path: str = Field(
+        ...,
+        alias="targetPath",
+        min_length=1,
+        description="Absolute path to the workspace's skill package directory to update in place",
+    )
+
+
+class PullSkillResultResponse(BaseModel):
+    ok: bool
+    status: str = Field(
+        "uptodate",
+        description="One of pulled | uptodate | dirty (fast-forward-only pull)",
+    )
+    version: int = Field(0, description="The store version the workspace copy now reflects (0 when untracked)")
+
+
 class SkillStatusFromPathRequest(BaseModel):
     """Read-only counterpart to PushSkillFromPathRequest — report a workspace
     copy's status against the store baseline without mutating it."""
@@ -123,6 +147,12 @@ class SkillStatusResultResponse(BaseModel):
     baseVersion: int | None = Field(
         None, description="Store version this workspace copy was taken from (sidecar), or null when untracked"
     )
+    baseMatches: bool = Field(
+        False,
+        description="True when the copy is unchanged from its base_version snapshot (a fast-forward pull is safe)",
+    )
+    primaryTag: str | None = Field(None, description="Primary tag from skillmeta sidecar")
+    secondaryTag: str | None = Field(None, description="Secondary tag from skillmeta sidecar")
 
 
 SkillStatus = Literal["Managed", "Unmanaged"]
@@ -198,6 +228,51 @@ class SkillConflictResponse(BaseModel):
     versions: list[SkillConflictVersionResponse]
 
 
+class SkillDiffFileResponse(BaseModel):
+    path: str
+    status: str = Field(..., description="added | removed | modified")
+    diff: str = Field("", description="Unified diff text; empty for binary changes")
+
+
+class PendingConflictItemResponse(BaseModel):
+    """One project→母体 push conflict awaiting central resolution. The pushed
+    content is snapshotted into a manager-owned staging area at detection time,
+    so resolution never depends on the workspace copy staying intact."""
+
+    conflictId: str
+    baseId: str
+    baseName: str
+    storeVersion: int = Field(..., description="Store version at detection time")
+    baseVersion: int = Field(..., description="Version the workspace copy was taken from (0 = untracked)")
+    currentStoreVersion: int | None = Field(
+        None, description="The base skill's live store version now (may have advanced since detection)"
+    )
+    sourcePath: str = Field(..., description="Original workspace path (best-effort sidecar re-stamp on resolve)")
+    workspaceId: str | None = Field(None, description="Best-effort workspace label derived from sourcePath")
+    pushedRevision: str
+    detectedAt: float
+    diff: list[SkillDiffFileResponse] = Field(
+        default_factory=list, description="Per-file diff: current store base vs the pushed (staged) content"
+    )
+
+
+class PendingConflictsResponse(BaseModel):
+    conflicts: list[PendingConflictItemResponse]
+
+
+class ResolvePendingConflictRequest(BaseModel):
+    """Resolve one pending push conflict from the central inbox. ``main`` lands
+    the staged content as the base package's new mainline (in-place update,
+    history preserved); ``fork`` lands it as a new fork of the base; ``dismiss``
+    drops the staged snapshot without touching the store."""
+
+    model_config = ConfigDict(populate_by_name=True)
+
+    conflict_id: str = Field(..., alias="conflictId", min_length=1)
+    resolution: Literal["main", "fork", "dismiss"] = Field(...)
+    name: str | None = Field(None, description="Optional new display name when resolution=fork")
+
+
 class HarnessCellResponse(BaseModel):
     harness: str
     label: str
@@ -211,6 +286,8 @@ class SkillTableRowResponse(BaseModel):
     name: str
     description: str
     displayStatus: SkillStatus
+    primaryTag: str | None = None
+    secondaryTag: str | None = None
     actions: SkillRowActionsResponse
     cells: list[HarnessCellResponse]
     conflict: SkillConflictResponse | None = None
@@ -262,6 +339,8 @@ class SkillDetailResponse(BaseModel):
     description: str
     displayStatus: SkillStatus
     attentionMessage: str | None
+    primaryTag: str | None = None
+    secondaryTag: str | None = None
     lineage: SkillLineageInfoResponse | None = None
     actions: SkillDetailActionsResponse
     harnessCells: list[HarnessCellResponse]

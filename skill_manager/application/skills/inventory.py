@@ -6,6 +6,7 @@ from typing import Literal
 
 from .identity import SourceDescriptor, stable_id
 from .observations import SkillStoreScan, SkillsHarnessScan
+from .skillmeta import read_skill_meta
 
 
 EntryKind = Literal["managed", "unmanaged"]
@@ -49,6 +50,8 @@ class InventoryEntry:
     forked_from: str | None = None
     forked_from_version: int | None = None
     is_primary: bool = True
+    primary_tag: str | None = None
+    secondary_tag: str | None = None
     sightings: list[InventorySighting] = field(default_factory=list)
 
     def add_sighting(self, sighting: InventorySighting) -> None:
@@ -131,6 +134,8 @@ class SkillInventory:
                 forked_from=store_package.recorded_forked_from,
                 forked_from_version=store_package.recorded_forked_from_version,
                 is_primary=store_package.recorded_is_primary,
+                primary_tag=store_package.recorded_primary_tag,
+                secondary_tag=store_package.recorded_secondary_tag,
             )
             entry.add_sighting(
                 InventorySighting(
@@ -176,6 +181,9 @@ class SkillInventory:
                 )
                 entry = unmanaged_entries.get(key)
                 if entry is None:
+                    meta = read_skill_meta(observation.package.root_path)
+                    ptag = meta.primary_tag if meta else None
+                    stag = meta.secondary_tag if meta else None
                     entry = InventoryEntry(
                         skill_ref=f"unmanaged:{key}",
                         name=observation.package.declared_name,
@@ -183,6 +191,8 @@ class SkillInventory:
                         kind="unmanaged",
                         source=observation.package.source,
                         current_revision=observation.package.revision,
+                        primary_tag=ptag,
+                        secondary_tag=stag,
                     )
                     unmanaged_entries[key] = entry
                 entry.add_sighting(sighting)

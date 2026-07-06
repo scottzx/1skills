@@ -35,6 +35,8 @@ export interface SkillListRow {
   displayStatus: SkillStatus;
   actions: SkillRowActions;
   cells: HarnessCell[];
+  primaryTag?: string | null;
+  secondaryTag?: string | null;
 }
 
 export interface SkillsWorkspaceData {
@@ -59,4 +61,6 @@ export interface SkillDetail {
   sourceLinks: SkillSourceLinks | null;
   documentMarkdown: string | null;
   lineage: SkillLineageInfo | null;
+  primaryTag?: string | null;
+  secondaryTag?: string | null;
 }

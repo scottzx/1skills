@@ -98,6 +98,21 @@ export function SkillInUseCard({
         }
       />
 
+      {row.primaryTag || row.secondaryTag ? (
+        <div className="skill-card__tags" style={{ display: "flex", gap: "6px", marginBottom: "8px", flexWrap: "wrap" }}>
+          {row.primaryTag ? (
+            <span className="tag-badge primary" style={{ background: "rgba(0, 200, 255, 0.15)", color: "#00c8ff", fontSize: "10px", padding: "2px 6px", borderRadius: "3px", fontWeight: "bold" }}>
+              {row.primaryTag}
+            </span>
+          ) : null}
+          {row.secondaryTag ? (
+            <span className="tag-badge secondary" style={{ background: "rgba(255, 200, 0, 0.15)", color: "#ffc800", fontSize: "10px", padding: "2px 6px", borderRadius: "3px", fontWeight: "bold" }}>
+              {row.secondaryTag}
+            </span>
+          ) : null}
+        </div>
+      ) : null}
+
       {row.description ? <p className="skill-card__description">{row.description}</p> : null}
 
       <div className="skill-card__footer">

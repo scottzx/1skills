@@ -64,12 +64,12 @@ class BackendContainerServiceTests(unittest.TestCase):
             self.assertEqual(shared_audit["displayStatus"], "Managed")
             self.assertEqual(
                 shared_audit["actions"],
-                {"canManage": False, "canStopManaging": False, "canDelete": True},
+                {"canManage": False, "canStopManaging": False, "canDelete": True, "canResolveConflict": False},
             )
             self.assertEqual(trace_lens["displayStatus"], "Unmanaged")
             self.assertEqual(
                 trace_lens["actions"],
-                {"canManage": True, "canStopManaging": False, "canDelete": False},
+                {"canManage": True, "canStopManaging": False, "canDelete": False, "canResolveConflict": False},
             )
             self.assertEqual(
                 {cell["harness"] for cell in trace_lens["cells"] if cell["state"] == "found"},

@@ -41,6 +41,8 @@ class SkillMeta:
     forked_from: str | None = None
     forked_from_version: int | None = None
     created_at: str | None = None
+    primary_tag: str | None = None
+    secondary_tag: str | None = None
 
     def to_dict(self) -> dict[str, object]:
         payload: dict[str, object] = {"id": self.id, "baseVersion": self.base_version}
@@ -48,6 +50,10 @@ class SkillMeta:
             payload["forkedFrom"] = self.forked_from
         if self.forked_from_version is not None:
             payload["forkedFromVersion"] = self.forked_from_version
+        if self.primary_tag is not None:
+            payload["primaryTag"] = self.primary_tag
+        if self.secondary_tag is not None:
+            payload["secondaryTag"] = self.secondary_tag
         payload["createdAt"] = self.created_at or utc_now_iso()
         return payload
 
@@ -73,6 +79,8 @@ def read_skill_meta(package_dir: Path) -> SkillMeta | None:
             payload["forkedFromVersion"] if isinstance(payload.get("forkedFromVersion"), int) else None
         ),
         created_at=payload.get("createdAt") if isinstance(payload.get("createdAt"), str) else None,
+        primary_tag=payload.get("primaryTag") if isinstance(payload.get("primaryTag"), str) else None,
+        secondary_tag=payload.get("secondaryTag") if isinstance(payload.get("secondaryTag"), str) else None,
     )
 
 

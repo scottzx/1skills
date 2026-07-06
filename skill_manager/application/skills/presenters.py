@@ -42,6 +42,8 @@ def skill_detail_payload(
         "description": entry.description,
         "displayStatus": display_status(entry),
         "attentionMessage": attention_message(entry),
+        "primaryTag": entry.primary_tag,
+        "secondaryTag": entry.secondary_tag,
         "lineage": {
             "id": entry.skill_id,
             "version": entry.version,
@@ -86,6 +88,8 @@ def row_payload(
         "name": entry.name,
         "description": entry.description,
         "displayStatus": display_status(entry),
+        "primaryTag": entry.primary_tag,
+        "secondaryTag": entry.secondary_tag,
         "actions": {
             "canManage": can_manage(entry),
             "canStopManaging": stop_managing_status(entry) == "available",

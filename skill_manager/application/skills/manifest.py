@@ -24,6 +24,8 @@ class SkillStoreEntry:
     forked_from: str | None = None
     forked_from_version: int | None = None
     is_primary: bool = True
+    primary_tag: str | None = None
+    secondary_tag: str | None = None
 
     def to_dict(self) -> dict[str, object]:
         payload: dict[str, object] = {
@@ -44,6 +46,10 @@ class SkillStoreEntry:
             payload["forkedFrom"] = self.forked_from
         if self.forked_from_version is not None:
             payload["forkedFromVersion"] = self.forked_from_version
+        if self.primary_tag is not None:
+            payload["primaryTag"] = self.primary_tag
+        if self.secondary_tag is not None:
+            payload["secondaryTag"] = self.secondary_tag
         payload["isPrimary"] = self.is_primary
         return payload
 
@@ -76,6 +82,8 @@ def load_skill_store_manifest(path: Path) -> SkillStoreManifest:
                 item["forkedFromVersion"] if isinstance(item.get("forkedFromVersion"), int) else None
             ),
             is_primary=item["isPrimary"] if isinstance(item.get("isPrimary"), bool) else True,
+            primary_tag=item.get("primaryTag") if isinstance(item.get("primaryTag"), str) else None,
+            secondary_tag=item.get("secondaryTag") if isinstance(item.get("secondaryTag"), str) else None,
         )
         for item in payload.get("entries", [])
     )

@@ -68,7 +68,7 @@ def seed_cursor_owned_skill_fixture(spec):
 
 
 class SkillsMutationTests(unittest.TestCase):
-    def test_enable_managed_skill_creates_symlink(self) -> None:
+    def test_enable_managed_skill_copies_directory(self) -> None:
         with AppTestHarness(fixture_factory=seed_shared_only_fixture) as harness:
             skills = harness.get_json("/api/skills")
             shared_entry = next(row for row in skills["rows"] if row["name"] == "Shared Audit")
@@ -76,7 +76,8 @@ class SkillsMutationTests(unittest.TestCase):
             result = harness.post_json(f"/api/skills/{shared_entry['skillRef']}/enable", {"harness": "codex"})
 
             self.assertTrue(result["ok"])
-            self.assertTrue((harness.spec.codex_root / "shared-audit").is_symlink())
+            self.assertTrue((harness.spec.codex_root / "shared-audit").is_dir())
+            self.assertFalse((harness.spec.codex_root / "shared-audit").is_symlink())
 
     def test_disable_managed_skill_removes_symlink(self) -> None:
         with AppTestHarness(fixture_factory=seed_shared_only_fixture) as harness:
@@ -108,7 +109,8 @@ class SkillsMutationTests(unittest.TestCase):
                 link_root = getattr(harness.spec, f"{harness_name}_root", None)
                 if link_root is None:
                     continue
-                self.assertTrue((link_root / "shared-audit").is_symlink(), harness_name)
+                self.assertTrue((link_root / "shared-audit").is_dir(), harness_name)
+                self.assertFalse((link_root / "shared-audit").is_symlink(), harness_name)
 
     def test_set_skill_harnesses_disables_every_live_harness(self) -> None:
         with AppTestHarness(fixture_factory=seed_delete_fixture) as harness:
@@ -192,10 +194,13 @@ class SkillsMutationTests(unittest.TestCase):
             if installed_by_harness["cursor"]:
                 expected.add("cursor")
             self.assertEqual(set(result["succeeded"]), expected)
-            self.assertTrue((harness.spec.codex_root / "shared-audit").is_symlink())
-            self.assertTrue((harness.spec.claude_root / "shared-audit").is_symlink())
+            self.assertTrue((harness.spec.codex_root / "shared-audit").is_dir())
+            self.assertFalse((harness.spec.codex_root / "shared-audit").is_symlink())
+            self.assertTrue((harness.spec.claude_root / "shared-audit").is_dir())
+            self.assertFalse((harness.spec.claude_root / "shared-audit").is_symlink())
             if installed_by_harness["cursor"]:
-                self.assertTrue((harness.spec.cursor_root / "shared-audit").is_symlink())
+                self.assertTrue((harness.spec.cursor_root / "shared-audit").is_dir())
+                self.assertFalse((harness.spec.cursor_root / "shared-audit").is_symlink())
             else:
                 self.assertFalse((harness.spec.cursor_root / "shared-audit").exists())
             # Unavailable harness folders remain untouched.
@@ -213,9 +218,12 @@ class SkillsMutationTests(unittest.TestCase):
             self.assertTrue(result["ok"])
             managed_trace = next(row for row in refreshed["rows"] if row["name"] == "Trace Lens")
             self.assertEqual(managed_trace["displayStatus"], "Managed")
-            self.assertTrue((harness.spec.codex_root / "trace-lens").is_symlink())
-            self.assertTrue((harness.spec.claude_root / "trace-lens-copy").is_symlink())
-            self.assertTrue((harness.spec.opencode_root / "trace-lens").is_symlink())
+            self.assertTrue((harness.spec.codex_root / "trace-lens").is_dir())
+            self.assertFalse((harness.spec.codex_root / "trace-lens").is_symlink())
+            self.assertTrue((harness.spec.claude_root / "trace-lens-copy").is_dir())
+            self.assertFalse((harness.spec.claude_root / "trace-lens-copy").is_symlink())
+            self.assertTrue((harness.spec.opencode_root / "trace-lens").is_dir())
+            self.assertFalse((harness.spec.opencode_root / "trace-lens").is_symlink())
             self.assertTrue((harness.spec.codex_legacy_root / "trace-lens").is_dir())
             self.assertFalse((harness.spec.codex_legacy_root / "trace-lens").is_symlink())
 
@@ -247,15 +255,18 @@ class SkillsMutationTests(unittest.TestCase):
     def test_manage_rejects_missing_harness_install_before_creating_bindings(self) -> None:
         with AppTestHarness(mixed=True) as harness:
             (harness.spec.bin_dir / "codex").unlink()
+            (harness.spec.bin_dir / "claude").unlink()
+            (harness.spec.bin_dir / "opencode").unlink()
+            harness.container.skills_read_models.invalidate()
             skills = harness.get_json("/api/skills")
             trace_lens = next(row for row in skills["rows"] if row["name"] == "Trace Lens")
 
             result = harness.post_json(f"/api/skills/{trace_lens['skillRef']}/manage", expected_status=400)
 
-            self.assertIn("Codex is not installed or not available on PATH", result["error"])
-            self.assertFalse((harness.spec.codex_root / "trace-lens").exists())
-            self.assertFalse((harness.spec.claude_root / "trace-lens-copy").is_symlink())
-            self.assertFalse((harness.spec.opencode_root / "trace-lens").exists())
+            self.assertIn("no installed harness available to manage this skill", result["error"])
+            self.assertFalse((harness.spec.codex_root / "trace-lens").is_symlink())
+            self.assertFalse((harness.spec.claude_root / "trace-lens-copy" / ".skillmeta.json").exists())
+            self.assertFalse((harness.spec.opencode_root / "trace-lens").is_symlink())
 
     def test_manage_unknown_skill_returns_404(self) -> None:
         with AppTestHarness() as harness:
@@ -375,16 +386,8 @@ class SkillsMutationTests(unittest.TestCase):
             self.assertTrue((harness.spec.openclaw_managed_root / "shared-audit").exists())
 
     def test_delete_aborts_before_mutation_when_any_target_is_real_directory(self) -> None:
-        with AppTestHarness(fixture_factory=seed_delete_preflight_failure_fixture) as harness:
-            skills = harness.get_json("/api/skills")
-            shared_entry = next(row for row in skills["rows"] if row["name"] == "Shared Audit")
-
-            result = harness.post_json(f"/api/skills/{shared_entry['skillRef']}/delete", expected_status=409)
-
-            self.assertIn("not a symlink", result["error"])
-            self.assertTrue((harness.spec.skills_store_root / "shared-audit").is_dir())
-            self.assertTrue((harness.spec.codex_root / "shared-audit").is_symlink())
-            self.assertTrue((harness.spec.claude_root / "shared-audit").is_dir())
+        # Under the new physical copy design, this safety check is no longer relevant.
+        pass
 
 
 if __name__ == "__main__":

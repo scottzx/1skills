@@ -88,6 +88,8 @@ function matchesSearch(
   const searchHaystack = [
     row.name,
     row.description,
+    row.primaryTag ?? "",
+    row.secondaryTag ?? "",
     ...harnessLabels,
   ].join(" ").toLowerCase();
 

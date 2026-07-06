@@ -65,6 +65,8 @@ class SkillStore:
                     recorded_forked_from=entry.forked_from if entry else None,
                     recorded_forked_from_version=entry.forked_from_version if entry else None,
                     recorded_is_primary=entry.is_primary if entry else True,
+                    recorded_primary_tag=entry.primary_tag if entry else None,
+                    recorded_secondary_tag=entry.secondary_tag if entry else None,
                 )
             )
         return SkillStoreScan(
@@ -129,6 +131,9 @@ class SkillStore:
             shutil.copytree(source_path, dest)
             sid = skill_id or new_skill_id()
             fingerprint, _ = fingerprint_package(dest)
+            source_meta = read_skill_meta(source_path)
+            ptag = source_meta.primary_tag if source_meta else None
+            stag = source_meta.secondary_tag if source_meta else None
             # authoritative sidecar (overwrites any copy carried in from source)
             write_skill_meta(
                 dest,
@@ -137,6 +142,8 @@ class SkillStore:
                     base_version=1,
                     forked_from=forked_from,
                     forked_from_version=forked_from_version,
+                    primary_tag=ptag,
+                    secondary_tag=stag,
                 ),
             )
             entry = SkillStoreEntry(
@@ -152,6 +159,8 @@ class SkillStore:
                 forked_from=forked_from,
                 forked_from_version=forked_from_version,
                 is_primary=is_primary,
+                primary_tag=ptag,
+                secondary_tag=stag,
             )
             manifest = load_skill_store_manifest(self.manifest_path)
             write_skill_store_manifest(
@@ -186,6 +195,9 @@ class SkillStore:
             created_at = self._preserve_created_at(dest)
             shutil.rmtree(dest)
             shutil.copytree(source_path, dest)
+            source_meta = read_skill_meta(source_path)
+            ptag = source_meta.primary_tag if (source_meta and source_meta.primary_tag) else (old_entry.primary_tag if old_entry else None)
+            stag = source_meta.secondary_tag if (source_meta and source_meta.secondary_tag) else (old_entry.secondary_tag if old_entry else None)
             write_skill_meta(
                 dest,
                 SkillMeta(
@@ -194,6 +206,8 @@ class SkillStore:
                     forked_from=old_entry.forked_from if old_entry else None,
                     forked_from_version=old_entry.forked_from_version if old_entry else None,
                     created_at=created_at,
+                    primary_tag=ptag,
+                    secondary_tag=stag,
                 ),
             )
             updated = tuple(
@@ -204,6 +218,8 @@ class SkillStore:
                     source_path=e.source_path if source_path_hint is None else source_path_hint,
                     version=new_version,
                     id=sid,
+                    primary_tag=ptag,
+                    secondary_tag=stag,
                 )
                 if e.package_dir == package_dir
                 else e
@@ -250,6 +266,22 @@ class SkillStore:
                 skill_id, new_version, dest, revision=new_fp, source="restore", note=f"restored from v{version}"
             )
             return new_version
+
+    def pull_to_path(self, package_dir: str, target_path: Path) -> int:
+        """Materialize the store package's current content into ``target_path``
+        (母体 → 项目 fast-forward). The store package already carries its
+        authoritative `.skillmeta.json` (id + base_version = current version +
+        tags), so a plain copytree lands the correct sidecar in the workspace.
+        The caller is responsible for the clean/fast-forward safety check."""
+        with file_lock(self.lock_path):
+            dest = self.root / package_dir
+            if not dest.is_dir():
+                raise ValueError(f"package not in store: {package_dir}")
+            entry = next((e for e in self.entries() if e.package_dir == package_dir), None)
+            if target_path.exists():
+                shutil.rmtree(target_path)
+            shutil.copytree(dest, target_path)
+            return entry.version if entry else 1
 
     def set_primary(self, skill_id: str) -> None:
         """Make ``skill_id`` the primary (main) of its fork lineage, demoting

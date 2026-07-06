@@ -878,6 +878,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/skills/pending-conflicts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Pending Conflicts */
+        get: operations["list_pending_conflicts_api_skills_pending_conflicts_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/skills/pending-conflicts/resolve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Resolve Pending Conflict */
+        post: operations["resolve_pending_conflict_api_skills_pending_conflicts_resolve_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/skills/resolve-push": {
         parameters: {
             query?: never;
@@ -991,6 +1025,23 @@ export interface paths {
         put?: never;
         /** Preview Push From Path */
         post: operations["preview_push_from_path_api_skills__skill_ref__preview_push_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/skills/{skill_ref}/pull-to-path": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Pull Skill To Path */
+        post: operations["pull_skill_to_path_api_skills__skill_ref__pull_to_path_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2273,6 +2324,89 @@ export interface components {
             ok: boolean;
         };
         /**
+         * PendingConflictItemResponse
+         * @description One project→母体 push conflict awaiting central resolution. The pushed
+         *     content is snapshotted into a manager-owned staging area at detection time,
+         *     so resolution never depends on the workspace copy staying intact.
+         */
+        PendingConflictItemResponse: {
+            /** Baseid */
+            baseId: string;
+            /** Basename */
+            baseName: string;
+            /**
+             * Baseversion
+             * @description Version the workspace copy was taken from (0 = untracked)
+             */
+            baseVersion: number;
+            /** Conflictid */
+            conflictId: string;
+            /**
+             * Currentstoreversion
+             * @description The base skill's live store version now (may have advanced since detection)
+             */
+            currentStoreVersion?: number | null;
+            /** Detectedat */
+            detectedAt: number;
+            /**
+             * Diff
+             * @description Per-file diff: current store base vs the pushed (staged) content
+             */
+            diff?: components["schemas"]["SkillDiffFileResponse"][];
+            /** Pushedrevision */
+            pushedRevision: string;
+            /**
+             * Sourcepath
+             * @description Original workspace path (best-effort sidecar re-stamp on resolve)
+             */
+            sourcePath: string;
+            /**
+             * Storeversion
+             * @description Store version at detection time
+             */
+            storeVersion: number;
+            /**
+             * Workspaceid
+             * @description Best-effort workspace label derived from sourcePath
+             */
+            workspaceId?: string | null;
+        };
+        /** PendingConflictsResponse */
+        PendingConflictsResponse: {
+            /** Conflicts */
+            conflicts: components["schemas"]["PendingConflictItemResponse"][];
+        };
+        /** PullSkillResultResponse */
+        PullSkillResultResponse: {
+            /** Ok */
+            ok: boolean;
+            /**
+             * Status
+             * @description One of pulled | uptodate | dirty (fast-forward-only pull)
+             * @default uptodate
+             */
+            status: string;
+            /**
+             * Version
+             * @description The store version the workspace copy now reflects (0 when untracked)
+             * @default 0
+             */
+            version: number;
+        };
+        /**
+         * PullSkillToPathRequest
+         * @description Fast-forward a workspace's skill copy to the store's current version
+         *     (母体 → 项目). The reverse of push: the store overwrites the workspace copy
+         *     at ``targetPath`` only when that copy is clean (no local edits).
+         */
+        PullSkillToPathRequest: {
+            /**
+             * Targetpath
+             * @description Absolute path to the workspace's skill package directory to update in place
+             */
+            targetPath: string;
+        };
+        /**
          * PushAgentFromPathRequest
          * @description Overwrite a managed shared-store agent with a locally-modified copy.
          *
@@ -2370,6 +2504,27 @@ export interface components {
              * @enum {string}
              */
             sourceKind: "managed" | "harness";
+        };
+        /**
+         * ResolvePendingConflictRequest
+         * @description Resolve one pending push conflict from the central inbox. ``main`` lands
+         *     the staged content as the base package's new mainline (in-place update,
+         *     history preserved); ``fork`` lands it as a new fork of the base; ``dismiss``
+         *     drops the staged snapshot without touching the store.
+         */
+        ResolvePendingConflictRequest: {
+            /** Conflictid */
+            conflictId: string;
+            /**
+             * Name
+             * @description Optional new display name when resolution=fork
+             */
+            name?: string | null;
+            /**
+             * Resolution
+             * @enum {string}
+             */
+            resolution: "main" | "fork" | "dismiss";
         };
         /**
          * ResolvePushConflictRequest
@@ -2789,9 +2944,29 @@ export interface components {
             locations: components["schemas"]["SkillLocationResponse"][];
             /** Name */
             name: string;
+            /** Primarytag */
+            primaryTag?: string | null;
+            /** Secondarytag */
+            secondaryTag?: string | null;
             /** Skillref */
             skillRef: string;
             sourceLinks: components["schemas"]["SkillSourceLinksResponse"] | null;
+        };
+        /** SkillDiffFileResponse */
+        SkillDiffFileResponse: {
+            /**
+             * Diff
+             * @description Unified diff text; empty for binary changes
+             * @default
+             */
+            diff: string;
+            /** Path */
+            path: string;
+            /**
+             * Status
+             * @description added | removed | modified
+             */
+            status: string;
         };
         /** SkillLineageInfoResponse */
         SkillLineageInfoResponse: {
@@ -2879,6 +3054,12 @@ export interface components {
         /** SkillStatusResultResponse */
         SkillStatusResultResponse: {
             /**
+             * Basematches
+             * @description True when the copy is unchanged from its base_version snapshot (a fast-forward pull is safe)
+             * @default false
+             */
+            baseMatches: boolean;
+            /**
              * Baseversion
              * @description Store version this workspace copy was taken from (sidecar), or null when untracked
              */
@@ -2911,6 +3092,16 @@ export interface components {
              */
             name: string;
             /**
+             * Primarytag
+             * @description Primary tag from skillmeta sidecar
+             */
+            primaryTag?: string | null;
+            /**
+             * Secondarytag
+             * @description Secondary tag from skillmeta sidecar
+             */
+            secondaryTag?: string | null;
+            /**
              * Skillid
              * @description Stable skill id resolved from the copy's sidecar (#379)
              */
@@ -2936,6 +3127,10 @@ export interface components {
             displayStatus: "Managed" | "Unmanaged";
             /** Name */
             name: string;
+            /** Primarytag */
+            primaryTag?: string | null;
+            /** Secondarytag */
+            secondaryTag?: string | null;
             /** Skillref */
             skillRef: string;
         };
@@ -4840,6 +5035,61 @@ export interface operations {
             };
         };
     };
+    list_pending_conflicts_api_skills_pending_conflicts_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PendingConflictsResponse"];
+                };
+            };
+        };
+    };
+    resolve_pending_conflict_api_skills_pending_conflicts_resolve_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResolvePendingConflictRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     resolve_push_conflict_api_skills_resolve_push_post: {
         parameters: {
             query?: never;
@@ -5062,6 +5312,41 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    pull_skill_to_path_api_skills__skill_ref__pull_to_path_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                skill_ref: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PullSkillToPathRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PullSkillResultResponse"];
                 };
             };
             /** @description Validation Error */

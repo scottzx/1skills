@@ -3249,6 +3249,147 @@
         "title": "OkResponse",
         "type": "object"
       },
+      "PendingConflictItemResponse": {
+        "description": "One project\u2192\u6bcd\u4f53 push conflict awaiting central resolution. The pushed\ncontent is snapshotted into a manager-owned staging area at detection time,\nso resolution never depends on the workspace copy staying intact.",
+        "properties": {
+          "baseId": {
+            "title": "Baseid",
+            "type": "string"
+          },
+          "baseName": {
+            "title": "Basename",
+            "type": "string"
+          },
+          "baseVersion": {
+            "description": "Version the workspace copy was taken from (0 = untracked)",
+            "title": "Baseversion",
+            "type": "integer"
+          },
+          "conflictId": {
+            "title": "Conflictid",
+            "type": "string"
+          },
+          "currentStoreVersion": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The base skill's live store version now (may have advanced since detection)",
+            "title": "Currentstoreversion"
+          },
+          "detectedAt": {
+            "title": "Detectedat",
+            "type": "number"
+          },
+          "diff": {
+            "description": "Per-file diff: current store base vs the pushed (staged) content",
+            "items": {
+              "$ref": "#/components/schemas/SkillDiffFileResponse"
+            },
+            "title": "Diff",
+            "type": "array"
+          },
+          "pushedRevision": {
+            "title": "Pushedrevision",
+            "type": "string"
+          },
+          "sourcePath": {
+            "description": "Original workspace path (best-effort sidecar re-stamp on resolve)",
+            "title": "Sourcepath",
+            "type": "string"
+          },
+          "storeVersion": {
+            "description": "Store version at detection time",
+            "title": "Storeversion",
+            "type": "integer"
+          },
+          "workspaceId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Best-effort workspace label derived from sourcePath",
+            "title": "Workspaceid"
+          }
+        },
+        "required": [
+          "conflictId",
+          "baseId",
+          "baseName",
+          "storeVersion",
+          "baseVersion",
+          "sourcePath",
+          "pushedRevision",
+          "detectedAt"
+        ],
+        "title": "PendingConflictItemResponse",
+        "type": "object"
+      },
+      "PendingConflictsResponse": {
+        "properties": {
+          "conflicts": {
+            "items": {
+              "$ref": "#/components/schemas/PendingConflictItemResponse"
+            },
+            "title": "Conflicts",
+            "type": "array"
+          }
+        },
+        "required": [
+          "conflicts"
+        ],
+        "title": "PendingConflictsResponse",
+        "type": "object"
+      },
+      "PullSkillResultResponse": {
+        "properties": {
+          "ok": {
+            "title": "Ok",
+            "type": "boolean"
+          },
+          "status": {
+            "default": "uptodate",
+            "description": "One of pulled | uptodate | dirty (fast-forward-only pull)",
+            "title": "Status",
+            "type": "string"
+          },
+          "version": {
+            "default": 0,
+            "description": "The store version the workspace copy now reflects (0 when untracked)",
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "ok"
+        ],
+        "title": "PullSkillResultResponse",
+        "type": "object"
+      },
+      "PullSkillToPathRequest": {
+        "description": "Fast-forward a workspace's skill copy to the store's current version\n(\u6bcd\u4f53 \u2192 \u9879\u76ee). The reverse of push: the store overwrites the workspace copy\nat ``targetPath`` only when that copy is clean (no local edits).",
+        "properties": {
+          "targetPath": {
+            "description": "Absolute path to the workspace's skill package directory to update in place",
+            "minLength": 1,
+            "title": "Targetpath",
+            "type": "string"
+          }
+        },
+        "required": [
+          "targetPath"
+        ],
+        "title": "PullSkillToPathRequest",
+        "type": "object"
+      },
       "PushAgentFromPathRequest": {
         "description": "Overwrite a managed shared-store agent with a locally-modified copy.\n\nThe reverse of the create-time weak-copy: a workspace edited its own\n``<name>.md`` copy at ``sourcePath`` (e.g. ``<workspace>/.claude/agents/<name>.md``)\nand now pushes it back to become the shared store's new baseline.",
         "properties": {
@@ -3415,6 +3556,43 @@
           "sourceKind"
         ],
         "title": "ReconcileMcpServerRequest",
+        "type": "object"
+      },
+      "ResolvePendingConflictRequest": {
+        "description": "Resolve one pending push conflict from the central inbox. ``main`` lands\nthe staged content as the base package's new mainline (in-place update,\nhistory preserved); ``fork`` lands it as a new fork of the base; ``dismiss``\ndrops the staged snapshot without touching the store.",
+        "properties": {
+          "conflictId": {
+            "minLength": 1,
+            "title": "Conflictid",
+            "type": "string"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Optional new display name when resolution=fork",
+            "title": "Name"
+          },
+          "resolution": {
+            "enum": [
+              "main",
+              "fork",
+              "dismiss"
+            ],
+            "title": "Resolution",
+            "type": "string"
+          }
+        },
+        "required": [
+          "conflictId",
+          "resolution"
+        ],
+        "title": "ResolvePendingConflictRequest",
         "type": "object"
       },
       "ResolvePushConflictRequest": {
@@ -4525,6 +4703,28 @@
             "title": "Name",
             "type": "string"
           },
+          "primaryTag": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Primarytag"
+          },
+          "secondaryTag": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Secondarytag"
+          },
           "skillRef": {
             "title": "Skillref",
             "type": "string"
@@ -4553,6 +4753,31 @@
           "documentMarkdown"
         ],
         "title": "SkillDetailResponse",
+        "type": "object"
+      },
+      "SkillDiffFileResponse": {
+        "properties": {
+          "diff": {
+            "default": "",
+            "description": "Unified diff text; empty for binary changes",
+            "title": "Diff",
+            "type": "string"
+          },
+          "path": {
+            "title": "Path",
+            "type": "string"
+          },
+          "status": {
+            "description": "added | removed | modified",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "path",
+          "status"
+        ],
+        "title": "SkillDiffFileResponse",
         "type": "object"
       },
       "SkillLineageInfoResponse": {
@@ -4798,6 +5023,12 @@
       },
       "SkillStatusResultResponse": {
         "properties": {
+          "baseMatches": {
+            "default": false,
+            "description": "True when the copy is unchanged from its base_version snapshot (a fast-forward pull is safe)",
+            "title": "Basematches",
+            "type": "boolean"
+          },
           "baseVersion": {
             "anyOf": [
               {
@@ -4836,6 +5067,30 @@
             "description": "Declared name from the workspace copy's SKILL.md frontmatter",
             "title": "Name",
             "type": "string"
+          },
+          "primaryTag": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Primary tag from skillmeta sidecar",
+            "title": "Primarytag"
+          },
+          "secondaryTag": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Secondary tag from skillmeta sidecar",
+            "title": "Secondarytag"
           },
           "skillId": {
             "anyOf": [
@@ -4907,6 +5162,28 @@
           "name": {
             "title": "Name",
             "type": "string"
+          },
+          "primaryTag": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Primarytag"
+          },
+          "secondaryTag": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Secondarytag"
           },
           "skillRef": {
             "title": "Skillref",
@@ -7810,6 +8087,64 @@
         "summary": "Manage All Skills"
       }
     },
+    "/api/skills/pending-conflicts": {
+      "get": {
+        "operationId": "list_pending_conflicts_api_skills_pending_conflicts_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PendingConflictsResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "List Pending Conflicts"
+      }
+    },
+    "/api/skills/pending-conflicts/resolve": {
+      "post": {
+        "operationId": "resolve_pending_conflict_api_skills_pending_conflicts_resolve_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResolvePendingConflictRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Resolve Pending Conflict Api Skills Pending Conflicts Resolve Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Resolve Pending Conflict"
+      }
+    },
     "/api/skills/resolve-push": {
       "post": {
         "operationId": "resolve_push_conflict_api_skills_resolve_push_post",
@@ -8114,6 +8449,55 @@
           }
         },
         "summary": "Preview Push From Path"
+      }
+    },
+    "/api/skills/{skill_ref}/pull-to-path": {
+      "post": {
+        "operationId": "pull_skill_to_path_api_skills__skill_ref__pull_to_path_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "skill_ref",
+            "required": true,
+            "schema": {
+              "title": "Skill Ref",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PullSkillToPathRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PullSkillResultResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Pull Skill To Path"
       }
     },
     "/api/skills/{skill_ref}/push-from-path": {

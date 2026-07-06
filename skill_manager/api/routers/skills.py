@@ -9,8 +9,12 @@ from skill_manager.api.schemas import (
     DisableSkillRequest,
     EnableSkillRequest,
     OkResponse,
+    PendingConflictsResponse,
+    PullSkillResultResponse,
+    PullSkillToPathRequest,
     PushSkillFromPathRequest,
     PushSkillResultResponse,
+    ResolvePendingConflictRequest,
     ResolvePushConflictRequest,
     SkillStatusFromPathRequest,
     SkillStatusResultResponse,
@@ -85,6 +89,23 @@ def resolve_push_conflict(
     return container.skills_mutations.resolve_push_conflict(
         source_path=body.source_path,
         base_id=body.base_id,
+        resolution=body.resolution,
+        name=body.name,
+    )
+
+
+@router.get("/pending-conflicts", response_model=PendingConflictsResponse)
+def list_pending_conflicts(container: BackendContainer = Depends(get_container)) -> dict[str, object]:
+    return container.skills_queries.list_pending_conflicts()
+
+
+@router.post("/pending-conflicts/resolve")
+def resolve_pending_conflict(
+    body: ResolvePendingConflictRequest,
+    container: BackendContainer = Depends(get_container),
+) -> dict[str, object]:
+    return container.skills_mutations.resolve_pending_conflict(
+        conflict_id=body.conflict_id,
         resolution=body.resolution,
         name=body.name,
     )
@@ -182,6 +203,15 @@ def push_skill_from_path(
     container: BackendContainer = Depends(get_container),
 ) -> dict[str, object]:
     return container.skills_mutations.push_skill_from_path(skill_ref, body.source_path)
+
+
+@router.post("/{skill_ref:path}/pull-to-path", response_model=PullSkillResultResponse)
+def pull_skill_to_path(
+    skill_ref: str,
+    body: PullSkillToPathRequest,
+    container: BackendContainer = Depends(get_container),
+) -> dict[str, object]:
+    return container.skills_mutations.pull_skill_to_path(skill_ref, body.target_path)
 
 
 @router.post("/{skill_ref:path}/unmanage", response_model=OkResponse)

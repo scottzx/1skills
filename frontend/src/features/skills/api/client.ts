@@ -3,7 +3,10 @@ import type {
   DisableSkillRequest,
   EnableSkillRequest,
   OkResponse,
+  PendingConflictsDto,
   PromoteSkillResult,
+  ResolvePendingConflictRequest,
+  ResolvePendingConflictResult,
   RestoreSkillVersionResult,
   SetSkillHarnessesRequest,
   SetSkillHarnessesResultDto,
@@ -90,6 +93,16 @@ export async function restoreSkillVersion(id: string, version: number): Promise<
 
 export async function promoteSkill(id: string): Promise<PromoteSkillResult> {
   return postJson<PromoteSkillResult>(`/skills/id/${encodeURIComponent(id)}/promote`);
+}
+
+export async function fetchPendingConflicts(): Promise<PendingConflictsDto> {
+  return fetchJson<PendingConflictsDto>("/skills/pending-conflicts");
+}
+
+export async function resolvePendingConflict(
+  body: ResolvePendingConflictRequest,
+): Promise<ResolvePendingConflictResult> {
+  return postJson<ResolvePendingConflictResult>("/skills/pending-conflicts/resolve", body);
 }
 
 export async function manageAllSkills(): Promise<BulkManageResult> {

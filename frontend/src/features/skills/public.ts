@@ -2,6 +2,7 @@ export {
   useDeleteSkillMutation,
   useManageAllSkillsMutation,
   useManageSkillMutation,
+  usePendingConflictsQuery,
   useSetSkillHarnessesMutation,
   useSkillDetailQuery,
   useSkillsListQuery,
@@ -22,6 +23,7 @@ export type {
 export const skillsRoutes = {
   inUse: "/skills/use",
   needsReview: "/skills/review",
+  conflicts: "/skills/conflicts",
   scanConfig: "/scan-config",
   marketplace: "/marketplace/skills",
 } as const;

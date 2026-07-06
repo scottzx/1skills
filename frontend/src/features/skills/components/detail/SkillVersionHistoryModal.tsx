@@ -10,7 +10,8 @@ import {
   useSkillVersionDiffQuery,
   useSkillVersionsQuery,
 } from "../../api/queries";
-import type { SkillDiffFile, SkillDiffFileStatus, SkillVersionEntry, SkillVersionSource } from "../../api/types";
+import type { SkillVersionEntry, SkillVersionSource } from "../../api/types";
+import { SkillDiffFileBlock } from "./SkillDiffFiles";
 
 interface SkillVersionHistoryModalProps {
   open: boolean;
@@ -182,57 +183,6 @@ function SkillVersionDiffPanel({
   );
 }
 
-function SkillDiffFileBlock({
-  file,
-  copy,
-}: {
-  file: SkillDiffFile;
-  copy: ReturnType<typeof useSkillsCopy>["versioning"];
-}) {
-  return (
-    <div className="skill-diff-file">
-      <div className="skill-diff-file__header">
-        <span className="skill-diff-file__path">{file.path}</span>
-        <span className={`skill-diff-file__status skill-diff-file__status--${file.status}`}>
-          {diffStatusLabel(file.status, copy)}
-        </span>
-      </div>
-      {file.diff ? (
-        <pre className="skill-diff-file__body">
-          {file.diff.split("\n").map((line, index) => (
-            <div key={index} className={`skill-diff-line ${diffLineClassName(line)}`}>
-              {line}
-            </div>
-          ))}
-        </pre>
-      ) : (
-        <p className="skill-versions__empty">{copy.noChanges}</p>
-      )}
-    </div>
-  );
-}
-
-function diffLineClassName(line: string): string {
-  if (line.startsWith("@@")) return "skill-diff-line--hunk";
-  if (line.startsWith("+++") || line.startsWith("---")) return "skill-diff-line--meta";
-  if (line.startsWith("+")) return "skill-diff-line--add";
-  if (line.startsWith("-")) return "skill-diff-line--del";
-  return "skill-diff-line--ctx";
-}
-
-function diffStatusLabel(status: SkillDiffFileStatus, copy: ReturnType<typeof useSkillsCopy>["versioning"]): string {
-  switch (status) {
-    case "added":
-      return copy.statusAdded;
-    case "removed":
-      return copy.statusRemoved;
-    case "modified":
-      return copy.statusModified;
-    default:
-      return status;
-  }
-}
-
 function sortVersionsDescending(versions: SkillVersionEntry[]): SkillVersionEntry[] {
   return [...versions].sort((a, b) => b.version - a.version);
 }
@@ -241,7 +191,7 @@ function versionSourceLabel(source: SkillVersionSource, copy: ReturnType<typeof 
   return copy.source[source] ?? source;
 }
 
-function formatVersionCreatedAt(value: string, locale: string): string {
+export function formatVersionCreatedAt(value: string, locale: string): string {
   const parsed = new Date(value);
   if (Number.isNaN(parsed.getTime())) {
     return value;

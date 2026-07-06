@@ -37,7 +37,7 @@ from .agents import (
     AgentsReadModelService,
     AgentStore,
 )
-from .skills import SkillImportService, SkillsMutationService, SkillsQueryService
+from .skills import PendingConflictStore, SkillImportService, SkillsMutationService, SkillsQueryService
 from .skills.marketplace import (
     MarketplaceCatalog,
     MarketplaceDocumentService,
@@ -120,10 +120,13 @@ def build_backend_container(
     skills_store.migrate_ids_and_history()
     skills_read_models = SkillsReadModelService.from_kernel(store=skills_store, kernel=harness_kernel)
     invalidation.register(skills_read_models)
+    skills_pending_conflicts = PendingConflictStore(paths.skills_pending_root)
 
     active_source_fetcher = source_fetcher or SourceFetchService()
-    skills_queries = SkillsQueryService(skills_read_models, active_source_fetcher)
-    skills_mutations = SkillsMutationService(skills_read_models, skills_queries, active_source_fetcher)
+    skills_queries = SkillsQueryService(skills_read_models, active_source_fetcher, skills_pending_conflicts)
+    skills_mutations = SkillsMutationService(
+        skills_read_models, skills_queries, active_source_fetcher, skills_pending_conflicts
+    )
     skills_imports = SkillImportService(skills_read_models, harness_kernel)
 
     agents_store = AgentStore(paths.agents_store_root, manifest_path=paths.agents_store_manifest)
