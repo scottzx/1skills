@@ -32,7 +32,7 @@ class AgentsReadModelService:
         store: AgentStore,
         adapters: tuple[AgentsHarnessAdapter, ...],
         kernel: HarnessKernelService,
-        snapshot_ttl_seconds: float = 1.0,
+        snapshot_ttl_seconds: float = 30.0,
     ) -> None:
         self.store = store
         self.adapters = adapters
@@ -100,14 +100,12 @@ class AgentsReadModelService:
             cached = self._cache
             if cached is not None and (time.time() - cached.captured_at) < self.snapshot_ttl_seconds:
                 return cached.snapshot
-
-        snapshot = AgentsReadModelSnapshot(
-            store_scan=self.store.scan(),
-            harness_scans=scan_all_adapters(self.adapters),
-        )
-        with self._lock:
+            snapshot = AgentsReadModelSnapshot(
+                store_scan=self.store.scan(),
+                harness_scans=scan_all_adapters(self.adapters),
+            )
             self._cache = _CachedSnapshot(snapshot=snapshot, captured_at=time.time())
-        return snapshot
+            return snapshot
 
     def invalidate(self) -> None:
         with self._lock:

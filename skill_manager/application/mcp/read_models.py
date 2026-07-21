@@ -31,7 +31,7 @@ class McpReadModelService:
         store: McpServerStore,
         adapters: tuple[McpHarnessAdapter, ...],
         kernel: HarnessKernelService,
-        snapshot_ttl_seconds: float = 1.0,
+        snapshot_ttl_seconds: float = 30.0,
     ) -> None:
         self.store = store
         self.adapters = adapters
@@ -108,17 +108,15 @@ class McpReadModelService:
             cached = self._cache
             if cached is not None and (time.time() - cached.captured_at) < self.snapshot_ttl_seconds:
                 return cached.snapshot
-
-        specs = self.store.list_binding_specs()
-        if not self.adapters:
-            scans: tuple[McpHarnessScan, ...] = ()
-        else:
-            with ThreadPoolExecutor(max_workers=max(2, len(self.adapters))) as executor:
-                scans = tuple(executor.map(lambda adapter: adapter.scan(specs), self.adapters))
-        snapshot = McpReadModelSnapshot(harness_scans=scans)
-        with self._lock:
+            specs = self.store.list_binding_specs()
+            if not self.adapters:
+                scans: tuple[McpHarnessScan, ...] = ()
+            else:
+                with ThreadPoolExecutor(max_workers=max(2, len(self.adapters))) as executor:
+                    scans = tuple(executor.map(lambda adapter: adapter.scan(specs), self.adapters))
+            snapshot = McpReadModelSnapshot(harness_scans=scans)
             self._cache = _CachedSnapshot(snapshot=snapshot, captured_at=time.time())
-        return snapshot
+            return snapshot
 
     def invalidate(self) -> None:
         with self._lock:

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import hashlib
+import os
 from pathlib import Path
 
 from .identity import SkillRef, SourceDescriptor
@@ -9,6 +10,35 @@ from .identity import SkillRef, SourceDescriptor
 
 class SkillParseError(ValueError):
     """Raised when a skill folder cannot be parsed safely."""
+
+
+# Vendor / build trees that must not participate in skill content fingerprints.
+# Skills sometimes ship local toolchains (e.g. funasr .venv) that are multi-GB
+# and would otherwise dominate every inventory scan.
+_FINGERPRINT_IGNORED_DIR_NAMES = frozenset(
+    {
+        ".git",
+        ".hg",
+        ".svn",
+        ".venv",
+        "venv",
+        "env",
+        "node_modules",
+        "__pycache__",
+        ".mypy_cache",
+        ".pytest_cache",
+        ".ruff_cache",
+        ".tox",
+        ".eggs",
+        "dist",
+        "build",
+        ".cache",
+        ".turbo",
+        ".next",
+        "target",
+    }
+)
+_FINGERPRINT_IGNORED_FILE_NAMES = frozenset({".DS_Store", ".skillmeta.json"})
 
 
 @dataclass(frozen=True)
@@ -43,14 +73,27 @@ def find_skill_roots(root: Path) -> tuple[Path, ...]:
 def fingerprint_package(root: Path) -> tuple[str, tuple[str, ...]]:
     if not root.is_dir():
         raise SkillParseError(f"skill root does not exist: {root}")
+    candidates: list[Path] = []
+    # Prune ignored directories while walking so multi-GB toolchains never get read.
+    for dirpath, dirnames, filenames in os.walk(root, topdown=True, followlinks=False):
+        dirnames[:] = [
+            name
+            for name in dirnames
+            if name not in _FINGERPRINT_IGNORED_DIR_NAMES and not name.endswith(".egg-info")
+        ]
+        for name in filenames:
+            if name in _FINGERPRINT_IGNORED_FILE_NAMES:
+                continue
+            path = Path(dirpath) / name
+            if path.is_file():
+                candidates.append(path)
+
     digest = hashlib.sha256()
     relative_files: list[str] = []
-    for path in sorted(candidate for candidate in root.rglob("*") if candidate.is_file()):
+    for path in sorted(candidates, key=lambda item: item.relative_to(root).as_posix()):
         # .skillmeta.json (stable-id sidecar, #379) is excluded like .DS_Store:
         # id/baseVersion/fork lineage are identity, not content — including them
         # would make every copy read as "modified".
-        if path.name in (".DS_Store", ".skillmeta.json"):
-            continue
         relative_path = path.relative_to(root).as_posix()
         relative_files.append(relative_path)
         digest.update(relative_path.encode("utf-8"))

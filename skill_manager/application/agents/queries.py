@@ -17,12 +17,12 @@ class AgentsQueryService:
         self.read_models = read_models
 
     def health(self) -> dict[str, object]:
-        snapshot = self.read_models.snapshot()
+        # Cheap liveness probe — avoid a full agents inventory rebuild.
         return {
             "ok": True,
             "app": "skill-manager",
             "readOnly": False,
-            "harnessCount": len(snapshot.harness_scans),
+            "harnessCount": len(self.read_models.adapters),
         }
 
     def list_agents(self) -> dict[str, object]:

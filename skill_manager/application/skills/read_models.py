@@ -32,7 +32,7 @@ class SkillsReadModelService:
         store: SkillStore,
         adapters: tuple[SkillsHarnessAdapter, ...],
         kernel: HarnessKernelService,
-        snapshot_ttl_seconds: float = 1.0,
+        snapshot_ttl_seconds: float = 30.0,
     ) -> None:
         self.store = store
         self.adapters = adapters
@@ -100,14 +100,14 @@ class SkillsReadModelService:
             cached = self._cache
             if cached is not None and (time.time() - cached.captured_at) < self.snapshot_ttl_seconds:
                 return cached.snapshot
-
-        snapshot = SkillsReadModelSnapshot(
-            store_scan=self.store.scan(),
-            harness_scans=scan_all_adapters(self.adapters),
-        )
-        with self._lock:
+            # Single-flight rebuild under the lock so concurrent UI loads do not
+            # stampede multi-second fingerprint scans of the shared store.
+            snapshot = SkillsReadModelSnapshot(
+                store_scan=self.store.scan(),
+                harness_scans=scan_all_adapters(self.adapters),
+            )
             self._cache = _CachedSnapshot(snapshot=snapshot, captured_at=time.time())
-        return snapshot
+            return snapshot
 
     def invalidate(self) -> None:
         with self._lock:

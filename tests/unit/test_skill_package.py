@@ -75,6 +75,32 @@ class SkillParsingTests(unittest.TestCase):
             second, _ = fingerprint_package(package_root)
             self.assertNotEqual(first, second)
 
+    def test_fingerprint_ignores_venv_and_node_modules_trees(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            package_root = seed_skill_package(root, "heavy", "Heavy")
+            venv_file = package_root / ".venv" / "lib" / "site-packages" / "torch.so"
+            venv_file.parent.mkdir(parents=True)
+            venv_file.write_bytes(b"\x00" * 1024 * 1024)
+            node_file = package_root / "node_modules" / "left-pad" / "index.js"
+            node_file.parent.mkdir(parents=True)
+            node_file.write_text("module.exports = 1\n", encoding="utf-8")
+            support = package_root / "scripts" / "run.sh"
+            support.parent.mkdir(parents=True)
+            support.write_text("#!/bin/sh\n", encoding="utf-8")
+
+            revision, files = fingerprint_package(package_root)
+            self.assertTrue(revision)
+            self.assertIn("SKILL.md", files)
+            self.assertIn("scripts/run.sh", files)
+            self.assertFalse(any(path.startswith(".venv/") for path in files))
+            self.assertFalse(any(path.startswith("node_modules/") for path in files))
+
+            # Changing ignored trees must not alter the fingerprint.
+            venv_file.write_bytes(b"\x01" * 2048)
+            again, _ = fingerprint_package(package_root)
+            self.assertEqual(revision, again)
+
     def test_parse_skill_package_rejects_missing_skill_md(self) -> None:
         with TemporaryDirectory() as temp_dir:
             root = Path(temp_dir) / "broken"

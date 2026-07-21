@@ -12,6 +12,7 @@ from skill_manager.errors import MarketplaceUpstreamError
 from ..install_resolver import (
     McpInstallConfig,
     RegistryInstallOption,
+    registry_install_options,
     registry_managed_name,
 )
 from .client import McpRegistryClient
@@ -135,25 +136,43 @@ class McpMarketplaceCatalog:
         name = (qualified_name or "").strip()
         if not name:
             return None
-        cache_key = name
-        cached = self._cache.read(_DETAIL_NAMESPACE, cache_key, ttl_seconds=_DETAIL_TTL_SECONDS)
-        if cached is not None and isinstance(cached.payload, dict):
-            payload = dict(cached.payload)
-            payload.pop("registryServer", None)
-            payload["externalUrl"] = _external_url(name)
-            return payload
-        resolved = self._latest_supported_detail(name)
-        if resolved is None:
+        payload = self._detail_payload(name)
+        if payload is None:
             return None
-        raw, options = resolved
-        payload = _map_detail(raw, qualified_name=name, options=options)
-        self._cache.write(_DETAIL_NAMESPACE, cache_key, payload)
-        return payload
+        public = dict(payload)
+        # registryServer is retained only for install_detail cache reuse.
+        public.pop("registryServer", None)
+        public["externalUrl"] = _external_url(name)
+        return public
 
     def install_detail(self, qualified_name: str) -> McpRegistryInstallDetail | None:
         name = (qualified_name or "").strip()
         if not name:
             return None
+        # Share the disk-backed detail cache so inventory listing does not
+        # re-hit the MCP registry once per managed server on every page load.
+        payload = self._detail_payload(name)
+        if payload is None:
+            return None
+        server = payload.get("registryServer")
+        if not isinstance(server, Mapping):
+            return None
+        options = registry_install_options(server)
+        return McpRegistryInstallDetail(
+            qualified_name=name,
+            display_name=_coerce_str(payload.get("displayName"), default=name),
+            registry_server=server,
+            options=options,
+        )
+
+    def _detail_payload(self, name: str) -> dict[str, object] | None:
+        cache_key = name
+        cached = self._cache.read(_DETAIL_NAMESPACE, cache_key, ttl_seconds=_DETAIL_TTL_SECONDS)
+        if cached is not None and isinstance(cached.payload, dict):
+            payload = dict(cached.payload)
+            if isinstance(payload.get("registryServer"), Mapping):
+                return payload
+            # Older cache entries may lack registryServer; fall through and refresh.
         resolved = self._latest_supported_detail(name)
         if resolved is None:
             return None
@@ -161,12 +180,10 @@ class McpMarketplaceCatalog:
         server = _entry_server(raw)
         if server is None:
             return None
-        return McpRegistryInstallDetail(
-            qualified_name=name,
-            display_name=_coerce_str(server.get("title"), default=name),
-            registry_server=server,
-            options=options,
-        )
+        payload = _map_detail(raw, qualified_name=name, options=options)
+        payload["registryServer"] = dict(server)
+        self._cache.write(_DETAIL_NAMESPACE, cache_key, payload)
+        return payload
 
     def _latest_supported_detail(
         self,
