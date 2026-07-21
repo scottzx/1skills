@@ -165,7 +165,7 @@ class SkillsMutationTests(unittest.TestCase):
         with AppTestHarness(fixture_factory=seed_shared_only_fixture) as harness:
             # Simulate missing non-core CLIs by removing their stubs from the
             # fake PATH. Cursor may still be available through its app probe.
-            for cli in ("cursor-agent", "opencode", "openclaw"):
+            for cli in ("cursor-agent", "opencode", "openclaw", "grok"):
                 stub = harness.spec.bin_dir / cli
                 if stub.exists():
                     stub.unlink()
@@ -181,6 +181,7 @@ class SkillsMutationTests(unittest.TestCase):
             self.assertTrue(installed_by_harness["claude"])
             self.assertFalse(installed_by_harness["opencode"])
             self.assertFalse(installed_by_harness["openclaw"])
+            self.assertFalse(installed_by_harness["grok"])
 
             result = harness.post_json(
                 f"/api/skills/{shared_entry['skillRef']}/set-harnesses",
@@ -206,6 +207,7 @@ class SkillsMutationTests(unittest.TestCase):
             # Unavailable harness folders remain untouched.
             self.assertFalse((harness.spec.opencode_root / "shared-audit").exists())
             self.assertFalse((harness.spec.openclaw_managed_root / "shared-audit").exists())
+            self.assertFalse((harness.spec.grok_root / "shared-audit").exists())
 
     def test_manage_skill_replaces_found_local_copy_with_managed_links(self) -> None:
         with AppTestHarness(mixed=True) as harness:

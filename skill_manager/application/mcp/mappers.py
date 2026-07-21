@@ -216,6 +216,63 @@ class CodexMapper:
         )
 
 
+# Grok ---------------------------------------------------------------------
+
+
+class GrokMapper:
+    """Used by Grok CLI. TOML ``[mcp_servers.<name>]`` tables.
+
+    stdio: {command, args, env}
+    http:  {url, headers}
+
+    Reference: https://x.ai/cli (config.toml MCP servers).
+    """
+
+    def spec_to_dict(self, spec: McpServerSpec) -> dict[str, object]:
+        if spec.transport == "stdio":
+            payload: dict[str, object] = {}
+            if spec.command is not None:
+                payload["command"] = spec.command
+            if spec.args:
+                payload["args"] = list(spec.args)
+            if spec.env:
+                payload["env"] = dict(spec.env)
+            return payload
+        payload = {}
+        if spec.url is not None:
+            payload["url"] = spec.url
+        if spec.headers:
+            payload["headers"] = dict(spec.headers)
+        return payload
+
+    def dict_to_spec(
+        self, name: str, raw: Mapping[str, object], *, source: McpSource | None = None
+    ) -> McpServerSpec:
+        if "command" in raw or "args" in raw:
+            return McpServerSpec(
+                name=name,
+                display_name=name,
+                source=source or McpSource.adopted("grok", name),
+                transport="stdio",
+                command=_str_or_none(raw.get("command")),
+                args=_str_tuple(raw.get("args")),
+                env=_str_pairs(raw.get("env")),
+            )
+        if "url" in raw:
+            return McpServerSpec(
+                name=name,
+                display_name=name,
+                source=source or McpSource.adopted("grok", name),
+                transport="http",
+                url=_str_or_none(raw.get("url")),
+                headers=_str_pairs(raw.get("headers") or raw.get("http_headers")),
+            )
+        raise MutationError(
+            f"unsupported grok mcp entry '{name}': missing 'command' and 'url'",
+            status=400,
+        )
+
+
 # OpenClaw -----------------------------------------------------------------
 
 
@@ -297,6 +354,7 @@ _MAPPERS: dict[str, TransportMapper] = {
     "cursor": CursorMapper(),
     "opencode": OpenCodeMapper(),
     "codex": CodexMapper(),
+    "grok": GrokMapper(),
     "openclaw": OpenClawMapper(),
 }
 
@@ -311,6 +369,7 @@ __all__ = [
     "ClaudeCodeMapper",
     "CodexMapper",
     "CursorMapper",
+    "GrokMapper",
     "OpenClawMapper",
     "OpenCodeMapper",
     "TransportMapper",

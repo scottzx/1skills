@@ -28,12 +28,16 @@ class HttpApiTests(unittest.TestCase):
                 settings["storage"]["settingsPath"],
                 str(harness.spec.xdg_config_home / "skill-manager" / "settings.json"),
             )
-            self.assertEqual(len(settings["harnesses"]), 5)
+            self.assertEqual(len(settings["harnesses"]), 6)
             openclaw = next(item for item in settings["harnesses"] if item["harness"] == "openclaw")
             self.assertTrue(openclaw["installed"])
             self.assertTrue(openclaw["supportEnabled"])
             self.assertEqual(openclaw["managedLocation"], str(harness.spec.home / ".openclaw" / "skills"))
             self.assertNotIn("discoveryMode", openclaw)
+            grok = next(item for item in settings["harnesses"] if item["harness"] == "grok")
+            self.assertTrue(grok["installed"])
+            self.assertTrue(grok["supportEnabled"])
+            self.assertEqual(grok["managedLocation"], str(harness.spec.home / ".grok" / "skills"))
             self.assertNotIn("centralStore", settings)
             self.assertNotIn("topology", settings)
 
@@ -84,7 +88,7 @@ class HttpApiTests(unittest.TestCase):
             self.assertEqual(detail["displayStatus"], "Managed")
             self.assertEqual(
                 [cell["label"] for cell in detail["harnessCells"]],
-                ["Codex", "Claude", "Cursor", "OpenCode", "OpenClaw"],
+                ["Codex", "Claude", "Cursor", "OpenCode", "OpenClaw", "Grok"],
             )
             self.assertNotIn("updateStatus", detail["actions"])
             self.assertEqual(source_status["updateStatus"], "no_update_available")

@@ -189,6 +189,31 @@ class FileBackedMcpAdapterTests(unittest.TestCase):
             payload = tomllib.loads(adapter.config_path.read_text(encoding="utf-8"))
             self.assertEqual(payload.get("mcp_servers", {}), {})
 
+    def test_grok_writes_mcp_servers_with_headers(self) -> None:
+        with TemporaryDirectory() as tmp:
+            home = Path(tmp)
+            adapter = _adapter("grok", home=home)
+
+            adapter.enable_server(_spec())
+            payload = tomllib.loads(adapter.config_path.read_text(encoding="utf-8"))
+            self.assertEqual(payload["mcp_servers"]["exa"]["command"], "npx")
+            self.assertEqual(adapter.config_path, home / ".grok" / "config.toml")
+
+            adapter.enable_server(
+                McpServerSpec(
+                    name="remote",
+                    display_name="Remote",
+                    source=McpSource.marketplace("@remote/server"),
+                    transport="http",
+                    url="https://mcp.example.com",
+                    headers=(("Authorization", "Bearer x"),),
+                )
+            )
+            payload = tomllib.loads(adapter.config_path.read_text(encoding="utf-8"))
+            self.assertEqual(payload["mcp_servers"]["remote"]["url"], "https://mcp.example.com")
+            self.assertEqual(payload["mcp_servers"]["remote"]["headers"]["Authorization"], "Bearer x")
+            self.assertNotIn("http_headers", payload["mcp_servers"]["remote"])
+
     def test_cursor_writes_explicit_type_for_stdio_and_http(self) -> None:
         with TemporaryDirectory() as tmp:
             home = Path(tmp)

@@ -7,7 +7,7 @@ from skill_manager.harness import CommandFileBindingProfile, HarnessKernelServic
 from .models import SlashTarget, SlashTargetId
 
 
-TARGET_ORDER: tuple[SlashTargetId, ...] = ("opencode", "claude", "cursor", "codex")
+TARGET_ORDER: tuple[SlashTargetId, ...] = ("opencode", "claude", "cursor", "codex", "grok")
 
 
 def resolve_slash_targets(kernel: HarnessKernelService) -> tuple[SlashTarget, ...]:

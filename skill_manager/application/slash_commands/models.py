@@ -7,7 +7,7 @@ from typing import Literal
 from skill_manager.harness.contracts import CommandFileRenderFormat, CommandFileScope
 
 
-SlashTargetId = Literal["opencode", "claude", "cursor", "codex"]
+SlashTargetId = Literal["opencode", "claude", "cursor", "codex", "grok"]
 SlashSyncStatus = Literal[
     "synced",
     "removed",

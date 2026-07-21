@@ -160,10 +160,11 @@ class McpRoutesTests(unittest.TestCase):
             payload = harness.get_json("/api/mcp/servers")
             assert isinstance(payload, dict)
             self.assertEqual(payload.get("entries"), [])
-            # Columns reflect enabled harnesses (codex, claude, cursor, opencode, openclaw)
+            # Columns reflect enabled harnesses (codex, claude, cursor, opencode, openclaw, grok)
             cols = [col["harness"] for col in payload["columns"]]
             self.assertIn("codex", cols)
             self.assertIn("claude", cols)
+            self.assertIn("grok", cols)
 
     def test_install_resolves_registry_config_without_writing_harness(self) -> None:
         with AppTestHarness() as harness:
@@ -404,7 +405,10 @@ class McpRoutesTests(unittest.TestCase):
                 "/api/mcp/servers/exa/set-harnesses", {"target": "enabled"}
             )
             self.assertTrue(response["ok"])
-            self.assertEqual(set(response["succeeded"]), {"codex", "claude", "cursor", "opencode", "openclaw"})
+            self.assertEqual(
+                set(response["succeeded"]),
+                {"codex", "claude", "cursor", "opencode", "openclaw", "grok"},
+            )
 
             # Verify each config file
             self.assertTrue((harness.spec.home / ".cursor" / "mcp.json").is_file())
@@ -412,6 +416,7 @@ class McpRoutesTests(unittest.TestCase):
             self.assertTrue((harness.spec.home / ".codex" / "config.toml").is_file())
             self.assertTrue((harness.spec.home / ".opencode" / "opencode.jsonc").is_file())
             self.assertTrue((harness.spec.home / ".openclaw" / "openclaw.json").is_file())
+            self.assertTrue((harness.spec.home / ".grok" / "config.toml").is_file())
 
     def test_uninstall_cleans_all_harnesses_and_central(self) -> None:
         with AppTestHarness() as harness:

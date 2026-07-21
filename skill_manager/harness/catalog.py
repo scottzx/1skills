@@ -219,6 +219,42 @@ SUPPORTED_HARNESS_DEFINITIONS: tuple[HarnessDefinition, ...] = (
             ),
         },
     ),
+    HarnessDefinition(
+        harness="grok",
+        label="Grok",
+        logo_key="grok",
+        install_probe="grok",
+        bindings={
+            "skills": FileTreeBindingProfile(
+                managed_env="SKILL_MANAGER_GROK_ROOT",
+                managed_default=lambda context: context.home / ".grok" / "skills",
+            ),
+            "agents": FileTreeBindingProfile(
+                managed_env="SKILL_MANAGER_GROK_AGENTS_ROOT",
+                managed_default=lambda context: context.home / ".grok" / "agents",
+            ),
+            "mcp": ConfigSubtreeBindingProfile(
+                config_path_resolver=lambda context: context.home / ".grok" / "config.toml",
+                file_format="toml",
+                subtree_path=("mcp_servers",),
+                codec="grok",
+            ),
+            "slash_commands": CommandFileBindingProfile(
+                root_path_resolver=lambda context: context.home / ".grok",
+                output_dir_resolver=lambda context: context.home / ".grok" / "commands",
+                invocation_prefix="/",
+                render_format="frontmatter_markdown",
+                scope="global",
+                docs_url="https://x.ai/cli",
+                file_glob="*.md",
+                supports_frontmatter=True,
+                support_note=(
+                    "Grok primarily surfaces skills as slash commands; "
+                    "~/.grok/commands remains supported for legacy flat command files."
+                ),
+            ),
+        },
+    ),
 )
 
 

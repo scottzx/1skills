@@ -164,6 +164,11 @@ The npm wrapper downloads the native release artifact for the current platform a
       <strong>OpenClaw</strong><br />
       <a href="https://docs.openclaw.ai/start/getting-started">Docs</a>
     </td>
+    <td align="center" valign="middle">
+      <img src="assets/harness-logos/grok-logo.svg" alt="Grok" height="56" /><br />
+      <strong>Grok</strong><br />
+      <a href="https://x.ai/cli">Docs</a>
+    </td>
   </tr>
 </table>
 
@@ -174,6 +179,7 @@ The npm wrapper downloads the native release artifact for the current platform a
 | Cursor | Yes | Yes | Yes |
 | OpenCode | Yes | Yes | Yes |
 | OpenClaw | Yes | Not Yet | Not Yet |
+| Grok | Yes | Yes | Yes |
 
 ## Local-first safety
 
@@ -273,6 +279,7 @@ Most users do not need to change these locations. If you manage skills in a cust
 | Cursor | `SKILL_MANAGER_CURSOR_ROOT` | `~/.cursor/skills` |
 | OpenCode | `SKILL_MANAGER_OPENCODE_ROOT` | `~/.config/opencode/skills` |
 | OpenClaw | `n/a` | `~/.openclaw/skills` |
+| Grok | `SKILL_MANAGER_GROK_ROOT` | `~/.grok/skills` |
 
 MCP config locations are harness-owned. Skill Manager writes only to verified config paths and skips unsupported harness writes.
 

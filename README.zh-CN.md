@@ -144,6 +144,7 @@ npm wrapper 会为当前平台和 CPU 架构下载对应的原生 release artifa
 | Cursor | 支持 | 支持 | 支持 |
 | OpenCode | 支持 | 支持 | 支持 |
 | OpenClaw | 支持 | 暂不支持 | 暂不支持 |
+| Grok | 支持 | 支持 | 支持 |
 
 ## 本地优先安全模型
 
@@ -243,6 +244,7 @@ CLI marketplace 条目仅用于预览。
 | Cursor | `SKILL_MANAGER_CURSOR_ROOT` | `~/.cursor/skills` |
 | OpenCode | `SKILL_MANAGER_OPENCODE_ROOT` | `~/.config/opencode/skills` |
 | OpenClaw | `n/a` | `~/.openclaw/skills` |
+| Grok | `SKILL_MANAGER_GROK_ROOT` | `~/.grok/skills` |
 
 MCP 配置位置由 harness 拥有。Skill Manager 只写入经过验证的配置路径，并跳过不支持的 harness 写入。
 

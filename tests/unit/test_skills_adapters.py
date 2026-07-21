@@ -25,14 +25,17 @@ class SkillsAdapterTests(unittest.TestCase):
             spec = create_fake_home_spec(Path(temp_dir))
             seed_skill_package(spec.codex_legacy_root, "trace-lens", "Trace Lens")
             seed_skill_package(spec.openclaw_managed_root, "watch", "Workspace Watch")
+            seed_skill_package(spec.grok_root, "commit", "Commit")
 
             codex = _adapter("codex", spec)
             claude = _adapter("claude", spec)
             openclaw = _adapter("openclaw", spec)
+            grok = _adapter("grok", spec)
 
             codex_scan = codex.scan()
             claude_scan = claude.scan()
             openclaw_scan = openclaw.scan()
+            grok_scan = grok.scan()
 
             self.assertTrue(codex_scan.installed)
             self.assertEqual(codex_scan.skills[0].package.declared_name, "Trace Lens")
@@ -42,6 +45,12 @@ class SkillsAdapterTests(unittest.TestCase):
             self.assertEqual(
                 [skill.package.declared_name for skill in openclaw_scan.skills],
                 ["Workspace Watch"],
+            )
+            self.assertTrue(grok_scan.installed)
+            self.assertEqual(grok.managed_root, spec.grok_root)
+            self.assertEqual(
+                [skill.package.declared_name for skill in grok_scan.skills],
+                ["Commit"],
             )
 
     def test_adapter_reports_missing_cli_as_not_installed(self) -> None:

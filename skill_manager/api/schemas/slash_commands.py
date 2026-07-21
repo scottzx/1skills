@@ -5,7 +5,7 @@ from typing import Literal
 from pydantic import BaseModel, Field
 
 
-SlashTargetId = Literal["opencode", "claude", "cursor", "codex"]
+SlashTargetId = Literal["opencode", "claude", "cursor", "codex", "grok"]
 SlashRenderFormat = Literal["frontmatter_markdown", "cursor_plaintext"]
 SlashCommandScope = Literal["global", "project"]
 SlashSyncStatus = Literal[
