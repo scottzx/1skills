@@ -1,12 +1,14 @@
-"""Central inbox of project→母体 push conflicts awaiting resolution (#379 follow-up).
+"""Central inbox of project→母体 push submissions awaiting resolution.
 
-When a project pushes an edited skill copy that has diverged from the store (a
-concurrent edit), the store is *not* touched — instead the pushed content is
-snapshotted into a manager-owned staging area and one pending-conflict record is
-persisted here. The skills-manager dashboard lists these records and resolves each
-as main / fork / dismiss. Snapshotting at detection time means resolution never
-depends on the workspace copy staying intact (it may be re-edited, moved, or
-deleted before the user gets around to it).
+Project UIs only *push* (stage) skill content. Whether a push is adopted into
+the shared store is decided later in Skills Manager:
+
+- ``create`` — new skill not yet in the store
+- ``update`` — linear content change against a known base
+- ``conflict`` — concurrent edit (store advanced past the workspace baseVersion)
+
+Snapshotting at push time means resolution never depends on the workspace copy
+staying intact (it may be re-edited, moved, or deleted before the user acts).
 """
 
 from __future__ import annotations
@@ -17,13 +19,17 @@ import shutil
 import time
 from dataclasses import asdict, dataclass, replace
 from pathlib import Path
+from typing import Literal
 
 from skill_manager.atomic_files import atomic_write_text, file_lock
 
 from .package import fingerprint_package
 
+PendingKind = Literal["create", "update", "conflict"]
+
 _FIELDS = {
     "conflict_id",
+    "kind",
     "base_id",
     "base_name",
     "store_version",
@@ -39,7 +45,8 @@ _FIELDS = {
 @dataclass(frozen=True)
 class PendingConflict:
     conflict_id: str
-    base_id: str
+    kind: PendingKind
+    base_id: str  # empty for kind=create
     base_name: str
     store_version: int
     base_version: int
@@ -65,6 +72,7 @@ class PendingConflictStore:
     def record(
         self,
         *,
+        kind: PendingKind,
         base_id: str,
         base_name: str,
         store_version: int,
@@ -74,14 +82,18 @@ class PendingConflictStore:
         source_package_path: Path,
     ) -> PendingConflict:
         """Snapshot the pushed package into staging and register a pending record.
-        Identical re-pushes (same base + content) refresh the existing record
-        rather than stacking duplicates."""
+        Identical re-pushes (same kind + base + content) refresh the existing
+        record rather than stacking duplicates."""
         self.root.mkdir(parents=True, exist_ok=True)
         with file_lock(self.lock_path):
             pushed_revision, _ = fingerprint_package(source_package_path)
             entries = self._load()
             for existing in entries:
-                if existing.base_id == base_id and existing.pushed_revision == pushed_revision:
+                if (
+                    existing.kind == kind
+                    and existing.base_id == base_id
+                    and existing.pushed_revision == pushed_revision
+                ):
                     refreshed = replace(
                         existing,
                         base_name=base_name,
@@ -91,13 +103,16 @@ class PendingConflictStore:
                         workspace_id=workspace_id,
                         detected_at=time.time(),
                     )
-                    self._write([refreshed if e.conflict_id == existing.conflict_id else e for e in entries])
+                    self._write(
+                        [refreshed if e.conflict_id == existing.conflict_id else e for e in entries]
+                    )
                     return refreshed
             conflict_id = secrets.token_hex(8)
             staged = self.root / conflict_id / source_package_path.name
             shutil.copytree(source_package_path, staged)
             record = PendingConflict(
                 conflict_id=conflict_id,
+                kind=kind,
                 base_id=base_id,
                 base_name=base_name,
                 store_version=store_version,
@@ -143,8 +158,31 @@ class PendingConflictStore:
             return []
         out: list[PendingConflict] = []
         for item in payload.get("entries", []):
-            if isinstance(item, dict) and _FIELDS <= set(item):
-                out.append(PendingConflict(**{k: item[k] for k in _FIELDS}))
+            if not isinstance(item, dict):
+                continue
+            # Back-compat: older records lack kind → treat as conflict.
+            if "kind" not in item:
+                item = {**item, "kind": "conflict"}
+            if not _FIELDS <= set(item):
+                continue
+            kind = item["kind"]
+            if kind not in ("create", "update", "conflict"):
+                kind = "conflict"
+            out.append(
+                PendingConflict(
+                    conflict_id=str(item["conflict_id"]),
+                    kind=kind,  # type: ignore[arg-type]
+                    base_id=str(item["base_id"] or ""),
+                    base_name=str(item["base_name"]),
+                    store_version=int(item["store_version"]),
+                    base_version=int(item["base_version"]),
+                    source_path=str(item["source_path"]),
+                    workspace_id=item["workspace_id"],
+                    pushed_revision=str(item["pushed_revision"]),
+                    staged_dir=str(item["staged_dir"]),
+                    detected_at=float(item["detected_at"]),
+                )
+            )
         return out
 
     def _write(self, entries: list[PendingConflict]) -> None:
@@ -154,4 +192,4 @@ class PendingConflictStore:
         )
 
 
-__all__ = ["PendingConflict", "PendingConflictStore"]
+__all__ = ["PendingConflict", "PendingConflictStore", "PendingKind"]

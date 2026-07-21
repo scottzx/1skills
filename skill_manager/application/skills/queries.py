@@ -32,12 +32,14 @@ class SkillsQueryService:
         self.pending_conflicts = pending_conflicts
 
     def health(self) -> dict[str, object]:
-        snapshot = self.read_models.snapshot()
+        # Cheap liveness probe: do not rebuild the skills inventory snapshot.
+        # Full scans fingerprint every shared package and can take many seconds
+        # when packages contain large toolchains (e.g. local .venv trees).
         return {
             "ok": True,
             "app": "skill-manager",
             "readOnly": False,
-            "harnessCount": len(snapshot.harness_scans),
+            "harnessCount": len(self.read_models.adapters),
         }
 
     def list_skills(self) -> dict[str, object]:
@@ -141,24 +143,32 @@ class SkillsQueryService:
         return self.read_models.store.lineage(skill_id)
 
     def list_pending_conflicts(self) -> dict[str, object]:
-        """The central inbox of project→母体 push conflicts awaiting resolution.
-        Each record carries a per-file diff of the current store base vs the
-        staged pushed content, plus the base's live store version (to flag when
-        the base has advanced again since detection)."""
+        """Central inbox of project→母体 push submissions awaiting resolution.
+        Each record carries a per-file diff (create: empty base vs staged;
+        update/conflict: store base vs staged) plus the base's live store version
+        when applicable."""
         store = self.read_models.store
         conflicts: list[dict[str, object]] = []
         for record in self.pending_conflicts.list():
-            base = store.entry_for_id(record.base_id)
+            kind = getattr(record, "kind", "conflict") or "conflict"
+            base = store.entry_for_id(record.base_id) if record.base_id else None
             staged = self.pending_conflicts.root / record.staged_dir
             diff: list[dict[str, object]] = []
-            if base is not None and staged.is_dir():
-                diff = diff_packages(
-                    store.root / base.package_dir, staged, old_label="母体", new_label="推送"
-                )
+            if staged.is_dir():
+                if base is not None:
+                    diff = diff_packages(
+                        store.root / base.package_dir, staged, old_label="母体", new_label="推送"
+                    )
+                elif kind == "create":
+                    # No base package — empty left side so every staged file is "added".
+                    diff = diff_packages(
+                        Path("/__skill_manager_empty__"), staged, old_label="母体", new_label="推送"
+                    )
             conflicts.append(
                 {
                     "conflictId": record.conflict_id,
-                    "baseId": record.base_id,
+                    "kind": kind,
+                    "baseId": record.base_id or None,
                     "baseName": record.base_name,
                     "storeVersion": record.store_version,
                     "baseVersion": record.base_version,

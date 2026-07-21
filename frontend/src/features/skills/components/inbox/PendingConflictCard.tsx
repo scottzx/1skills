@@ -14,6 +14,7 @@ interface PendingConflictCardProps {
 }
 
 type ResolveAction = "main" | "fork" | "dismiss";
+type PendingKind = "create" | "update" | "conflict";
 
 export function PendingConflictCard({ item }: PendingConflictCardProps) {
   const copy = useSkillsCopy();
@@ -23,13 +24,26 @@ export function PendingConflictCard({ item }: PendingConflictCardProps) {
   const [showForkInput, setShowForkInput] = useState(false);
   const [forkName, setForkName] = useState("");
 
+  const kind = ((item as { kind?: PendingKind }).kind ?? "conflict") as PendingKind;
+  const allowFork = kind === "conflict";
+  const acceptLabel =
+    kind === "create" ? conflicts.acceptCreate : kind === "update" ? conflicts.acceptUpdate : conflicts.makeMain;
+  const acceptingLabel =
+    kind === "create"
+      ? conflicts.acceptingCreate
+      : kind === "update"
+        ? conflicts.acceptingUpdate
+        : conflicts.makingMain;
+
   const pendingAction: ResolveAction | null =
     resolveMutation.isPending && resolveMutation.variables?.conflictId === item.conflictId
       ? (resolveMutation.variables.resolution as ResolveAction)
       : null;
 
   const baseAdvanced =
-    item.currentStoreVersion != null && item.currentStoreVersion !== item.storeVersion;
+    kind !== "create" &&
+    item.currentStoreVersion != null &&
+    item.currentStoreVersion !== item.storeVersion;
   const diffFiles = (item.diff ?? []) as SkillDiffFile[];
 
   function resolve(resolution: ResolveAction, name?: string) {
@@ -37,17 +51,25 @@ export function PendingConflictCard({ item }: PendingConflictCardProps) {
       conflictId: item.conflictId,
       resolution,
       name: name || undefined,
-      baseId: item.baseId,
+      baseId: item.baseId ?? undefined,
     });
   }
+
+  const kindLabel =
+    kind === "create" ? conflicts.kindCreate : kind === "update" ? conflicts.kindUpdate : conflicts.kindConflict;
 
   return (
     <article className="pending-conflict-card">
       <div className="pending-conflict-card__header">
         <div className="pending-conflict-card__title-row">
           <h3 className="pending-conflict-card__name">{item.baseName}</h3>
-          <span className="card-status-pill">v{item.storeVersion}</span>
-          <span className="card-status-pill card-status-pill--accent">{`base v${item.baseVersion}`}</span>
+          <span className="card-status-pill card-status-pill--accent">{kindLabel}</span>
+          {kind !== "create" ? (
+            <>
+              <span className="card-status-pill">v{item.storeVersion}</span>
+              <span className="card-status-pill">{`base v${item.baseVersion}`}</span>
+            </>
+          ) : null}
         </div>
         <div className="pending-conflict-card__meta-row">
           <span className="pending-conflict-card__meta">
@@ -87,24 +109,26 @@ export function PendingConflictCard({ item }: PendingConflictCardProps) {
           disabled={resolveMutation.isPending}
           onClick={() => resolve("main")}
         >
-          {pendingAction === "main" ? <LoadingSpinner size="sm" label={conflicts.makingMain} /> : null}
-          {pendingAction === "main" ? conflicts.makingMain : conflicts.makeMain}
+          {pendingAction === "main" ? <LoadingSpinner size="sm" label={acceptingLabel} /> : null}
+          {pendingAction === "main" ? acceptingLabel : acceptLabel}
         </button>
-        <button
-          type="button"
-          className="action-pill"
-          disabled={resolveMutation.isPending}
-          onClick={() => {
-            if (!showForkInput) {
-              setShowForkInput(true);
-              return;
-            }
-            resolve("fork", forkName.trim());
-          }}
-        >
-          {pendingAction === "fork" ? <LoadingSpinner size="sm" label={conflicts.savingAsFork} /> : null}
-          {pendingAction === "fork" ? conflicts.savingAsFork : conflicts.saveAsFork}
-        </button>
+        {allowFork ? (
+          <button
+            type="button"
+            className="action-pill"
+            disabled={resolveMutation.isPending}
+            onClick={() => {
+              if (!showForkInput) {
+                setShowForkInput(true);
+                return;
+              }
+              resolve("fork", forkName.trim());
+            }}
+          >
+            {pendingAction === "fork" ? <LoadingSpinner size="sm" label={conflicts.savingAsFork} /> : null}
+            {pendingAction === "fork" ? conflicts.savingAsFork : conflicts.saveAsFork}
+          </button>
+        ) : null}
         <button
           type="button"
           className="action-pill action-pill--danger"

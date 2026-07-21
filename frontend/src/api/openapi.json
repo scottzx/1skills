@@ -3250,11 +3250,19 @@
         "type": "object"
       },
       "PendingConflictItemResponse": {
-        "description": "One project\u2192\u6bcd\u4f53 push conflict awaiting central resolution. The pushed\ncontent is snapshotted into a manager-owned staging area at detection time,\nso resolution never depends on the workspace copy staying intact.",
+        "description": "One project\u2192\u6bcd\u4f53 push submission awaiting Skills Manager resolution.\nContent is snapshotted at push time so resolution never depends on the\nworkspace copy staying intact.",
         "properties": {
           "baseId": {
-            "title": "Baseid",
-            "type": "string"
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Base skill id; null for kind=create",
+            "title": "Baseid"
           },
           "baseName": {
             "title": "Basename",
@@ -3293,6 +3301,17 @@
             "title": "Diff",
             "type": "array"
           },
+          "kind": {
+            "default": "conflict",
+            "description": "create = new skill; update = linear change; conflict = concurrent edit",
+            "enum": [
+              "create",
+              "update",
+              "conflict"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
           "pushedRevision": {
             "title": "Pushedrevision",
             "type": "string"
@@ -3303,7 +3322,7 @@
             "type": "string"
           },
           "storeVersion": {
-            "description": "Store version at detection time",
+            "description": "Store version at detection time (0 for create)",
             "title": "Storeversion",
             "type": "integer"
           },
@@ -3322,7 +3341,6 @@
         },
         "required": [
           "conflictId",
-          "baseId",
           "baseName",
           "storeVersion",
           "baseVersion",
@@ -3450,7 +3468,7 @@
       "PushSkillResultResponse": {
         "properties": {
           "changed": {
-            "description": "True when the store baseline was written; False when the copy was identical",
+            "description": "True only when the store baseline was written; project push always False",
             "title": "Changed",
             "type": "boolean"
           },
@@ -3464,12 +3482,12 @@
                 "type": "null"
               }
             ],
-            "description": "Present when status=conflict: {id, name, storeVersion, baseVersion, sourcePath}",
+            "description": "Back-compat alias of pending for older project clients",
             "title": "Conflict"
           },
           "created": {
             "default": false,
-            "description": "True when a custom skill was ingested into the store for the first time",
+            "description": "Deprecated for project push; store creates only via manager resolve",
             "title": "Created",
             "type": "boolean"
           },
@@ -3482,16 +3500,29 @@
                 "type": "null"
               }
             ],
-            "description": "Stable skill id the push resolved to",
+            "description": "Stable skill id when known (exists / update base)",
             "title": "Id"
           },
           "ok": {
             "title": "Ok",
             "type": "boolean"
           },
+          "pending": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Present when status=pending: {id, kind, baseId, name, storeVersion, baseVersion, sourcePath}",
+            "title": "Pending"
+          },
           "status": {
-            "default": "updated",
-            "description": "One of updated | exists | created | conflict (#379 decision tree)",
+            "default": "pending",
+            "description": "exists = identical content (no store write); pending = staged for Skills Manager adoption (create/update/conflict)",
             "title": "Status",
             "type": "string"
           },
@@ -3504,7 +3535,7 @@
                 "type": "null"
               }
             ],
-            "description": "The store package's version counter after the push (bumped when changed)",
+            "description": "The store package's version counter when known (exists / pending base)",
             "title": "Version"
           }
         },
@@ -3559,7 +3590,7 @@
         "type": "object"
       },
       "ResolvePendingConflictRequest": {
-        "description": "Resolve one pending push conflict from the central inbox. ``main`` lands\nthe staged content as the base package's new mainline (in-place update,\nhistory preserved); ``fork`` lands it as a new fork of the base; ``dismiss``\ndrops the staged snapshot without touching the store.",
+        "description": "Resolve one staged project push from the central inbox.\n\n- ``main``: accept (create\u2192ingest, update/conflict\u2192in-place update)\n- ``fork``: only for kind=conflict; land as a new fork of the base\n- ``dismiss``: drop the staged snapshot without touching the store",
         "properties": {
           "conflictId": {
             "minLength": 1,
@@ -5280,7 +5311,8 @@
               "opencode",
               "claude",
               "cursor",
-              "codex"
+              "codex",
+              "grok"
             ],
             "title": "Target",
             "type": "string"
@@ -5308,7 +5340,8 @@
                 "opencode",
                 "claude",
                 "cursor",
-                "codex"
+                "codex",
+                "grok"
               ],
               "type": "string"
             },
@@ -5374,7 +5407,8 @@
                     "opencode",
                     "claude",
                     "cursor",
-                    "codex"
+                    "codex",
+                    "grok"
                   ],
                   "type": "string"
                 },
@@ -5448,7 +5482,8 @@
               "opencode",
               "claude",
               "cursor",
-              "codex"
+              "codex",
+              "grok"
             ],
             "title": "Target",
             "type": "string"
@@ -5561,7 +5596,8 @@
               "opencode",
               "claude",
               "cursor",
-              "codex"
+              "codex",
+              "grok"
             ],
             "title": "Target",
             "type": "string"
@@ -5607,7 +5643,8 @@
                     "opencode",
                     "claude",
                     "cursor",
-                    "codex"
+                    "codex",
+                    "grok"
                   ],
                   "type": "string"
                 },
@@ -5663,7 +5700,8 @@
               "opencode",
               "claude",
               "cursor",
-              "codex"
+              "codex",
+              "grok"
             ],
             "title": "Target",
             "type": "string"
@@ -5687,7 +5725,8 @@
                     "opencode",
                     "claude",
                     "cursor",
-                    "codex"
+                    "codex",
+                    "grok"
                   ],
                   "type": "string"
                 },
@@ -5730,7 +5769,8 @@
               "opencode",
               "claude",
               "cursor",
-              "codex"
+              "codex",
+              "grok"
             ],
             "title": "Id",
             "type": "string"

@@ -2325,13 +2325,16 @@ export interface components {
         };
         /**
          * PendingConflictItemResponse
-         * @description One project→母体 push conflict awaiting central resolution. The pushed
-         *     content is snapshotted into a manager-owned staging area at detection time,
-         *     so resolution never depends on the workspace copy staying intact.
+         * @description One project→母体 push submission awaiting Skills Manager resolution.
+         *     Content is snapshotted at push time so resolution never depends on the
+         *     workspace copy staying intact.
          */
         PendingConflictItemResponse: {
-            /** Baseid */
-            baseId: string;
+            /**
+             * Baseid
+             * @description Base skill id; null for kind=create
+             */
+            baseId?: string | null;
             /** Basename */
             baseName: string;
             /**
@@ -2353,6 +2356,13 @@ export interface components {
              * @description Per-file diff: current store base vs the pushed (staged) content
              */
             diff?: components["schemas"]["SkillDiffFileResponse"][];
+            /**
+             * Kind
+             * @description create = new skill; update = linear change; conflict = concurrent edit
+             * @default conflict
+             * @enum {string}
+             */
+            kind: "create" | "update" | "conflict";
             /** Pushedrevision */
             pushedRevision: string;
             /**
@@ -2362,7 +2372,7 @@ export interface components {
             sourcePath: string;
             /**
              * Storeversion
-             * @description Store version at detection time
+             * @description Store version at detection time (0 for create)
              */
             storeVersion: number;
             /**
@@ -2458,38 +2468,45 @@ export interface components {
         PushSkillResultResponse: {
             /**
              * Changed
-             * @description True when the store baseline was written; False when the copy was identical
+             * @description True only when the store baseline was written; project push always False
              */
             changed: boolean;
             /**
              * Conflict
-             * @description Present when status=conflict: {id, name, storeVersion, baseVersion, sourcePath}
+             * @description Back-compat alias of pending for older project clients
              */
             conflict?: {
                 [key: string]: unknown;
             } | null;
             /**
              * Created
-             * @description True when a custom skill was ingested into the store for the first time
+             * @description Deprecated for project push; store creates only via manager resolve
              * @default false
              */
             created: boolean;
             /**
              * Id
-             * @description Stable skill id the push resolved to
+             * @description Stable skill id when known (exists / update base)
              */
             id?: string | null;
             /** Ok */
             ok: boolean;
             /**
+             * Pending
+             * @description Present when status=pending: {id, kind, baseId, name, storeVersion, baseVersion, sourcePath}
+             */
+            pending?: {
+                [key: string]: unknown;
+            } | null;
+            /**
              * Status
-             * @description One of updated | exists | created | conflict (#379 decision tree)
-             * @default updated
+             * @description exists = identical content (no store write); pending = staged for Skills Manager adoption (create/update/conflict)
+             * @default pending
              */
             status: string;
             /**
              * Version
-             * @description The store package's version counter after the push (bumped when changed)
+             * @description The store package's version counter when known (exists / pending base)
              */
             version?: number | null;
         };
@@ -2507,10 +2524,11 @@ export interface components {
         };
         /**
          * ResolvePendingConflictRequest
-         * @description Resolve one pending push conflict from the central inbox. ``main`` lands
-         *     the staged content as the base package's new mainline (in-place update,
-         *     history preserved); ``fork`` lands it as a new fork of the base; ``dismiss``
-         *     drops the staged snapshot without touching the store.
+         * @description Resolve one staged project push from the central inbox.
+         *
+         *     - ``main``: accept (create→ingest, update/conflict→in-place update)
+         *     - ``fork``: only for kind=conflict; land as a new fork of the base
+         *     - ``dismiss``: drop the staged snapshot without touching the store
          */
         ResolvePendingConflictRequest: {
             /** Conflictid */
@@ -3164,14 +3182,14 @@ export interface components {
              * Target
              * @enum {string}
              */
-            target: "opencode" | "claude" | "cursor" | "codex";
+            target: "opencode" | "claude" | "cursor" | "codex" | "grok";
         };
         /** SlashCommandListResponse */
         SlashCommandListResponse: {
             /** Commands */
             commands: components["schemas"]["SlashCommandResponse"][];
             /** Defaulttargets */
-            defaultTargets: ("opencode" | "claude" | "cursor" | "codex")[];
+            defaultTargets: ("opencode" | "claude" | "cursor" | "codex" | "grok")[];
             /** Reviewcommands */
             reviewCommands: components["schemas"]["SlashCommandReviewResponse"][];
             /** Storepath */
@@ -3190,7 +3208,7 @@ export interface components {
             /** Prompt */
             prompt: string;
             /** Targets */
-            targets?: ("opencode" | "claude" | "cursor" | "codex")[] | null;
+            targets?: ("opencode" | "claude" | "cursor" | "codex" | "grok")[] | null;
         };
         /** SlashCommandMutationResponse */
         SlashCommandMutationResponse: {
@@ -3213,7 +3231,7 @@ export interface components {
              * Target
              * @enum {string}
              */
-            target: "opencode" | "claude" | "cursor" | "codex";
+            target: "opencode" | "claude" | "cursor" | "codex" | "grok";
         };
         /** SlashCommandResponse */
         SlashCommandResponse: {
@@ -3255,7 +3273,7 @@ export interface components {
              * Target
              * @enum {string}
              */
-            target: "opencode" | "claude" | "cursor" | "codex";
+            target: "opencode" | "claude" | "cursor" | "codex" | "grok";
             /** Targetlabel */
             targetLabel: string;
         };
@@ -3266,7 +3284,7 @@ export interface components {
             /** Prompt */
             prompt: string;
             /** Targets */
-            targets?: ("opencode" | "claude" | "cursor" | "codex")[] | null;
+            targets?: ("opencode" | "claude" | "cursor" | "codex" | "grok")[] | null;
         };
         /** SlashSyncEntryResponse */
         SlashSyncEntryResponse: {
@@ -3283,12 +3301,12 @@ export interface components {
              * Target
              * @enum {string}
              */
-            target: "opencode" | "claude" | "cursor" | "codex";
+            target: "opencode" | "claude" | "cursor" | "codex" | "grok";
         };
         /** SlashSyncRequest */
         SlashSyncRequest: {
             /** Targets */
-            targets?: ("opencode" | "claude" | "cursor" | "codex")[] | null;
+            targets?: ("opencode" | "claude" | "cursor" | "codex" | "grok")[] | null;
         };
         /** SlashTargetResponse */
         SlashTargetResponse: {
@@ -3306,7 +3324,7 @@ export interface components {
              * Id
              * @enum {string}
              */
-            id: "opencode" | "claude" | "cursor" | "codex";
+            id: "opencode" | "claude" | "cursor" | "codex" | "grok";
             /** Invocationprefix */
             invocationPrefix: string;
             /** Label */

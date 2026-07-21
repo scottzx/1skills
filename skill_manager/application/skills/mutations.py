@@ -166,24 +166,20 @@ class SkillsMutationService:
         return {"ok": True}
 
     def push_skill_from_path(self, skill_ref: str, source_path: str) -> dict[str, object]:
-        """Push a workspace's own skill copy to the shared store (母体) using the
-        stable-id decision tree (#379). Reads the workspace sidecar (id +
-        baseVersion) and routes:
+        """Stage a workspace skill copy for Skills Manager adoption.
 
-        - id in store, store.version <= baseVersion → linear update (``updated``,
-          or ``exists`` when identical). Silent.
-        - id in store, store.version >  baseVersion → concurrent edit: return
-          ``conflict`` (creates nothing); the caller must POST /resolve to land
-          it as main or fork.
-        - no id (or id gone from store) → content-hash dedup: an exact match
-          returns ``exists`` (links the workspace to that id). Else, if the
-          package dir name matches an existing store package (a legacy copy of a
-          known skill, pre-sidecar) and the content differs, we can't prove a
-          clean linear lineage → ``conflict`` (dialog: update-as-main or fork).
-          Otherwise it's genuinely new → ``created``.
+        Project UIs only *push* (submit a snapshot). The shared store is never
+        written here except for the no-op ``exists`` case (identical content):
 
-        On any non-conflict outcome the workspace sidecar is stamped with the
-        resolved id + version so the next push is correctly linear.
+        - id in store, content identical → ``exists`` (optional sidecar stamp)
+        - id in store, content differs, store.version > baseVersion → stage
+          ``conflict`` pending (fork allowed on resolve)
+        - id in store, content differs otherwise → stage ``update`` pending
+          (accept / dismiss only)
+        - no id: content-hash match → ``exists``; legacy dir name matches a
+          store package → stage ``conflict``; else stage ``create``
+
+        Adoption happens later via ``resolve_pending_conflict`` in Skills Manager.
         """
         src = Path(source_path)
         if not src.is_dir() or not (src / "SKILL.md").is_file():
@@ -196,38 +192,31 @@ class SkillsMutationService:
             if meta is not None and store.entry_for_id(meta.id) is not None:
                 entry = store.entry_for_id(meta.id)
                 assert entry is not None
-                if store.version_of(entry.package_dir) is not None and entry.version > meta.base_version:
+                if not store.differs_from(entry.package_dir, src):
+                    self._stamp_workspace_meta(src, entry)
                     return {
                         "ok": True,
-                        "status": "conflict",
+                        "status": "exists",
                         "changed": False,
                         "created": False,
                         "id": entry.id,
                         "version": entry.version,
-                        "conflict": self._stage_conflict(
-                            base_id=entry.id,
-                            base_name=entry.declared_name,
-                            store_version=entry.version,
-                            base_version=meta.base_version,
-                            src=src,
-                        ),
                     }
-                _dest, changed = store.update(entry.package_dir, source_path=src)
-                fresh = store.entry_for_dir(entry.package_dir)
-                assert fresh is not None
-                self._stamp_workspace_meta(src, fresh)
-                if changed:
-                    self.read_models.invalidate()
-                return {
-                    "ok": True,
-                    "status": "updated" if changed else "exists",
-                    "changed": changed,
-                    "created": False,
-                    "id": fresh.id,
-                    "version": fresh.version,
-                }
+                kind = (
+                    "conflict"
+                    if store.version_of(entry.package_dir) is not None and entry.version > meta.base_version
+                    else "update"
+                )
+                return self._pending_push_response(
+                    kind=kind,
+                    base_id=entry.id,
+                    base_name=entry.declared_name,
+                    store_version=entry.version,
+                    base_version=meta.base_version,
+                    src=src,
+                )
 
-            # Branch 2 — no usable id: content-hash dedup, else create.
+            # Branch 2 — no usable id: content-hash dedup, else stage create.
             package = parse_skill_package(
                 src, default_source=SourceDescriptor(kind="centralized", locator="centralized:push")
             )
@@ -244,49 +233,27 @@ class SkillsMutationService:
                 }
             # Divergent legacy push: dir name matches a known store package but
             # content differs and there's no sidecar to prove linear lineage.
-            # Surface the conflict dialog (update-as-main or fork) rather than
-            # silently spawning a duplicate. baseVersion=0 marks "untracked".
             legacy_dir = Path(skill_ref.rsplit(":", 1)[-1]).name if skill_ref else ""
             legacy = store.entry_for_dir(legacy_dir) if legacy_dir else None
             if legacy is not None:
-                return {
-                    "ok": True,
-                    "status": "conflict",
-                    "changed": False,
-                    "created": False,
-                    "id": legacy.id,
-                    "version": legacy.version,
-                    "conflict": self._stage_conflict(
-                        base_id=legacy.id,
-                        base_name=legacy.declared_name,
-                        store_version=legacy.version,
-                        base_version=0,
-                        src=src,
-                    ),
-                }
-            dest = store.ingest(
-                source_path=src,
-                declared_name=package.declared_name,
-                source_kind="centralized",
-                source_locator=f"centralized:{src.name}",
-                allow_duplicate_name=True,
-                skill_id=meta.id if meta is not None else None,
-                history_source="push",
+                return self._pending_push_response(
+                    kind="conflict",
+                    base_id=legacy.id,
+                    base_name=legacy.declared_name,
+                    store_version=legacy.version,
+                    base_version=0,
+                    src=src,
+                )
+            return self._pending_push_response(
+                kind="create",
+                base_id="",
+                base_name=package.declared_name,
+                store_version=0,
+                base_version=0,
+                src=src,
             )
         except ValueError as error:
             raise MutationError(str(error), status=409) from error
-        created_entry = store.entry_for_dir(dest.name)
-        assert created_entry is not None
-        self._stamp_workspace_meta(src, created_entry)
-        self.read_models.invalidate()
-        return {
-            "ok": True,
-            "status": "created",
-            "changed": True,
-            "created": True,
-            "id": created_entry.id,
-            "version": created_entry.version,
-        }
 
     def pull_skill_to_path(self, skill_ref: str, target_path: str) -> dict[str, object]:
         """Fast-forward a workspace's skill copy to the store's current version
@@ -442,17 +409,13 @@ class SkillsMutationService:
         resolution: str,
         name: str | None = None,
     ) -> dict[str, object]:
-        """Resolve one pending push conflict from the central inbox, landing the
-        *staged snapshot* (not the live workspace path, which may be gone):
+        """Resolve one staged project push from the central inbox.
 
         - ``dismiss`` → drop the staged snapshot; the store is untouched.
-        - ``main`` → in-place update of the base package (content → staged,
-          version bumped, prior versions kept in history). This deliberately
-          diverges from #379's "land a fork then flip isPrimary": for the inbox,
-          'main' means "this push becomes the base's new mainline", and an
-          in-place update keeps lineage clean (no throwaway sibling fork) while
-          staying non-destructive.
-        - ``fork`` → land the staged content as a new fork of the base; base stays.
+        - ``main`` (accept):
+            · ``create`` → ingest staged content as a new store package
+            · ``update`` / ``conflict`` → in-place update of the base package
+        - ``fork`` → only for ``conflict``; lands staged content as a new fork
 
         On main/fork the original workspace sidecar is re-stamped best-effort so
         its next push is linear; resolution never fails if that copy is gone."""
@@ -466,21 +429,39 @@ class SkillsMutationService:
             self.pending_conflicts.remove(conflict_id)
             return {"ok": True, "resolution": "dismiss", "conflictId": conflict_id}
 
-        store = self.read_models.store
-        base = store.entry_for_id(record.base_id)
-        if base is None:
-            raise MutationError(f"base skill no longer in store: {record.base_id}", status=409)
+        kind = getattr(record, "kind", "conflict") or "conflict"
+        if resolution == "fork" and kind != "conflict":
+            raise MutationError("fork is only available for concurrent-edit conflicts", status=400)
+
         staged = self.pending_conflicts.staged_path(conflict_id)
         if not staged.is_dir() or not (staged / "SKILL.md").is_file():
             raise MutationError("staged conflict snapshot is missing", status=409)
         new_name = name.strip() if name and name.strip() else None
+        store = self.read_models.store
+        landed_id: str | None = None
 
         try:
-            if resolution == "main":
+            if kind == "create":
+                if resolution != "main":
+                    raise MutationError("create submissions only support main or dismiss", status=400)
                 if new_name is not None:
                     set_skill_name(staged, new_name)
-                store.update(base.package_dir, source_path=staged)
-                landed = store.entry_for_dir(base.package_dir)
+                    declared_name = new_name
+                else:
+                    declared_name = parse_skill_package(
+                        staged,
+                        default_source=SourceDescriptor(kind="centralized", locator="centralized:push"),
+                    ).declared_name
+                dest = store.ingest(
+                    source_path=staged,
+                    declared_name=declared_name,
+                    source_kind="centralized",
+                    source_locator=f"centralized:{staged.name}",
+                    allow_duplicate_name=True,
+                    desired_dir=slugify_dir(new_name) if new_name else None,
+                    history_source="push",
+                )
+                landed = store.entry_for_dir(dest.name)
                 assert landed is not None
                 landed_id = landed.id
                 result: dict[str, object] = {
@@ -488,40 +469,58 @@ class SkillsMutationService:
                     "id": landed.id,
                     "resolution": "main",
                     "version": landed.version,
-                    "packageDir": base.package_dir,
-                }
-            else:
-                forked_from_version = record.base_version or base.version
-                if new_name is not None:
-                    set_skill_name(staged, new_name)
-                    declared_name = new_name
-                else:
-                    declared_name = parse_skill_package(
-                        staged,
-                        default_source=SourceDescriptor(kind="centralized", locator="centralized:fork"),
-                    ).declared_name
-                dest = store.ingest(
-                    source_path=staged,
-                    declared_name=declared_name,
-                    source_kind="centralized",
-                    source_locator="centralized:fork",
-                    allow_duplicate_name=True,
-                    desired_dir=slugify_dir(new_name) if new_name else None,
-                    forked_from=record.base_id,
-                    forked_from_version=forked_from_version,
-                    is_primary=False,
-                    history_source="fork",
-                )
-                fork = store.entry_for_dir(dest.name)
-                assert fork is not None
-                landed_id = fork.id
-                result = {
-                    "ok": True,
-                    "id": fork.id,
-                    "resolution": "fork",
-                    "version": fork.version,
                     "packageDir": dest.name,
                 }
+            else:
+                base = store.entry_for_id(record.base_id)
+                if base is None:
+                    raise MutationError(f"base skill no longer in store: {record.base_id}", status=409)
+                if resolution == "main":
+                    if new_name is not None:
+                        set_skill_name(staged, new_name)
+                    store.update(base.package_dir, source_path=staged)
+                    landed = store.entry_for_dir(base.package_dir)
+                    assert landed is not None
+                    landed_id = landed.id
+                    result = {
+                        "ok": True,
+                        "id": landed.id,
+                        "resolution": "main",
+                        "version": landed.version,
+                        "packageDir": base.package_dir,
+                    }
+                else:
+                    forked_from_version = record.base_version or base.version
+                    if new_name is not None:
+                        set_skill_name(staged, new_name)
+                        declared_name = new_name
+                    else:
+                        declared_name = parse_skill_package(
+                            staged,
+                            default_source=SourceDescriptor(kind="centralized", locator="centralized:fork"),
+                        ).declared_name
+                    dest = store.ingest(
+                        source_path=staged,
+                        declared_name=declared_name,
+                        source_kind="centralized",
+                        source_locator="centralized:fork",
+                        allow_duplicate_name=True,
+                        desired_dir=slugify_dir(new_name) if new_name else None,
+                        forked_from=record.base_id,
+                        forked_from_version=forked_from_version,
+                        is_primary=False,
+                        history_source="fork",
+                    )
+                    fork = store.entry_for_dir(dest.name)
+                    assert fork is not None
+                    landed_id = fork.id
+                    result = {
+                        "ok": True,
+                        "id": fork.id,
+                        "resolution": "fork",
+                        "version": fork.version,
+                        "packageDir": dest.name,
+                    }
         except ValueError as error:
             raise MutationError(str(error), status=409) from error
 
@@ -549,6 +548,55 @@ class SkillsMutationService:
         self.read_models.invalidate()
         return {"ok": True, "id": skill_id}
 
+    def _pending_push_response(
+        self,
+        *,
+        kind: str,
+        base_id: str,
+        base_name: str,
+        store_version: int,
+        base_version: int,
+        src: Path,
+    ) -> dict[str, object]:
+        """Stage a project push and return the pending payload for the caller."""
+        record = self.pending_conflicts.record(
+            kind=kind,  # type: ignore[arg-type]
+            base_id=base_id,
+            base_name=base_name,
+            store_version=store_version,
+            base_version=base_version,
+            source_path=str(src),
+            workspace_id=self._workspace_id_from_path(src),
+            source_package_path=src,
+        )
+        pending = {
+            # Resolve APIs use this id as the pending-record key.
+            "id": record.conflict_id,
+            "conflictId": record.conflict_id,
+            "kind": kind,
+            "baseId": base_id or None,
+            "name": base_name,
+            "baseName": base_name,
+            "storeVersion": store_version,
+            "baseVersion": base_version,
+            "sourcePath": str(src),
+        }
+        # Older clients read conflict.id as the base skill id (not the pending key).
+        conflict = {
+            **pending,
+            "id": base_id or record.conflict_id,
+        }
+        return {
+            "ok": True,
+            "status": "pending",
+            "changed": False,
+            "created": False,
+            "id": base_id or None,
+            "version": store_version if store_version else None,
+            "pending": pending,
+            "conflict": conflict,
+        }
+
     def _stage_conflict(
         self,
         *,
@@ -558,26 +606,15 @@ class SkillsMutationService:
         base_version: int,
         src: Path,
     ) -> dict[str, object]:
-        """Snapshot a conflicting push into the central pending-conflict inbox and
-        return the conflict payload (carrying its conflict_id) for the push
-        response, so the project side can point the user at the manager."""
-        record = self.pending_conflicts.record(
+        """Legacy helper kept for call sites; stages a concurrent-edit pending."""
+        return self._pending_push_response(
+            kind="conflict",
             base_id=base_id,
             base_name=base_name,
             store_version=store_version,
             base_version=base_version,
-            source_path=str(src),
-            workspace_id=self._workspace_id_from_path(src),
-            source_package_path=src,
-        )
-        return {
-            "conflictId": record.conflict_id,
-            "id": base_id,
-            "name": base_name,
-            "storeVersion": store_version,
-            "baseVersion": base_version,
-            "sourcePath": str(src),
-        }
+            src=src,
+        )["pending"]
 
     @staticmethod
     def _workspace_id_from_path(src: Path) -> str | None:

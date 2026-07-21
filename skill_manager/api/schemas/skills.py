@@ -62,25 +62,35 @@ class PushSkillFromPathRequest(BaseModel):
 class PushSkillResultResponse(BaseModel):
     ok: bool
     status: str = Field(
-        "updated",
-        description="One of updated | exists | created | conflict (#379 decision tree)",
+        "pending",
+        description=(
+            "exists = identical content (no store write); "
+            "pending = staged for Skills Manager adoption (create/update/conflict)"
+        ),
     )
     changed: bool = Field(
         ...,
-        description="True when the store baseline was written; False when the copy was identical",
+        description="True only when the store baseline was written; project push always False",
     )
     created: bool = Field(
         False,
-        description="True when a custom skill was ingested into the store for the first time",
+        description="Deprecated for project push; store creates only via manager resolve",
     )
     version: int | None = Field(
         None,
-        description="The store package's version counter after the push (bumped when changed)",
+        description="The store package's version counter when known (exists / pending base)",
     )
-    id: str | None = Field(None, description="Stable skill id the push resolved to")
+    id: str | None = Field(None, description="Stable skill id when known (exists / update base)")
+    pending: dict | None = Field(
+        None,
+        description=(
+            "Present when status=pending: "
+            "{id, kind, baseId, name, storeVersion, baseVersion, sourcePath}"
+        ),
+    )
     conflict: dict | None = Field(
         None,
-        description="Present when status=conflict: {id, name, storeVersion, baseVersion, sourcePath}",
+        description="Back-compat alias of pending for older project clients",
     )
 
 
@@ -235,14 +245,18 @@ class SkillDiffFileResponse(BaseModel):
 
 
 class PendingConflictItemResponse(BaseModel):
-    """One project→母体 push conflict awaiting central resolution. The pushed
-    content is snapshotted into a manager-owned staging area at detection time,
-    so resolution never depends on the workspace copy staying intact."""
+    """One project→母体 push submission awaiting Skills Manager resolution.
+    Content is snapshotted at push time so resolution never depends on the
+    workspace copy staying intact."""
 
     conflictId: str
-    baseId: str
+    kind: Literal["create", "update", "conflict"] = Field(
+        "conflict",
+        description="create = new skill; update = linear change; conflict = concurrent edit",
+    )
+    baseId: str | None = Field(None, description="Base skill id; null for kind=create")
     baseName: str
-    storeVersion: int = Field(..., description="Store version at detection time")
+    storeVersion: int = Field(..., description="Store version at detection time (0 for create)")
     baseVersion: int = Field(..., description="Version the workspace copy was taken from (0 = untracked)")
     currentStoreVersion: int | None = Field(
         None, description="The base skill's live store version now (may have advanced since detection)"
@@ -261,10 +275,12 @@ class PendingConflictsResponse(BaseModel):
 
 
 class ResolvePendingConflictRequest(BaseModel):
-    """Resolve one pending push conflict from the central inbox. ``main`` lands
-    the staged content as the base package's new mainline (in-place update,
-    history preserved); ``fork`` lands it as a new fork of the base; ``dismiss``
-    drops the staged snapshot without touching the store."""
+    """Resolve one staged project push from the central inbox.
+
+    - ``main``: accept (create→ingest, update/conflict→in-place update)
+    - ``fork``: only for kind=conflict; land as a new fork of the base
+    - ``dismiss``: drop the staged snapshot without touching the store
+    """
 
     model_config = ConfigDict(populate_by_name=True)
 
